@@ -208,6 +208,15 @@ export const kPermissions = {
     // Organisation-associated permissions
     // ---------------------------------------------------------------------------------------------
 
+    'organisation.accounts': {
+        name: 'Account management',
+        description:
+            'This permission determines whether the volunteer has the ability to manage all ' +
+            'known accounts, including their own. This is a dangerous permission, as access to ' +
+            'PII is by necessity included in this.',
+        type: 'boolean',
+    },
+
     'organisation.displays': {
         name: 'Display management',
         description:
@@ -506,9 +515,11 @@ export const kPermissionGroups: Record<string, string[]> = {
 
         'event',
 
+        'organisation.accounts',
         'organisation.displays',
         'organisation.feedback',
         'organisation.permissions',
+        'organisation.teams',
 
         'statistics',
 

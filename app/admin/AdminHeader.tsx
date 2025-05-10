@@ -168,7 +168,7 @@ export function AdminHeader(props: AdminHeaderProps) {
                 { props.canAccessVolunteersSection &&
                     <Button component={Link} href="/admin/volunteers" variant="text"
                             color="inherit">
-                        Volunteers
+                        Stuff
                     </Button> }
             </Stack>
             <Divider />

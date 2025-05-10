@@ -4,6 +4,7 @@
 import CategoryIcon from '@mui/icons-material/Category';
 import FeedbackOutlinedIcon from '@mui/icons-material/FeedbackOutlined';
 import GroupsIcon from '@mui/icons-material/Groups';
+import PersonIcon from '@mui/icons-material/Person';
 import TabletIcon from '@mui/icons-material/Tablet';
 
 import { type AdminSidebarMenuEntry, AdminSidebar } from '../AdminSidebar';
@@ -25,7 +26,12 @@ export default async function OrganisationLayout(props: React.PropsWithChildren)
     });
 
     const organisationMenu: AdminSidebarMenuEntry[] = [
-        // TODO: Accounts
+        {
+            icon: <PersonIcon />,
+            label: 'Accounts',
+            permission: 'organisation.accounts',
+            url: '/admin/organisation/accounts',
+        },
         {
             icon: <TabletIcon />,
             label: 'Displays',
