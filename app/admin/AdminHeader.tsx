@@ -68,6 +68,11 @@ interface AdminHeaderProps {
     events: AdminHeaderEventEntry[];
 
     /**
+     * Whether the signed in volunteer has access to the organisation section.
+     */
+    canAccessOrganisationSection: boolean;
+
+    /**
      * Whether the signed in volunteer has access to the volunteers section.
      */
     canAccessVolunteersSection: boolean;
@@ -153,6 +158,12 @@ export function AdminHeader(props: AdminHeaderProps) {
                     </MenuItem>
 
                 </Menu>
+
+                { props.canAccessOrganisationSection &&
+                    <Button component={Link} href="/admin/organisation" variant="text"
+                            color="inherit">
+                        Organisation
+                    </Button>}
 
                 { props.canAccessVolunteersSection &&
                     <Button component={Link} href="/admin/volunteers" variant="text"
