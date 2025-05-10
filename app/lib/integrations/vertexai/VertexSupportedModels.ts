@@ -18,13 +18,6 @@ export const kVertexSupportedModels = {
     // https://cloud.google.com/vertex-ai/generative-ai/docs/models/gemini/2-0-flash-lite
     'gemini-2.0-flash-lite-001': 'gemini-2.0-flash-lite-001',
 
-    // https://cloud.google.com/vertex-ai/generative-ai/docs/models/gemini/1-5-flash
-    'gemini-1.5-flash-002': 'gemini-1.5-flash-002',
-    'gemini-1.5-flash-001': 'gemini-1.5-flash-001',
-
-    // https://cloud.google.com/vertex-ai/generative-ai/docs/models/gemini/1-5-pro
-    'gemini-1.5-pro-001': 'gemini-1.5-pro-001',
-
 } as const;
 
 /**
