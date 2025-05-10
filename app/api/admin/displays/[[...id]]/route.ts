@@ -94,7 +94,7 @@ export const { GET, DELETE, PUT } = createDataTableApi(kDisplaysRowModel, kDispl
     async accessCheck(request, action, props) {
         executeAccessCheck(props.authenticationContext, {
             check: 'admin',
-            permission: 'system.displays',
+            permission: 'organisation.displays',
         });
     },
 

@@ -6,7 +6,8 @@
 import Button, { type ButtonProps } from '@mui/material/Button';
 
 import type { DisplayHelpRequestTarget } from '@lib/database/Types';
-import { kHelpRequestColours } from '@app/admin/system/displays/HelpRequestColours';
+
+import { kHelpRequestColours } from '@app/admin/organisation/displays/HelpRequestColours';
 
 /**
  * Props accepted by the <TargetLoadingButton> component.

@@ -80,7 +80,7 @@ export const { GET } = createDataTableApi(kDisplayRequestRowModel, kDisplayReque
     async accessCheck(request, action, props) {
         executeAccessCheck(props.authenticationContext, {
             check: 'admin',
-            permission: 'system.displays',
+            permission: 'organisation.displays',
         });
     },
 

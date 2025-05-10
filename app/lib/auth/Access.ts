@@ -208,7 +208,14 @@ export const kPermissions = {
     // Organisation-associated permissions
     // ---------------------------------------------------------------------------------------------
 
-    // TODO: Migrate and group together existing options
+    'organisation.displays': {
+        name: 'Display management',
+        description:
+            'This permission determines whether the volunteer has the ability to manage the ' +
+            'volunteering displays we distribute across the festival grounds. This includes ' +
+            'access to help requests.',
+        type: 'boolean',
+    },
 
     'organisation.permissions': {
         name: 'Permission management',
@@ -249,14 +256,6 @@ export const kPermissions = {
             'This permission controls whether they are able to access global content, which ' +
             'includes our privacy policy, e-mail messages, notifications and other content that ' +
             'is shared across events and teams.',
-        type: 'boolean',
-    },
-
-    'system.displays': {
-        name: 'Volunteering Display access',
-        description:
-            'This permission determines whether the volunteer has the ability to manage the ' +
-            'volunteering displays we distribute across the festival grounds.',
         type: 'boolean',
     },
 
@@ -497,6 +496,7 @@ export const kPermissionGroups: Record<string, string[]> = {
         'admin',  // reflection
 
         'event',
+        'organisation',
         'statistics',
         'system',
         'volunteer',
@@ -509,7 +509,6 @@ export const kPermissionGroups: Record<string, string[]> = {
         'statistics',
 
         'system.content',
-        'system.displays',
         'system.feedback',
         'system.internals.ai',
         'system.internals.outbox',
@@ -520,6 +519,7 @@ export const kPermissionGroups: Record<string, string[]> = {
         'system.nardo',
         'system.subscriptions',
 
+        'organisation.displays',
         'organisation.permissions',
 
         'volunteer.avatars',

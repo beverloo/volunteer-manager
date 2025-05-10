@@ -25,7 +25,7 @@ import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
 import db, { tDisplays, tDisplaysRequests, tUsers } from '@lib/database';
 
 import { kDisplayHelpRequestTarget } from '@lib/database/Types';
-import { kHelpRequestColours } from '@app/admin/system/displays/HelpRequestColours';
+import { kHelpRequestColours } from '@app/admin/organisation/displays/HelpRequestColours';
 
 /**
  * The <ScheduleHelpRequestPage> component displays a page for a given help request. It's only

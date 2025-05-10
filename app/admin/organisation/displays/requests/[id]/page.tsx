@@ -29,7 +29,7 @@ import db, { tDisplays, tDisplaysRequests, tEvents, tUsers } from '@lib/database
 export default async function DisplayRequestPage(props: NextPageParams<'id'>) {
     await requireAuthenticationContext({
         check: 'admin',
-        permission: 'system.displays',
+        permission: 'organisation.displays',
     });
 
     const acknowledgedUserJoin = tUsers.forUseInLeftJoinAs('auj');
@@ -209,5 +209,5 @@ export default async function DisplayRequestPage(props: NextPageParams<'id'>) {
 }
 
 export const metadata: Metadata = {
-    title: 'Help request | Displays | AnimeCon Volunteer Manager',
+    title: 'Help request | Displays | Organisation | AnimeCon Volunteer Manager',
 };

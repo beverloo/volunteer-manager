@@ -2,6 +2,7 @@
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
 import CategoryIcon from '@mui/icons-material/Category';
+import TabletIcon from '@mui/icons-material/Tablet';
 
 import { type AdminSidebarMenuEntry, AdminSidebar } from '../AdminSidebar';
 import { AdminContent } from '../AdminContent';
@@ -23,7 +24,12 @@ export default async function OrganisationLayout(props: React.PropsWithChildren)
 
     const organisationMenu: AdminSidebarMenuEntry[] = [
         // TODO: Accounts
-        // TODO: Displays
+        {
+            icon: <TabletIcon />,
+            label: 'Displays',
+            permission: 'organisation.displays',
+            url: '/admin/organisation/displays',
+        },
         // TODO: Environments
         // TODO: Feedback
         {

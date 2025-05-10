@@ -15,7 +15,6 @@ import ManageHistoryIcon from '@mui/icons-material/ManageHistory';
 import ModelTrainingIcon from '@mui/icons-material/ModelTraining';
 import OutboxIcon from '@mui/icons-material/Outbox';
 import SettingsIcon from '@mui/icons-material/Settings';
-import TabletIcon from '@mui/icons-material/Tablet';
 import TipsAndUpdatesIcon from '@mui/icons-material/TipsAndUpdates';
 import WebhookIcon from '@mui/icons-material/Webhook';
 
@@ -108,7 +107,6 @@ export default async function TopLevelLayout(props: React.PropsWithChildren) {
             icon: <DeviceHubIcon />,
             label: 'System',
             permission: [
-                'system.displays',
                 'system.internals.ai',
                 'system.internals.scheduler',
                 'system.internals.settings',
@@ -116,12 +114,6 @@ export default async function TopLevelLayout(props: React.PropsWithChildren) {
             ],
             defaultOpen: access.can('system.internals'),
             menu: [
-                {
-                    icon: <TabletIcon />,
-                    label: 'Displays',
-                    permission: 'system.displays',
-                    url: '/admin/system/displays',
-                },
                 {
                     icon: <LanguageIcon />,
                     label: 'Environments',

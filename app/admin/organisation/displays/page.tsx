@@ -18,7 +18,7 @@ import db, { tEvents, tActivitiesLocations } from '@lib/database';
 export default async function DisplaysPage() {
     await requireAuthenticationContext({
         check: 'admin',
-        permission: 'system.displays',
+        permission: 'organisation.displays',
     });
 
     const events: DisplayTableEventOption[] = await db.selectFrom(tEvents)
@@ -68,5 +68,5 @@ export default async function DisplaysPage() {
 }
 
 export const metadata: Metadata = {
-    title: 'Displays | AnimeCon Volunteer Manager',
+    title: 'Displays | Organisation | AnimeCon Volunteer Manager',
 };
