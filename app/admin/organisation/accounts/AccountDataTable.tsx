@@ -9,7 +9,6 @@ import { useRouter } from 'next/navigation';
 
 import type { GridFilterModel } from '@mui/x-data-grid-pro';
 import { default as MuiLink } from '@mui/material/Link';
-import ReadMoreIcon from '@mui/icons-material/ReadMore';
 import ReportGmailerrorredIcon from '@mui/icons-material/ReportGmailerrorred';
 import Stack from '@mui/material/Stack';
 import Tooltip from '@mui/material/Tooltip';
