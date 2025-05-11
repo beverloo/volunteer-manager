@@ -12,6 +12,7 @@ import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
 import PauseCircleOutlineIcon from '@mui/icons-material/PauseCircleOutline';
 import PhoneDisabledIcon from '@mui/icons-material/PhoneDisabled';
+import Typography from '@mui/material/Typography';
 import WarningAmberIcon from '@mui/icons-material/WarningAmber';
 
 import { DiscordIcon } from './DiscordIcon';
@@ -112,6 +113,10 @@ export async function AccountWarningCard() {
                                           secondary={warning.text} />
                         </ListItemButton> )}
                 </List>
+                { !warnings.length &&
+                    <Typography variant="body2" sx={{ p: 2 }}>
+                        There are no account warnings right now. Hooray!
+                    </Typography> }
         </Card>
     );
 }
