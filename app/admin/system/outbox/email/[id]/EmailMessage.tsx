@@ -76,8 +76,9 @@ export function EmailMessage(props: EmailMessageProps) {
                         { !message.fromUserId && <TableCell>{message.from}</TableCell> }
                         { !!message.fromUserId &&
                             <TableCell>
-                                <MuiLink component={Link}
-                                            href={`/admin/volunteers/${message.fromUserId}`}>
+                                <MuiLink
+                                    component={Link}
+                                    href={`/admin/organisation/accounts/${message.fromUserId}`}>
                                     {message.from}
                                 </MuiLink>
                             </TableCell> }
@@ -88,7 +89,7 @@ export function EmailMessage(props: EmailMessageProps) {
                         { !!message.toUserId &&
                             <TableCell>
                                 <MuiLink component={Link}
-                                            href={`/admin/volunteers/${message.toUserId}`}>
+                                         href={`/admin/organisation/accounts/${message.toUserId}`}>
                                     {message.to}
                                 </MuiLink>
                             </TableCell> }

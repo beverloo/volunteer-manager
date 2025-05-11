@@ -55,7 +55,7 @@ export function SubscriptionTable() {
                 return row.name;
 
             return (
-                <MuiLink component={Link} href={`/admin/volunteers/${row.id}`}>
+                <MuiLink component={Link} href={`/admin/organisation/accounts/${row.id}`}>
                     {row.name}
                 </MuiLink>
             );

@@ -89,7 +89,9 @@ export function RetentionDataTable(props: RetentionDataTableProps) {
                         break;
 
                     default: {
-                        const accountHref = `/admin/volunteers/${params.row.userIdForAccountLink}`;
+                        const accountHref =
+                            `/admin/organisation/accounts/${params.row.userIdForAccountLink}`;
+
                         return (
                             <>
                                 <Typography component="span" variant="body2"

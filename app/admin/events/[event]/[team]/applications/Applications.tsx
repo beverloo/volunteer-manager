@@ -226,7 +226,7 @@ function Application(props: ApplicationProps) {
 
     let accountAction: React.JSX.Element | undefined;
     if (!!canAccessAccounts) {
-        const href = `/admin/volunteers/${application.userId}`;
+        const href = `/admin/organisation/accounts/${application.userId}`;
 
         accountAction = (
             <IconButton component={Link} href={href} sx={{ mt: 1, mr: 1 }}>

@@ -79,7 +79,7 @@ export function KnowledgeList(props: KnowledgeListProps) {
                 if (!props.enableAuthorLink)
                     return params.value;
 
-                const href = `/admin/volunteers/${params.row.updatedByUserId}`;
+                const href = `/admin/organisation/accounts/${params.row.updatedByUserId}`;
                 return (
                     <MuiLink component={Link} href={href}>
                         {params.value}

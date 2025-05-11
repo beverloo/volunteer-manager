@@ -114,7 +114,8 @@ export function LogsDataTable(props: LogsDataTableProps) {
                     return undefined;
 
                 return (
-                    <MuiLink component={Link} href={`/admin/volunteers/${params.value.userId}`}>
+                    <MuiLink component={Link}
+                             href={`/admin/organisation/accounts/${params.value.userId}`}>
                         {params.value.name}
                     </MuiLink>
                 );
@@ -130,7 +131,8 @@ export function LogsDataTable(props: LogsDataTableProps) {
                     return undefined;
 
                 return (
-                    <MuiLink component={Link} href={`/admin/volunteers/${params.value.userId}`}>
+                    <MuiLink component={Link}
+                             href={`/admin/organisation/accounts/${params.value.userId}`}>
                         {params.value.name}
                     </MuiLink>
                 );

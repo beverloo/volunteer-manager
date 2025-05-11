@@ -184,7 +184,8 @@ export default async function VolunteersPage() {
 
                 <List dense disablePadding>
                     { warnings.map((warning, index) =>
-                        <ListItemButton LinkComponent={Link} href={`./volunteers/${warning.userId}`}
+                        <ListItemButton LinkComponent={Link}
+                                        href={`/admin/organisation/accounts/${warning.userId}`}
                                         key={index}>
                             <ListItemIcon>
                                 {warning.icon}

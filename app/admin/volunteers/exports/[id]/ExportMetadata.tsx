@@ -99,7 +99,8 @@ export function ExportMetadata(props: ExportMetadataProps) {
                         Exported by
                     </TableCell>
                     <TableCell>
-                        <MuiLink component={Link} href={`/admin/volunteers/${metadata.userId}`}>
+                        <MuiLink component={Link}
+                                 href={`/admin/organisation/accounts/${metadata.userId}`}>
                             {metadata.userName}
                         </MuiLink> on{' '}
                         { formatDate(

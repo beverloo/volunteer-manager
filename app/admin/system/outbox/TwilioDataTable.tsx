@@ -77,7 +77,7 @@ export function TwilioDataTable(props: TwilioDataTableProps) {
                     return name;
 
                 return (
-                    <MuiLink component={Link} href={`/admin/volunteers/${userId}`}>
+                    <MuiLink component={Link} href={`/admin/organisation/accounts/${userId}`}>
                         {name}
                     </MuiLink>
                 );
@@ -92,7 +92,7 @@ export function TwilioDataTable(props: TwilioDataTableProps) {
             renderCell: params => {
                 const { name, userId } = params.row.recipient;
                 return (
-                    <MuiLink component={Link} href={`/admin/volunteers/${userId}`}>
+                    <MuiLink component={Link} href={`/admin/organisation/accounts/${userId}`}>
                         {name}
                     </MuiLink>
                 );

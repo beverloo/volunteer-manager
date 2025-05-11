@@ -55,7 +55,8 @@ export function EmailDataTable() {
                     return params.value;
 
                 return (
-                    <MuiLink component={Link} href={`/admin/volunteers/${params.row.fromUserId}`}>
+                    <MuiLink component={Link}
+                             href={`/admin/organisation/accounts/${params.row.fromUserId}`}>
                         {params.value}
                     </MuiLink>
                 );
@@ -72,7 +73,8 @@ export function EmailDataTable() {
                     return params.value;
 
                 return (
-                    <MuiLink component={Link} href={`/admin/volunteers/${params.row.fromUserId}`}>
+                    <MuiLink component={Link}
+                             href={`/admin/organisation/accounts/${params.row.fromUserId}`}>
                         {params.value}
                     </MuiLink>
                 );

@@ -69,7 +69,7 @@ interface VolunteerDataTableProps {
  * transformation options specific to this functionality.
  */
 export function VolunteerDataTable(props: VolunteerDataTableProps) {
-    const kVolunteerBase = '/admin/volunteers/';
+    const kVolunteerBase = '/admin/organisation/accounts/';
 
     const router = useRouter();
 

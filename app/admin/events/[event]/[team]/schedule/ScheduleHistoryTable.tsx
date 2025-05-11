@@ -58,7 +58,8 @@ export function ScheduleHistoryTable(props: ScheduleHistoryTableProps) {
                     return params.row.user;
 
                 return (
-                    <MuiLink component={Link} href={`/admin/volunteers/${params.row.userId}`}>
+                    <MuiLink component={Link}
+                             href={`/admin/organisation/accounts/${params.row.userId}`}>
                         {params.row.user}
                     </MuiLink>
                 );

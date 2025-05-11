@@ -89,6 +89,8 @@ export async function TwilioDetailsPage(props: TwilioDetailsPageProps) {
     if (!message)
         notFound();
 
+    const accountsBaseUrl = '/admin/organisation/accounts/';
+
     return (
         <Stack direction="column" spacing={2}>
             <Typography variant="h5">
@@ -122,7 +124,7 @@ export async function TwilioDetailsPage(props: TwilioDetailsPageProps) {
 
                                 { (!!message.sender && !!message.sender.user?.name) &&
                                     <MuiLink component={Link}
-                                             href={`/admin/volunteers/${message.sender.user.id}`}>
+                                             href={`${accountsBaseUrl}${message.sender.user.id}`}>
                                         {message.sender.user.name}
                                     </MuiLink> }
                             </TableCell>
@@ -137,7 +139,7 @@ export async function TwilioDetailsPage(props: TwilioDetailsPageProps) {
                                 { !!message.recipient.user && ' — ' }
                                 { !!message.recipient.user &&
                                     <MuiLink component={Link}
-                                            href={`/admin/volunteers/${message.recipient.user.id}`}>
+                                            href={`${accountsBaseUrl}${message.recipient.user.id}`}>
                                         {message.recipient.user.name}
                                     </MuiLink> }
                             </TableCell>

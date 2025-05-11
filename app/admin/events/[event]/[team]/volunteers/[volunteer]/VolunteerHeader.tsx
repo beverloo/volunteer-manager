@@ -515,7 +515,7 @@ export function VolunteerHeader(props: VolunteerHeaderProps) {
     // ---------------------------------------------------------------------------------------------
 
     const navigateToAccount = useCallback(() => {
-        router.push(`/admin/volunteers/${volunteer.userId}`)
+        router.push(`/admin/organisation/accounts/${volunteer.userId}`)
     }, [ router, volunteer ] );
 
     return (

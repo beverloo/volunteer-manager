@@ -186,7 +186,7 @@ function ImpersonationDialog(props: DialogProps) {
     const handleSubmit = useCallback(async () => {
         const response = await callApi('post', '/api/auth/sign-in-impersonate', {
             userId: account.userId,
-            returnUrl: `/admin/volunteers/${account.userId}`,
+            returnUrl: `/admin/organisation/accounts/${account.userId}`,
         });
 
         if (response.success) {
