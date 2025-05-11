@@ -42,8 +42,8 @@ interface AccountInformationProps {
 }
 
 /**
- * The <AccountInformation> component lists the volunteer's basic information, which may be amended by the
- * person who has access to this page. Amendments are made using an API call.
+ * The <AccountInformation> component lists the volunteer's basic information, which may be amended
+ * by the person who has access to this page. Amendments are made using an API call.
  */
 export function AccountInformation(props: AccountInformationProps) {
     const router = useRouter();

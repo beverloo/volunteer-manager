@@ -6,7 +6,6 @@ import { notFound } from 'next/navigation';
 import Box from '@mui/material/Box';
 import CategoryIcon from '@mui/icons-material/Category';
 import DvrIcon from '@mui/icons-material/Dvr';
-import EventNoteIcon from '@mui/icons-material/EventNote';
 import Paper from '@mui/material/Paper';
 import PersonIcon from '@mui/icons-material/Person';
 import SettingsIcon from '@mui/icons-material/Settings';
