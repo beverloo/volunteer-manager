@@ -4,17 +4,12 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 
-import Paper from '@mui/material/Paper';
-import Typography from '@mui/material/Typography';
-
 import type { NextPageParams } from '@lib/NextRouterParams';
 import type { Temporal } from '@lib/Temporal';
 import { Header } from './Header';
-import { LogsDataTable } from '@app/admin/system/logs/LogsDataTable';
-import { type ParticipationInfo, Participation } from './Participation';
 import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
 
-import db, { tEvents, tRoles, tTeams, tUsers, tUsersEvents } from '@lib/database';
+import db, { tUsers } from '@lib/database';
 
 /**
  * Information about the volunteer for whom this page is being displayed.
@@ -36,11 +31,6 @@ export interface VolunteerInfo {
         discordHandleUpdated?: Temporal.ZonedDateTime;
         activated: number;
     };
-
-    /**
-     * Information about the volunteer's participation across AnimeCon events.
-     */
-    participation: ParticipationInfo[];
 }
 
 /**
@@ -69,33 +59,10 @@ async function fetchVolunteerInfo(unverifiedId: string): Promise<VolunteerInfo |
         })
         .executeSelectNoneOrOne();
 
-    const participation = await dbInstance.selectFrom(tUsersEvents)
-        .innerJoin(tEvents)
-            .on(tEvents.eventId.equals(tUsersEvents.eventId))
-        .innerJoin(tTeams)
-            .on(tTeams.teamId.equals(tUsersEvents.teamId))
-        .innerJoin(tRoles)
-            .on(tRoles.roleId.equals(tUsersEvents.roleId))
-        .where(tUsersEvents.userId.equals(numericUnverifiedId))
-        .select({
-            id: tUsersEvents.eventId.multiply(1000).add(tUsersEvents.teamId),
-            eventShortName: tEvents.eventShortName,
-            eventSlug: tEvents.eventSlug,
-            eventStartTime: dbInstance.dateTimeAsString(tEvents.eventStartTime),
-            status: tUsersEvents.registrationStatus,
-            role: tRoles.roleName,
-            team: tTeams.teamName,
-            teamSlug: tTeams.teamSlug,
-            teamDarkThemeColour: tTeams.teamColourDarkTheme,
-            teamLightThemeColour: tTeams.teamColourLightTheme,
-        })
-        .orderBy('eventStartTime', 'desc')
-        .executeSelectMany();
-
-    if (!account || !participation)
+    if (!account)
         notFound();
 
-    return { account, participation };
+    return { account };
 }
 
 /**
@@ -117,26 +84,13 @@ export default async function VolunteerPage(props: NextPageParams<'id'>) {
     if (!volunteerInfo)
         notFound();
 
-    const { account, participation } = volunteerInfo;
+    const { account } = volunteerInfo;
 
     const canImpersonate = access.can('volunteer.account.impersonation');
 
     return (
         <>
             <Header account={account} canImpersonate={canImpersonate} />
-
-            { !!participation.length &&
-                <Participation participation={participation} userId={account.userId} /> }
-
-            { access.can('system.logs', 'read') &&
-                <Paper sx={{ p: 2 }}>
-                    <Typography variant="h5" sx={{ pb: 1 }}>
-                        Logs
-                    </Typography>
-                    <LogsDataTable filters={{ sourceOrTargetUserId: account.userId }}
-                                   pageSize={10} />
-                </Paper> }
-
         </>
     );
 }
