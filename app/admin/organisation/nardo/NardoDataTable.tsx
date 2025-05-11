@@ -8,7 +8,7 @@ import Link from 'next/link';
 import { default as MuiLink } from '@mui/material/Link';
 
 import type { NardoRowModel } from '@app/api/nardo/[[...id]]/route';
-import { type RemoteDataTableColumn, RemoteDataTable } from '../components/RemoteDataTable';
+import { type RemoteDataTableColumn, RemoteDataTable } from '../../components/RemoteDataTable';
 import { Temporal, formatDate } from '@lib/Temporal';
 
 /**

@@ -7,6 +7,7 @@ import GridViewIcon from '@mui/icons-material/GridView';
 import GroupsIcon from '@mui/icons-material/Groups';
 import PersonIcon from '@mui/icons-material/Person';
 import TabletIcon from '@mui/icons-material/Tablet';
+import TipsAndUpdatesIcon from '@mui/icons-material/TipsAndUpdates';
 
 import { type AdminSidebarMenuEntry, AdminSidebar } from '../AdminSidebar';
 import { AdminContent } from '../AdminContent';
@@ -41,6 +42,12 @@ export default async function OrganisationLayout(props: React.PropsWithChildren)
             label: 'Accounts',
             permission: 'organisation.accounts',
             url: '/admin/organisation/accounts',
+        },
+        {
+            icon: <TipsAndUpdatesIcon />,
+            label: 'Del a Rie Advies',
+            permission: 'organisation.nardo',
+            url: '/admin/organisation/nardo',
         },
         {
             icon: <TabletIcon />,

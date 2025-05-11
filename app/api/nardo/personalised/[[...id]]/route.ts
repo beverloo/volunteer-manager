@@ -105,7 +105,7 @@ createDataTableApi(kNardoPersonalisedRowModel, kNardoPersonalisedContext, {
             case 'list':
                 executeAccessCheck(props.authenticationContext, {
                     check: 'admin',
-                    permission: 'system.nardo',
+                    permission: 'organisation.nardo',
                 });
 
                 break;

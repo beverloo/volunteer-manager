@@ -235,6 +235,14 @@ export const kPermissions = {
         type: 'boolean',
     },
 
+    'organisation.nardo': {
+        name: 'Del a Rie Advies',
+        description:
+            'This permission controls whether they are able to access and manage the advice ' +
+            'made available by Del a Rie advies.',
+        type: 'boolean',
+    },
+
     'organisation.permissions': {
         name: 'Permission management',
         description:
@@ -341,14 +349,6 @@ export const kPermissions = {
         hide: [ 'create', 'update' ],  // logs generally should be read-only, but can be deleted
         type: 'crud',
         warning: true,
-    },
-
-    'system.nardo': {
-        name: 'Del a Rie Advies access',
-        description:
-            'This permission controls whether they are able to access and manage the advice ' +
-            'made available by Del a Rie advies.',
-        type: 'boolean',
     },
 
     'system.subscriptions.eligible': {
@@ -518,6 +518,7 @@ export const kPermissionGroups: Record<string, string[]> = {
         'organisation.accounts',
         'organisation.displays',
         'organisation.feedback',
+        'organisation.nardo',
         'organisation.permissions',
         'organisation.teams',
 
@@ -530,7 +531,6 @@ export const kPermissionGroups: Record<string, string[]> = {
         // note: system.internals.settings omitted
         // note: system.logs:delete omitted
         'system.logs:read',
-        'system.nardo',
         'system.subscriptions',
 
         'volunteer.avatars',

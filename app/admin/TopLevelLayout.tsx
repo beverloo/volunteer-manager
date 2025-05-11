@@ -14,7 +14,6 @@ import ManageHistoryIcon from '@mui/icons-material/ManageHistory';
 import ModelTrainingIcon from '@mui/icons-material/ModelTraining';
 import OutboxIcon from '@mui/icons-material/Outbox';
 import SettingsIcon from '@mui/icons-material/Settings';
-import TipsAndUpdatesIcon from '@mui/icons-material/TipsAndUpdates';
 import WebhookIcon from '@mui/icons-material/Webhook';
 
 import { AdminContent } from './AdminContent';
@@ -39,12 +38,6 @@ export default async function TopLevelLayout(props: React.PropsWithChildren) {
             label: 'Content',
             permission: 'system.content',
             url: '/admin/content',
-        },
-        {
-            icon: <TipsAndUpdatesIcon />,
-            label: 'Del a Rie Advies',
-            permission: 'system.nardo',
-            url: '/admin/nardo',
         },
         {
             icon: <EventNoteIcon />,

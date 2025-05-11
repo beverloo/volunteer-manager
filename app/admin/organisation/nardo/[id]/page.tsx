@@ -28,7 +28,7 @@ export default async function PersonalisedNardoAdvicePage(props: NextPageParams<
 
     await requireAuthenticationContext({
         check: 'admin',
-        permission: 'system.nardo',
+        permission: 'organisation.nardo',
     });
 
     const dbInstance = db;

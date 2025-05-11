@@ -5,8 +5,8 @@ import type { Metadata } from 'next';
 
 import { NardoDataTable } from './NardoDataTable';
 import { NardoPersonalisedDataTable } from './NardoPersonalisedDataTable';
-import { Section } from '../components/Section';
-import { SectionIntroduction } from '../components/SectionIntroduction';
+import { Section } from '../../components/Section';
+import { SectionIntroduction } from '../../components/SectionIntroduction';
 import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
 
 /**
@@ -16,7 +16,7 @@ import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
 export default async function DelARieAdviesPage() {
     await requireAuthenticationContext({
         check: 'admin',
-        permission: 'system.nardo',
+        permission: 'organisation.nardo',
     });
 
     return (

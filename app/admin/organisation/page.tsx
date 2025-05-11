@@ -10,6 +10,7 @@ import { AccountSearchCard } from './dashboard/AccountSearchCard';
 import { AccountWarningCard } from './dashboard/AccountWarningCard';
 import { DisplaysCard } from './dashboard/DisplaysCard';
 import { FeedbackCard } from './dashboard/FeedbackCard';
+import { NardoCard } from './dashboard/NardoCard';
 import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
 
 import { kDashboardPermissions } from './dashboard/DashboardPermissions';
@@ -28,6 +29,7 @@ export default async function OrganisationPage() {
     const canAccessAccounts = access.can('organisation.accounts');
     const canAccessDisplays = access.can('organisation.displays');
     const canAccessFeedback = access.can('organisation.feedback');
+    const canAccessNardo = access.can('organisation.nardo');
 
     return (
         <Grid container spacing={2}>
@@ -58,6 +60,10 @@ export default async function OrganisationPage() {
             { (!canAccessAccounts && canAccessFeedback) &&
                 <Grid size={{ xs: 12 }}>
                     <FeedbackCard />
+                </Grid> }
+            { canAccessNardo &&
+                <Grid size={{ xs: 12 }}>
+                    <NardoCard />
                 </Grid> }
         </Grid>
     );

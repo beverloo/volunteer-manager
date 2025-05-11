@@ -66,7 +66,7 @@ export const { DELETE, GET, POST, PUT } = createDataTableApi(kNardoRowModel, kNa
             case 'update':
                 executeAccessCheck(props.authenticationContext, {
                     check: 'admin',
-                    permission: 'system.nardo',
+                    permission: 'organisation.nardo',
                 });
 
                 break
@@ -115,7 +115,7 @@ export const { DELETE, GET, POST, PUT } = createDataTableApi(kNardoRowModel, kNa
     },
 
     async list({ pagination, sort }, props) {
-        const publicView = !props.access.can('system.nardo');
+        const publicView = !props.access.can('organisation.nardo');
 
         const dbInstance = db;
         const results = await dbInstance.selectFrom(tNardo)
