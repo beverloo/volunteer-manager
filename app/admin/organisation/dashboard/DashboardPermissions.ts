@@ -12,6 +12,7 @@ export const kDashboardPermissions = or(
     'organisation.displays',
     // TODO: Environments
     'organisation.feedback',
+    'organisation.nardo',
     {
         permission: 'organisation.permissions',
         operation: 'read',

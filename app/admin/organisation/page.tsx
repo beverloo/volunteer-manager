@@ -29,7 +29,6 @@ export default async function OrganisationPage() {
     const canAccessAccounts = access.can('organisation.accounts');
     const canAccessDisplays = access.can('organisation.displays');
     const canAccessFeedback = access.can('organisation.feedback');
-    const canAccessNardo = access.can('organisation.nardo');
 
     return (
         <Grid container spacing={2}>
@@ -46,6 +45,7 @@ export default async function OrganisationPage() {
                         <Stack direction="column" spacing={2}>
                             { canAccessDisplays && <DisplaysCard /> }
                             { canAccessFeedback && <FeedbackCard /> }
+                            <NardoCard header />
                         </Stack>
                     </Grid>
                 </> }
@@ -61,7 +61,7 @@ export default async function OrganisationPage() {
                 <Grid size={{ xs: 12 }}>
                     <FeedbackCard />
                 </Grid> }
-            { canAccessNardo &&
+            { !canAccessAccounts &&
                 <Grid size={{ xs: 12 }}>
                     <NardoCard />
                 </Grid> }
