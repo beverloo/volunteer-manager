@@ -20,22 +20,6 @@ export function NardoPersonalisedDataTable() {
 
     const columns: RemoteDataTableColumn<NardoPersonalisedRowModel>[] = [
         {
-            field: 'userName',
-            headerName: 'Volunteer',
-            sortable: true,
-            filterable: true,
-            flex: 1,
-
-            renderCell: params => {
-                return (
-                    <MuiLink component={Link}
-                             href={`/admin/organisation/accounts/${params.row.userId}`}>
-                        {params.value}
-                    </MuiLink>
-                );
-            },
-        },
-        {
             field: 'date',
             headerName: 'Date',
             sortable: true,
@@ -54,6 +38,22 @@ export function NardoPersonalisedDataTable() {
                 );
             }
 
+        },
+        {
+            field: 'userName',
+            headerName: 'Volunteer',
+            sortable: true,
+            filterable: true,
+            flex: 1,
+
+            renderCell: params => {
+                return (
+                    <MuiLink component={Link}
+                             href={`/admin/organisation/accounts/${params.row.userId}`}>
+                        {params.value}
+                    </MuiLink>
+                );
+            },
         },
         {
             field: 'input',

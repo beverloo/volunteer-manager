@@ -82,12 +82,12 @@ export default async function PersonalisedNardoAdvicePage(props: NextPageParams<
                 </Table>
             </Section>
             <Section title="Input prompt">
-                <Typography sx={{ whiteSpace: 'pre-line' }}>
+                <Typography variant="body2" sx={{ whiteSpace: 'pre-line' }}>
                     {advice.input}
                 </Typography>
             </Section>
             <Section title="Generated advice">
-                <Markdown>{advice.output}</Markdown>
+                <Markdown defaultVariant="body2">{advice.output}</Markdown>
             </Section>
         </>
     );

@@ -24,10 +24,17 @@ export function FeedbackDataTable() {
             headerName: 'Received',
             flex: 1,
 
-            renderCell: params =>
-                formatDate(
+            renderCell: params => {
+                const date = formatDate(
                     Temporal.ZonedDateTime.from(params.value).withTimeZone(localTz),
-                    'YYYY-MM-DD HH:mm:ss'),
+                    'YYYY-MM-DD HH:mm:ss');
+
+                return (
+                    <MuiLink component={Link} href={`./feedback/${params.row.id}`}>
+                        {date}
+                    </MuiLink>
+                );
+            },
         },
         {
             field: 'userName',

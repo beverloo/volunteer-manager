@@ -13,7 +13,7 @@ import Divider from '@mui/material/Divider';
 import FeedbackOutlinedIcon from '@mui/icons-material/FeedbackOutlined';
 import LabelImportantIcon from '@mui/icons-material/LabelImportant';
 import List from '@mui/material/List';
-import ListItem from '@mui/material/ListItem';
+import ListItemButton from '@mui/material/ListItemButton';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
 
@@ -65,7 +65,8 @@ export async function FeedbackCard() {
                 <List dense disablePadding>
                     { completedFeedback.map(entry =>
                         <React.Fragment key={entry.id}>
-                            <ListItem>
+                            <ListItemButton LinkComponent={Link}
+                                            href={`/admin/organisation/feedback/${entry.id}`}>
                                 <ListItemIcon sx={{ minWidth: '40px' }}>
                                     <LabelImportantIcon color="disabled" fontSize="small" />
                                 </ListItemIcon>
@@ -74,7 +75,7 @@ export async function FeedbackCard() {
                                             slotProps={{
                                                 primary: { sx: kEnforceSingleLine },
                                             }}/>
-                            </ListItem>
+                            </ListItemButton>
                             <Divider component="li" />
                         </React.Fragment> )}
                 </List>
