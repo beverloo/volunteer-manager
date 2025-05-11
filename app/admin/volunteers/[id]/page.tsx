@@ -10,7 +10,6 @@ import Typography from '@mui/material/Typography';
 import type { NextPageParams } from '@lib/NextRouterParams';
 import type { Temporal } from '@lib/Temporal';
 import { Header } from './Header';
-import { Information } from './Information';
 import { LogsDataTable } from '@app/admin/system/logs/LogsDataTable';
 import { type ParticipationInfo, Participation } from './Participation';
 import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
@@ -125,7 +124,6 @@ export default async function VolunteerPage(props: NextPageParams<'id'>) {
     return (
         <>
             <Header account={account} canImpersonate={canImpersonate} />
-            <Information account={account} />
 
             { !!participation.length &&
                 <Participation participation={participation} userId={account.userId} /> }

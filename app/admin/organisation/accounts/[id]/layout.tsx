@@ -59,11 +59,6 @@ export default async function AccountLayout(
             label: 'Information',
             url: `/admin/organisation/accounts/${account.id}`,
         },
-        {
-            icon: <EventNoteIcon />,
-            label: 'Participation',
-            url: `/admin/organisation/accounts/${account.id}/participation`,
-        }
     ];
 
     if (access.can('system.logs', 'read')) {

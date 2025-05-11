@@ -5,17 +5,27 @@ import { notFound } from 'next/navigation';
 
 import type { NextPageParams } from '@lib/NextRouterParams';
 import { LogsDataTable } from '@app/admin/system/logs/LogsDataTable';
+import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
 
 /**
  * The <AccountLogsPage> component displays log events that were recorded by the holder of this
  * account, both through their own actions and through actions that affected them.
  */
 export default async function AccountLogsPage(props: NextPageParams<'id'>) {
+    const { access } = await requireAuthenticationContext({
+        check: 'admin',
+        permission: {
+            permission: 'system.logs',
+            operation: 'read',
+        },
+    });
+
     const userId = parseInt((await props.params).id, /* radix= */ 10);
     if (!Number.isSafeInteger(userId))
         notFound();
 
     return (
-        <LogsDataTable filters={{ sourceOrTargetUserId: userId }} pageSize={25} />
+        <LogsDataTable filters={{ sourceOrTargetUserId: userId }} pageSize={25}
+                       enableDelete={ access.can('system.logs', 'delete') } />
     );
 }

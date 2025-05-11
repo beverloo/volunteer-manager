@@ -1,0 +1,139 @@
+// Copyright 2023 Peter Beverloo & AnimeCon. All rights reserved.
+// Use of this source code is governed by a MIT license that can be found in the LICENSE file.
+
+'use client';
+
+import { useCallback, useState } from 'react';
+import { useRouter } from 'next/navigation';
+
+import { DatePickerElement } from 'react-hook-form-mui/date-pickers';
+import { SelectElement, TextFieldElement } from '@proxy/react-hook-form-mui';
+
+import Box from '@mui/material/Box';
+import Grid from '@mui/material/Grid';
+import IconButton from '@mui/material/IconButton';
+import Stack from '@mui/material/Stack';
+import Tooltip from '@mui/material/Tooltip';
+
+import { ConfirmationDialog } from '@app/admin/components/ConfirmationDialog';
+import { DiscordIcon } from './DiscordIcon';
+import { callApi } from '@lib/callApi';
+
+import { kGenderOptions } from '@app/registration/authentication/RegisterForm';
+
+/**
+ * Props accepted by the <AccountInformation> component.
+ */
+interface AccountInformationProps {
+    /**
+     * The user's Discord handle, when known.
+     */
+    discordHandle?: string;
+
+    /**
+     * Whether the user's Discord handle was updated since the last check.
+     */
+    discordHandleUpdated?: boolean;
+
+    /**
+     * Unique ID of the user for whom the information is being shown.
+     */
+    userId: number;
+}
+
+/**
+ * The <AccountInformation> component lists the volunteer's basic information, which may be amended by the
+ * person who has access to this page. Amendments are made using an API call.
+ */
+export function AccountInformation(props: AccountInformationProps) {
+    const router = useRouter();
+
+    const [ discordConfirmationOpen, setDiscordConfirmationOpen ] = useState<boolean>(false);
+
+    const handleCloseDiscord = useCallback(() => setDiscordConfirmationOpen(false), []);
+    const handleConfirmDiscord = useCallback(async () => {
+        const response = await callApi('post', '/api/admin/verify-discord', {
+            userId: props.userId,
+        });
+
+        if (!response.success)
+            return { error: response.error || 'The verification could not be processed' };
+
+        router.refresh();
+        return true;
+
+    }, [ props, router ]);
+
+    const handleVerifyDiscord = useCallback(() => {
+        setDiscordConfirmationOpen(true);
+    }, [ /* no dependencies */ ]);
+
+    return (
+        <>
+            <Grid size={{ xs: 6, md: 3 }}>
+                <TextFieldElement name="firstName" label="First name" type="text"
+                                    fullWidth size="small" required />
+            </Grid>
+            <Grid size={{ xs: 6, md: 3 }}>
+                <TextFieldElement name="lastName" label="Last name" type="text"
+                                    fullWidth size="small" required />
+            </Grid>
+            <Grid size={{ xs: 12, md: 6 }}>
+                <TextFieldElement name="displayName" label="Display name" type="text"
+                                    fullWidth size="small" />
+            </Grid>
+
+            <Grid size={{ xs: 6 }}>
+                <DatePickerElement name="birthdate" label="Date of birth"
+                                    disableFuture disableHighlightToday openTo="year"
+                                    inputProps={{ fullWidth: true, size: 'small' }} />
+            </Grid>
+            <Grid size={{ xs: 6 }}>
+                <SelectElement name="gender" label="Gender" options={kGenderOptions}
+                                fullWidth size="small" required />
+            </Grid>
+
+            <Grid size={{ xs: 6 }}>
+                <TextFieldElement name="username" label="E-mail address" type="email"
+                                    fullWidth size="small" />
+            </Grid>
+            <Grid size={{ xs: 6 }}>
+                <TextFieldElement name="phoneNumber" label="Phone number" type="tel"
+                                    fullWidth size="small" />
+            </Grid>
+
+            <Grid size={{ xs: 6 }}>
+                <Stack direction="row" spacing={1}>
+                    <TextFieldElement name="discordHandle" label="Discord handle"
+                                        fullWidth size="small" />
+
+                    { !!props.discordHandleUpdated &&
+                        <Tooltip title="Mark their handle as verified">
+                            <IconButton onClick={handleVerifyDiscord}>
+                                <DiscordIcon htmlColor="#5865F2" />
+                            </IconButton>
+                        </Tooltip> }
+                    { !props.discordHandleUpdated &&
+                        <Tooltip title="Their handle has been verified">
+                            <Box sx={{ p: 1, pb: 0 }}>
+                                <DiscordIcon color="disabled" />
+                            </Box>
+                        </Tooltip> }
+                </Stack>
+            </Grid>
+            <Grid size={{ xs: 6 }}>
+                { /* available */ }
+            </Grid>
+
+            { !!props.discordHandle &&
+                <ConfirmationDialog open={!!discordConfirmationOpen} onClose={handleCloseDiscord}
+                                    onConfirm={handleConfirmDiscord}
+                                    title="Verify their Discord handle">
+                    By confirming this dialog, you verify that their Discord handle
+                    (<strong>{props.discordHandle}</strong>) has been granted the "Crew" role on our
+                    server. Ideally you'd have send them a nice message too.
+                </ConfirmationDialog> }
+
+        </>
+    );
+}

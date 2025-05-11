@@ -13,7 +13,6 @@ import { updateEvent, kUpdateEventDefinition } from '../updateEvent';
 import { updateIntegration, kUpdateIntegrationDefinition } from '../updateIntegration';
 import { updateSettings, kUpdateSettingsDefinition } from '../updateSettings';
 import { updateTeam, kUpdateTeamDefinition } from '../updateTeam';
-import { updateVolunteer, kUpdateVolunteerDefinition } from '../updateVolunteer';
 import { verifyDiscord, kVerifyDiscordDefinition } from '../verifyDiscord';
 import { vertexAi, kVertexAiDefinition } from '../vertexAi';
 import { volunteerContactInfo, kVolunteerContactInfoDefinition } from '../volunteerContactInfo';
@@ -53,8 +52,6 @@ export async function POST(request: NextRequest, props: RouteProps): Promise<Res
             return executeAction(request, kUpdateSettingsDefinition, updateSettings);
         case 'update-team':
             return executeAction(request, kUpdateTeamDefinition, updateTeam);
-        case 'update-volunteer':
-            return executeAction(request, kUpdateVolunteerDefinition, updateVolunteer);
         case 'verify-discord':
             return executeAction(request, kVerifyDiscordDefinition, verifyDiscord);
         case 'vertex-ai':
