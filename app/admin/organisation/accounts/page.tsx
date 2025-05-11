@@ -85,7 +85,8 @@ export default async function AccountsPage() {
         <Section title="Volunteers">
             <SectionIntroduction>
                 This table lists all volunteers who helped us out since 2010—not all information
-                is complete. Columns and filtering can be altered through the column menu.
+                is complete, and these accounts are separate from the information stored in AnPlan.
+                Columns and filtering can be altered through the column menu.
             </SectionIntroduction>
             <AccountDataTable initialFilterModel={filterModel}
                               initialHiddenFields={hiddenFields} teamColours={teamColours}

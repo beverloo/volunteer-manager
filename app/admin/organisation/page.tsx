@@ -3,6 +3,13 @@
 
 import type { Metadata } from 'next';
 
+import Grid from '@mui/material/Grid';
+import Stack from '@mui/material/Stack';
+
+import { AccountSearchCard } from './dashboard/AccountSearchCard';
+import { AccountWarningCard } from './dashboard/AccountWarningCard';
+import { DisplaysCard } from './dashboard/DisplaysCard';
+import { FeedbackCard } from './dashboard/FeedbackCard';
 import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
 
 import { kDashboardPermissions } from './dashboard/DashboardPermissions';
@@ -13,20 +20,46 @@ import { kDashboardPermissions } from './dashboard/DashboardPermissions';
  * could require the attention of one of our administrators.
  */
 export default async function OrganisationPage() {
-    await requireAuthenticationContext({
+    const { access } = await requireAuthenticationContext({
         check: 'admin',
         permission: kDashboardPermissions,
     });
 
-    // TODO: Header card providing fast access to an account
-    // TODO: Card displaying unresolved account warnings
-    // TODO: Card displaying recently received feedback
-    // TODO: Card displaying recently seen displays
+    const canAccessAccounts = access.can('organisation.accounts');
+    const canAccessDisplays = access.can('organisation.displays');
+    const canAccessFeedback = access.can('organisation.feedback');
 
     return (
-        <>
-            You have access
-        </>
+        <Grid container spacing={2}>
+            { canAccessAccounts &&
+                <Grid size={{ xs: 12 }}>
+                    <AccountSearchCard />
+                </Grid> }
+            { (canAccessAccounts && (canAccessDisplays || canAccessFeedback)) &&
+                <>
+                    <Grid size={{ xs: 6 }}>
+                        <AccountWarningCard />
+                    </Grid>
+                    <Grid size={{ xs: 6 }}>
+                        <Stack direction="column" spacing={2}>
+                            { canAccessDisplays && <DisplaysCard /> }
+                            { canAccessFeedback && <FeedbackCard /> }
+                        </Stack>
+                    </Grid>
+                </> }
+            { (canAccessAccounts && !(canAccessDisplays || canAccessFeedback)) &&
+                <Grid size={{ xs: 12 }}>
+                    <AccountWarningCard />
+                </Grid> }
+            { (!canAccessAccounts && canAccessDisplays) &&
+                <Grid size={{ xs: 12 }}>
+                    <DisplaysCard />
+                </Grid> }
+            { (!canAccessAccounts && canAccessFeedback) &&
+                <Grid size={{ xs: 12 }}>
+                    <FeedbackCard />
+                </Grid> }
+        </Grid>
     );
 }
 
