@@ -84,6 +84,8 @@ export default async function DisplayRequestPage(props: NextPageParams<'id'>) {
                 /* noPrefix= */ true);
     }
 
+    const accountBaseUrl = '/admin/organisation/accounts/';
+
     return (
         <>
             <Section title="Help request" subtitle={`#${request.id}`}>
@@ -152,7 +154,7 @@ export default async function DisplayRequestPage(props: NextPageParams<'id'>) {
                                 <TableCell>
                                     <MuiLink
                                         component={Link}
-                                        href={`/admin/volunteers/${request.acknowledgedByUserId}`}>
+                                        href={`${accountBaseUrl}${request.acknowledgedByUserId}`}>
 
                                         {request.acknowledgedBy}
 
@@ -188,7 +190,7 @@ export default async function DisplayRequestPage(props: NextPageParams<'id'>) {
                                 </TableCell>
                                 <TableCell>
                                     <MuiLink component={Link}
-                                             href={`/admin/volunteers/${request.closedByUserId}`}>
+                                             href={`${accountBaseUrl}${request.closedByUserId}`}>
                                         {request.closedBy}
                                     </MuiLink>
                                 </TableCell>

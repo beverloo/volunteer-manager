@@ -174,7 +174,8 @@ function PermissionDetailPanel(props: { record: PermissionRecord }) {
                         </Stack> }
                     { group.users.map(user =>
                         <Tooltip key={user.id} title={user.name}>
-                            <MuiLink component={Link} href={`/admin/volunteers/${user.id}`}>
+                            <MuiLink component={Link}
+                                     href={`/admin/organisation/accounts/${user.id}/permissions`}>
                                 <Avatar src={user.avatar}>{user.name}</Avatar>
                             </MuiLink>
                         </Tooltip> )}

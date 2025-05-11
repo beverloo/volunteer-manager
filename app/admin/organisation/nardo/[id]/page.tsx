@@ -7,6 +7,7 @@ import { notFound } from 'next/navigation';
 
 import { default as MuiLink } from '@mui/material/Link';
 import Table from '@mui/material/Table';
+import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
 import TableRow from '@mui/material/TableRow';
 import Typography from '@mui/material/Typography';
@@ -60,20 +61,24 @@ export default async function PersonalisedNardoAdvicePage(props: NextPageParams<
                     reaching out to the volunteer to explain what happened.
                 </SectionIntroduction>
                 <Table sx={{ mt: '0px !important' }}>
-                    <TableRow>
-                        <TableCell width="25%" component="th" scope="row">Volunteer</TableCell>
-                        <TableCell>
-                            <MuiLink component={Link} href={`/admin/users/${advice.user.id}`}>
-                                {advice.user.name}
-                            </MuiLink>
-                        </TableCell>
-                    </TableRow>
-                    <TableRow>
-                        <TableCell width="25%" component="th" scope="row">Date</TableCell>
-                        <TableCell>
-                            <LocalDateTime dateTime={advice.date} format="YYYY-MM-DD HH:mm:ss" />
-                        </TableCell>
-                    </TableRow>
+                    <TableBody>
+                        <TableRow>
+                            <TableCell width="25%" component="th" scope="row">Volunteer</TableCell>
+                            <TableCell>
+                                <MuiLink component={Link}
+                                         href={`/admin/organisation/accounts/${advice.user.id}`}>
+                                    {advice.user.name}
+                                </MuiLink>
+                            </TableCell>
+                        </TableRow>
+                        <TableRow>
+                            <TableCell width="25%" component="th" scope="row">Date</TableCell>
+                            <TableCell>
+                                <LocalDateTime dateTime={advice.date}
+                                               format="YYYY-MM-DD HH:mm:ss" />
+                            </TableCell>
+                        </TableRow>
+                    </TableBody>
                 </Table>
             </Section>
             <Section title="Input prompt">

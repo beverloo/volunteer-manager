@@ -89,7 +89,7 @@ export function HelpRequestTable() {
                     Temporal.ZonedDateTime.from(params.row.acknowledgedDate).withTimeZone(localTz),
                     'YYYY-MM-DD HH:mm:ss');
 
-                const href = `/admin/volunteers/${params.row.acknowledgedByUserId}`;
+                const href = `/admin/organisation/accounts/${params.row.acknowledgedByUserId}`;
                 return (
                     <Tooltip title={title}>
                         <MuiLink component={Link} href={href}>
@@ -118,7 +118,7 @@ export function HelpRequestTable() {
                     Temporal.ZonedDateTime.from(params.row.closedDate).withTimeZone(localTz),
                     'YYYY-MM-DD HH:mm:ss');
 
-                const href = `/admin/volunteers/${params.row.closedByUserId}`;
+                const href = `/admin/organisation/accounts/${params.row.closedByUserId}`;
                 return (
                     <Tooltip title={title}>
                         <MuiLink component={Link} href={href}>

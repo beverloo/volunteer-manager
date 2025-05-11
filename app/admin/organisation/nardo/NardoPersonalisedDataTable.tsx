@@ -28,7 +28,8 @@ export function NardoPersonalisedDataTable() {
 
             renderCell: params => {
                 return (
-                    <MuiLink component={Link} href={`/admin/volunteers/${params.row.userId}`}>
+                    <MuiLink component={Link}
+                             href={`/admin/organisation/accounts/${params.row.userId}`}>
                         {params.value}
                     </MuiLink>
                 );
@@ -41,7 +42,7 @@ export function NardoPersonalisedDataTable() {
             flex: 1,
 
             renderCell: params => {
-                const link = `/admin/nardo/${params.row.id}`;
+                const link = `/admin/organisation/nardo/${params.row.id}`;
                 const date = formatDate(
                     Temporal.ZonedDateTime.from(params.value).withTimeZone(localTz),
                     'YYYY-MM-DD HH:mm:ss');

@@ -39,7 +39,8 @@ export function FeedbackDataTable() {
                     return params.value;
 
                 return (
-                    <MuiLink component={Link} href={`/admin/volunteers/${params.row.userId}`}>
+                    <MuiLink component={Link}
+                             href={`/admin/organisation/accounts/${params.row.userId}`}>
                         {params.value}
                     </MuiLink>
                 );

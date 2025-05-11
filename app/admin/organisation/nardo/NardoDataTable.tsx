@@ -41,7 +41,8 @@ export function NardoDataTable() {
 
             renderCell: params => {
                 return (
-                    <MuiLink component={Link} href={`/admin/volunteers/${params.row.authorUserId}`}>
+                    <MuiLink component={Link}
+                             href={`/admin/organisation/accounts/${params.row.authorUserId}`}>
                         {params.value}
                     </MuiLink>
                 );
