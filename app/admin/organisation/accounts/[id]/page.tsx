@@ -170,7 +170,7 @@ export default async function AccountInformationPage(props: NextPageParams<'id'>
                                     discordHandleUpdated={!!defaultValues.discordHandleUpdated}
                                     userId={userId} />
             </FormGrid>
-            <Divider sx={{ mb: 2, mt: 1 }} />
+            <Divider sx={{ my: 2 }} />
             <AccountParticipationTable userId={userId} />
         </>
     );

@@ -126,7 +126,7 @@ export function FormGrid(props: React.PropsWithChildren<FormGridProps>) {
             keepDirtyValues: true,
 
             // Form input values will be unchanged.
-            keepValues: true,
+            keepValues: false,
         });
     }, [ processedDefaultValues, form ]);
 
@@ -164,7 +164,7 @@ export function FormGrid(props: React.PropsWithChildren<FormGridProps>) {
     return (
         <FormProvider {...form}>
             <form noValidate onSubmit={handleSubmit}>
-                <Grid container spacing={2}>
+                <Grid container spacing={2} sx={{ mb: -2 }}>
                     {children}
                     <Collapse in={!!form.formState.isDirty} sx={{ width: '100%' }}>
                         <Grid size={{ xs: 12 }}>
@@ -173,6 +173,7 @@ export function FormGrid(props: React.PropsWithChildren<FormGridProps>) {
                                         backgroundColor: '#fff4e5',
                                         borderRadius: 2,
                                         padding: 1,
+                                        mb: 2,
                                     }}>
                                 <Button variant="contained" type="submit" loading={!!isPending}>
                                     { callToAction ?? 'Save changes' }
