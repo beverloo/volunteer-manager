@@ -3,6 +3,8 @@
 
 'use client';
 
+import { notFound } from 'next/navigation';
+
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import useSWR from 'swr';
 
@@ -49,7 +51,7 @@ export function ScheduleContextManager(props: React.PropsWithChildren<ScheduleCo
 
     // eslint-disable-next-line unused-imports/no-unused-vars
     const { data, error, isLoading, mutate } = useSWR<PublicSchedule>(endpoint, scheduleFetcher, {
-        refreshInterval: data => !!data ? data.config.updateFrequencyMs : kDefaultUpdateFrequencyMs,
+        refreshInterval: data => !!data ? data.config?.updateFrequencyMs : kDefaultUpdateFrequencyMs,
     });
 
     // TODO: Deal with `error`?
@@ -65,6 +67,9 @@ export function ScheduleContextManager(props: React.PropsWithChildren<ScheduleCo
     // in the schedule app. This avoids race conditions where outdated information is shown.
     const [ context, setContext ] = useState<ScheduleContextInfo>({ schedule: data });
     useEffect(() => {
+        if (data && 'success' in data && !data.success)
+            notFound();
+
         // Update the portal's time configuration when this has been provided by the server.
         updateTimeConfig(data?.config.timeOffset, data?.config.timezone || 'utc');
 
