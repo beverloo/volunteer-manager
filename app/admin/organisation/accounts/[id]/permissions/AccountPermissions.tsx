@@ -13,7 +13,7 @@ import Typography from '@mui/material/Typography';
 import type { AccessDescriptor, AccessOperation } from '@lib/auth/AccessDescriptor';
 import { AccessControl, kAnyEvent, kAnyTeam, type AccessControlParams, type AccessResult } from '@lib/auth/AccessControl';
 import { AccountPermissionsTable, type AccountPermissionStatus } from './AccountPermissionsTable';
-import { FormGridSection } from '@app/admin/components/FormGridSection';
+import { FormGrid } from '@app/admin/components/FormGrid';
 import { RecordLog, kLogSeverity, kLogType } from '@lib/Log';
 import { SectionIntroduction } from '@app/admin/components/SectionIntroduction';
 import { executeServerAction } from '@lib/serverAction';
@@ -425,7 +425,7 @@ export async function AccountPermissions(props: AccountPermissionsProps) {
     // ---------------------------------------------------------------------------------------------
 
     return (
-        <FormGridSection action={action} defaultValues={defaultValues} noHeader>
+        <FormGrid action={action} defaultValues={defaultValues}>
             <Grid size={{ xs: 12 }}>
                 <SectionIntroduction important>
                     Granting permissions to a account gives them more access within the Volunteer
@@ -475,6 +475,6 @@ export async function AccountPermissions(props: AccountPermissionsProps) {
                     </Grid>
                 </> }
 
-        </FormGridSection>
+        </FormGrid>
     );
 }
