@@ -43,8 +43,8 @@ export default async function OrganisationPage() {
                     </Grid>
                     <Grid size={{ xs: 6 }}>
                         <Stack direction="column" spacing={2}>
-                            { canAccessDisplays && <DisplaysCard /> }
                             { canAccessFeedback && <FeedbackCard /> }
+                            { canAccessDisplays && <DisplaysCard /> }
                             <NardoCard header />
                         </Stack>
                     </Grid>
@@ -53,13 +53,13 @@ export default async function OrganisationPage() {
                 <Grid size={{ xs: 12 }}>
                     <AccountWarningCard />
                 </Grid> }
-            { (!canAccessAccounts && canAccessDisplays) &&
-                <Grid size={{ xs: 12 }}>
-                    <DisplaysCard />
-                </Grid> }
             { (!canAccessAccounts && canAccessFeedback) &&
                 <Grid size={{ xs: 12 }}>
                     <FeedbackCard />
+                </Grid> }
+            { (!canAccessAccounts && canAccessDisplays) &&
+                <Grid size={{ xs: 12 }}>
+                    <DisplaysCard />
                 </Grid> }
             { !canAccessAccounts &&
                 <Grid size={{ xs: 12 }}>
