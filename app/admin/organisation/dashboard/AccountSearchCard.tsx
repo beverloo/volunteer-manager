@@ -30,7 +30,7 @@ export async function AccountSearchCard() {
     const normalisedAccounts = accounts.map(entry => {
         const { keywords, ...rest } = entry;
         return {
-            ...entry,
+            ...rest,
             keywords: Object.values(keywords || {}).filter(Boolean).join(' '),
         };
     });

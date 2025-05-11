@@ -70,7 +70,7 @@ export function AccountSearchInput(props: AccountSearchInputProps) {
             if (!!value && !!value.id)
                 router.push(`/admin/organisation/accounts/${value.id}`);
 
-    }, [ router ]);
+        }, [ router ]);
 
     // ---------------------------------------------------------------------------------------------
 
@@ -79,9 +79,8 @@ export function AccountSearchInput(props: AccountSearchInputProps) {
                       onChange={handleSelectionChange}
                       getOptionLabel={ option => `${option.name} ${option.keywords}` }
                       renderOption={ (renderProps, option) => {
-                          const { key, ...optionProps } = renderProps;
                           return (
-                              <Box key={option.id} component="li" {...optionProps}>
+                              <Box component="li" {...renderProps} key={option.id}>
                                   {option.name}
                               </Box>
                           );

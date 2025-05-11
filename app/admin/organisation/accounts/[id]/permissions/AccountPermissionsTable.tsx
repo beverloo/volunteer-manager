@@ -30,7 +30,7 @@ import type { AccessResult } from '@lib/auth/AccessControl';
 /**
  * Information stored for a particular permission.
  */
-export interface VolunteerPermissionStatus {
+export interface AccountPermissionStatus {
     /**
      * Unique ID of the permission. May contain dots as a path separator.
      */
@@ -66,13 +66,13 @@ export interface VolunteerPermissionStatus {
 }
 
 /**
- * Props accepted by the <VolunteerPermissionsTable> component.
+ * Props accepted by the <AccountPermissionsTable> component.
  */
-interface VolunteerPermissionsTableProps {
+interface AccountPermissionsTableProps {
     /**
      * The permissions that should be shown in the table.
      */
-    permissions: VolunteerPermissionStatus[];
+    permissions: AccountPermissionStatus[];
 
     /**
      * Whether the permissions should be displayed as read-only.
@@ -81,10 +81,10 @@ interface VolunteerPermissionsTableProps {
 }
 
 /**
- * The <VolunteerPermissionsTable> component displays a data table listing all of the permissions,
- * and whether the volunteer has been granted them.
+ * The <AccountPermissionsTable> component displays a data table listing all of the permissions,
+ * and whether the account has been granted them.
  */
-export function VolunteerPermissionsTable(props: VolunteerPermissionsTableProps) {
+export function AccountPermissionsTable(props: AccountPermissionsTableProps) {
     const permissionGroupsToExpand = useMemo(() => {
         const permissionGroupsToExpand = new Set<GridRowId>();
         for (const permission of props.permissions) {
@@ -118,13 +118,13 @@ export function VolunteerPermissionsTable(props: VolunteerPermissionsTableProps)
 
     }, [ /* no dependencies */ ]);
 
-    const grouping: GridGroupingColDefOverride<VolunteerPermissionStatus> = {
+    const grouping: GridGroupingColDefOverride<AccountPermissionStatus> = {
         headerName: 'Permission',
         hideDescendantCount: true,
         width: 250,
     };
 
-    const columns: GridColDef<VolunteerPermissionStatus>[] = [
+    const columns: GridColDef<AccountPermissionStatus>[] = [
         {
             display: 'flex',
             field: 'description',

@@ -6,17 +6,16 @@ import { z } from 'zod';
 import { SelectElement } from '@components/proxy/react-hook-form-mui';
 
 import Alert from '@mui/material/Alert';
-import CategoryIcon from '@mui/icons-material/Category';
 import Divider from '@mui/material/Divider';
 import Grid from '@mui/material/Grid';
 import Typography from '@mui/material/Typography';
 
 import type { AccessDescriptor, AccessOperation } from '@lib/auth/AccessDescriptor';
 import { AccessControl, kAnyEvent, kAnyTeam, type AccessControlParams, type AccessResult } from '@lib/auth/AccessControl';
+import { AccountPermissionsTable, type AccountPermissionStatus } from './AccountPermissionsTable';
 import { FormGridSection } from '@app/admin/components/FormGridSection';
 import { RecordLog, kLogSeverity, kLogType } from '@lib/Log';
 import { SectionIntroduction } from '@app/admin/components/SectionIntroduction';
-import { VolunteerPermissionsTable, type VolunteerPermissionStatus } from './VolunteerPermissionsTable';
 import { executeServerAction } from '@lib/serverAction';
 import db, { tEvents, tRoles, tTeams, tUsers, tUsersEvents } from '@lib/database';
 
@@ -30,9 +29,9 @@ import { kRegistrationStatus } from '@lib/database/Types';
 const kSelfSuffix = ':self';
 
 /**
- * Data associated with a volunteer permission update.
+ * Data associated with a account permission update.
  */
-const kVolunteerPermissionData = z.object({
+const kAccountPermissionData = z.object({
     /**
      * Nested object of granted permissions. Cannot be accurately represented by Zod.
      * @example { event: { visible: true }, test: {} }
@@ -60,7 +59,7 @@ const kVolunteerPermissionData = z.object({
 
 /**
  * Converts the given `input` to a list of permissions as a string. The input is expected to be
- * formatted in line with `kVolunteerPermissionData.grants`, which means a nested object with keys
+ * formatted in line with `kAccountPermissionData.grants`, which means a nested object with keys
  * indicating the permission status.
  *
  * @example input: { event: { applications: true, visible: false }, test: { boolean: true } }
@@ -120,9 +119,9 @@ export function toPermissionList(input: any, path?: string, permissions?: string
 /**
  * Server Action called when the permissions are being updated.
  */
-async function updateVolunteerPermissions(userId: number, formData: unknown) {
+async function updateAccountPermissions(userId: number, formData: unknown) {
     'use server';
-    return executeServerAction(formData, kVolunteerPermissionData, async (data, props) => {
+    return executeServerAction(formData, kAccountPermissionData, async (data, props) => {
         if (!props.access.can('organisation.permissions', 'update'))
             return { success: false, error: 'You are not able to update permissions' };
 
@@ -208,9 +207,9 @@ function maybeUpgradePermissionStatus(
 }
 
 /**
- * Props accepted by the <VolunteerPermissions> component.
+ * Props accepted by the <AccountPermissions> component.
  */
-interface VolunteerPermissionsProps {
+interface AccountPermissionsProps {
     /**
      * Whether the permissions should be displayed as read-only.
      */
@@ -223,11 +222,11 @@ interface VolunteerPermissionsProps {
 }
 
 /**
- * The <VolunteerPermissions> component displays the permissions that have been granted to the given
- * volunteer, as indicated in the `props`. The settings can be updated in real time.
+ * The <AccountPermissions> component displays the permissions that have been granted to the given
+ * account, as indicated in the `props`. The settings can be updated in real time.
  */
-export async function VolunteerPermissions(props: VolunteerPermissionsProps) {
-    const action = updateVolunteerPermissions.bind(null, props.userId);
+export async function AccountPermissions(props: AccountPermissionsProps) {
+    const action = updateAccountPermissions.bind(null, props.userId);
 
     const dbInstance = db;
     const defaultValues: Record<string, any> = {
@@ -335,14 +334,14 @@ export async function VolunteerPermissions(props: VolunteerPermissionsProps) {
         team: kAnyTeam,
     };
 
-    const permissions: VolunteerPermissionStatus[] = [ /* empty */ ];
+    const permissions: AccountPermissionStatus[] = [ /* empty */ ];
     for (const [ name, rawDescriptor ] of Object.entries(kPermissions)) {
         const descriptor = rawDescriptor as AccessDescriptor;
         if (typeof descriptor.hide === 'boolean' && !!descriptor.hide)
             continue;  // this permission has been explicitly hidden
 
-        const permissionChildren: VolunteerPermissionStatus[] = [];
-        const permission: VolunteerPermissionStatus = {
+        const permissionChildren: AccountPermissionStatus[] = [];
+        const permission: AccountPermissionStatus = {
             id: name,
             name: descriptor.name,
             description: descriptor.description,
@@ -379,7 +378,7 @@ export async function VolunteerPermissions(props: VolunteerPermissionsProps) {
                 if (!!descriptor.hide && descriptor.hide.includes(operation))
                     continue;  // this operation has been explicitly hidden
 
-                const childPermission: VolunteerPermissionStatus = {
+                const childPermission: AccountPermissionStatus = {
                     id: `${name}.${operation}`,
                     name: `${uppercaseFirst(operation)} ${lowercaseFirst(descriptor.name)}`,
                     status: {
@@ -426,11 +425,10 @@ export async function VolunteerPermissions(props: VolunteerPermissionsProps) {
     // ---------------------------------------------------------------------------------------------
 
     return (
-        <FormGridSection action={action} defaultValues={defaultValues}
-                         icon={ <CategoryIcon color="primary" /> } title="Permissions">
+        <FormGridSection action={action} defaultValues={defaultValues} noHeader>
             <Grid size={{ xs: 12 }}>
                 <SectionIntroduction important>
-                    Granting permissions to a volunteer gives them more access within the Volunteer
+                    Granting permissions to a account gives them more access within the Volunteer
                     Manager. While you can also revoke permissions, it's usually best to keep that
                     to a minimum. Role-based granted access will be reflected in the permission's
                     effective status, for example because they're a Senior in a particular event.
@@ -460,7 +458,7 @@ export async function VolunteerPermissions(props: VolunteerPermissionsProps) {
             </Grid>
 
             <Grid size={{ xs: 12 }}>
-                <VolunteerPermissionsTable permissions={permissions} readOnly={props.readOnly} />
+                <AccountPermissionsTable permissions={permissions} readOnly={props.readOnly} />
             </Grid>
 
             { !!userConfiguration?.events.length &&

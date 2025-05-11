@@ -13,7 +13,6 @@ import { Header } from './Header';
 import { Information } from './Information';
 import { LogsDataTable } from '@app/admin/system/logs/LogsDataTable';
 import { type ParticipationInfo, Participation } from './Participation';
-import { VolunteerPermissions } from './VolunteerPermissions';
 import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
 
 import db, { tEvents, tRoles, tTeams, tUsers, tUsersEvents } from '@lib/database';
@@ -123,8 +122,6 @@ export default async function VolunteerPage(props: NextPageParams<'id'>) {
 
     const canImpersonate = access.can('volunteer.account.impersonation');
 
-    const permissionsReadOnly = !access.can('organisation.permissions', 'update');
-
     return (
         <>
             <Header account={account} canImpersonate={canImpersonate} />
@@ -141,9 +138,6 @@ export default async function VolunteerPage(props: NextPageParams<'id'>) {
                     <LogsDataTable filters={{ sourceOrTargetUserId: account.userId }}
                                    pageSize={10} />
                 </Paper> }
-
-            { access.can('organisation.permissions', 'read') &&
-                <VolunteerPermissions readOnly={permissionsReadOnly} userId={account.userId} /> }
 
         </>
     );

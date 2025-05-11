@@ -101,22 +101,22 @@ export async function AccountWarningCard() {
                         title="Account warnings"
                         slotProps={{ title: { variant: 'subtitle2' } }} />
             <Divider />
-                <List dense disablePadding>
-                    { warnings.map((warning, index) =>
-                        <ListItemButton LinkComponent={Link}
-                                        href={`/admin/organisation/accounts/${warning.userId}`}
-                                        key={index}>
-                            <ListItemIcon>
-                                {warning.icon}
-                            </ListItemIcon>
-                            <ListItemText primary={warning.name}
-                                          secondary={warning.text} />
-                        </ListItemButton> )}
-                </List>
-                { !warnings.length &&
-                    <Typography variant="body2" sx={{ p: 2 }}>
-                        There are no account warnings right now. Hooray!
-                    </Typography> }
+            <List dense disablePadding>
+                { warnings.map((warning, index) =>
+                    <ListItemButton LinkComponent={Link}
+                                    href={`/admin/organisation/accounts/${warning.userId}`}
+                                    key={index}>
+                        <ListItemIcon>
+                            {warning.icon}
+                        </ListItemIcon>
+                        <ListItemText primary={warning.name}
+                                      secondary={warning.text} />
+                    </ListItemButton> )}
+            </List>
+            { !warnings.length &&
+                <Typography variant="body2" sx={{ p: 2 }}>
+                    There are no account warnings right now. Hooray!
+                </Typography> }
         </Card>
     );
 }
