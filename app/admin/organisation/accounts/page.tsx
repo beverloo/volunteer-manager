@@ -52,8 +52,7 @@ export default async function AccountsPage() {
                 activated: tUsers.activated.equals(/* true= */ 1),
             })
             .groupBy(tUsers.userId)
-            .orderBy(tUsers.lastName, 'asc')
-            .orderBy(tUsers.firstName, 'asc')
+            .orderBy(tUsers.name, 'asc')
             .executeSelectMany();
 
     // ---------------------------------------------------------------------------------------------
