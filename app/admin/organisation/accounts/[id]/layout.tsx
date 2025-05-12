@@ -5,16 +5,18 @@ import { notFound } from 'next/navigation';
 
 import Box from '@mui/material/Box';
 import CategoryIcon from '@mui/icons-material/Category';
+import Chip from '@mui/material/Chip';
 import Divider from '@mui/material/Divider';
 import DvrIcon from '@mui/icons-material/Dvr';
 import Paper from '@mui/material/Paper';
 import PersonIcon from '@mui/icons-material/Person';
 import SettingsIcon from '@mui/icons-material/Settings';
+import Stack from '@mui/material/Stack';
+import Typography from '@mui/material/Typography';
 
 import type { NextLayoutParams } from '@lib/NextRouterParams';
 import { AccountHeaderActions } from './AccountHeaderActions';
 import { AccountNavigation, type AccountNavigationProps } from './AccountNavigation';
-import { Section } from '@app/admin/components/Section';
 import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
 import db, { tUsers } from '@lib/database';
 
@@ -100,7 +102,15 @@ export default async function AccountLayout(
 
     return (
         <>
-            <Section title={account.name}>
+            <Paper component={Stack} direction="column" spacing={2} sx={{ p: 2 }}>
+                <Stack direction="row" alignItems="center" spacing={1}
+                       sx={{ mb: '-8px !important' }}>
+                    <Typography variant="h5">
+                        {account.name}
+                    </Typography>
+                    { !account.activated &&
+                        <Chip color="error" size="small" label="not activated" /> }
+                </Stack>
                 <AccountHeaderActions
                     firstName={account.firstName}
                     activateAccountFn={activateAccountFn}
@@ -108,7 +118,7 @@ export default async function AccountLayout(
                     deactivateAccountFn={deactivateAccountFn}
                     impersonateFn={impersonateFn}
                     resetPasswordFn={actions.resetPassword.bind(null, account.id)} />
-            </Section>
+            </Paper>
             <Paper>
                 <AccountNavigation pages={pages} />
                 <Divider />
