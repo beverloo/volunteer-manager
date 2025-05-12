@@ -17,7 +17,8 @@ export type FormGridSectionProps =
  * area. The component is specialised for sections that contain form fields, and all its children
  * are expected to be <Grid> components, or fragments containing <Grid> components therein.
  *
- * Form-specific handling contained within this component is deferred to <FormGrid>.
+ * Form-specific handling contained within this component is deferred to <FormGrid>, as well as the
+ * <FormProvider> component that underpins that.
  */
 export function FormGridSection(props: React.PropsWithChildren<FormGridSectionProps>) {
     const formGridProps: FormGridProps = {
