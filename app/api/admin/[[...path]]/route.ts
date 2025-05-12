@@ -5,7 +5,6 @@ import { NextRequest, NextResponse } from 'next/server';
 import { executeAction } from '../../Action';
 
 import { createEvent, kCreateEventDefinition } from '../createEvent';
-import { resetAccessCode, kResetAccessCodeDefinition } from '../resetAccessCode';
 import { resetPasswordLink, kResetPasswordLinkDefinition } from '../resetPasswordLink';
 import { serviceHealth, kServiceHealthDefinition } from '../serviceHealth';
 import { updateActivation, kUpdateActivationDefinition } from '../updateActivation';
@@ -36,8 +35,6 @@ export async function POST(request: NextRequest, props: RouteProps): Promise<Res
     switch (action) {
         case 'create-event':
             return executeAction(request, kCreateEventDefinition, createEvent);
-        case 'reset-access-code':
-            return executeAction(request, kResetAccessCodeDefinition, resetAccessCode);
         case 'service-health':
             return executeAction(request, kServiceHealthDefinition, serviceHealth);
         case 'reset-password-link':

@@ -8,8 +8,9 @@ import { RecordLog, kLogSeverity, kLogType } from '@lib/Log';
 import { executeServerAction } from '@lib/serverAction';
 import { isUsernameAvailable } from '@lib/auth/Authentication';
 import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
-import db, { tUsers } from '@lib/database';
+import db, { tUsers, tUsersAuth } from '@lib/database';
 
+import { kAuthType } from '@lib/database/Types';
 import { kTemporalPlainDate } from '@app/api/Types';
 
 /**
@@ -43,7 +44,35 @@ export async function createAccessCode(userId: number, formData: unknown) {
             permission: 'organisation.accounts',
         });
 
-        return { success: false, error: 'Not yet implemented' };
+        RecordLog({
+            type: kLogType.AdminResetAccessCode,
+            severity: kLogSeverity.Warning,
+            sourceUser: props.user,
+            targetUser: userId,
+        })
+
+        let accessCode = await db.selectFrom(tUsersAuth)
+            .where(tUsersAuth.userId.equals(userId))
+                .and(tUsersAuth.authType.equals(kAuthType.code))
+            .selectOneColumn(tUsersAuth.authValue)
+            .executeSelectNoneOrOne();
+
+        if (!accessCode) {
+            accessCode = `${Math.floor(Math.random() * (9999 - 1000) + 1000)}`;
+
+            const insertedAccessCode = await db.insertInto(tUsersAuth)
+                .values({
+                    userId: userId,
+                    authType: kAuthType.code,
+                    authValue: `${accessCode}`,
+                })
+                .executeInsert();
+
+            if (!insertedAccessCode)
+                return { success: false, message: 'Unable to create a new access code' };
+        }
+
+        return { success: true, message: `Their access code is: **${accessCode}**`}
     });
 }
 

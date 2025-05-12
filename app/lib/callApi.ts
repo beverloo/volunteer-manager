@@ -28,7 +28,6 @@ import type { RegisterActivateDefinition } from '@app/api/auth/registerActivate'
 import type { RegisterDefinition } from '@app/api/auth/register';
 import type { RegisterPasskeyDefinition } from '@app/api/auth/passkeys/registerPasskey';
 import type { RemindParticipationDefinition } from '@app/api/admin/retention/remindParticipation';
-import type { ResetAccessCodeDefinition } from '@app/api/admin/resetAccessCode';
 import type { ResetPasswordLinkDefinition } from '@app/api/admin/resetPasswordLink';
 import type { ScheduleTaskDefinition } from '@app/api/admin/scheduler/scheduleTask';
 import type { ServiceHealthDefinition } from '@app/api/admin/serviceHealth';
@@ -168,7 +167,6 @@ export type ApiEndpoints = {
         '/api/admin/program/activities': ProgramActivitiesEndpoints['create'],
         '/api/admin/program/areas': ProgramAreasEndpoints['create'],
         '/api/admin/program/locations': ProgramLocationsEndpoints['create'],
-        '/api/admin/reset-access-code': ResetAccessCodeDefinition,
         '/api/admin/reset-password-link': ResetPasswordLinkDefinition,
         '/api/admin/retention': RemindParticipationDefinition,
         '/api/admin/scheduler': ScheduleTaskDefinition,

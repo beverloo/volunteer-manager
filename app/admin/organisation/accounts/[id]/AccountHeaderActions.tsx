@@ -16,6 +16,7 @@ import UnpublishedIcon from '@mui/icons-material/Unpublished';
 
 import type { ServerAction } from '@lib/serverAction';
 import { ContrastBox } from '@app/admin/components/ContrastBox';
+import { ServerActionDialog } from '@app/admin/components/ServerActionDialog';
 
 /**
  * Props accepted by the confirmation dialog components part of the header.
@@ -41,18 +42,6 @@ interface DialogComponentProps {
  * The <ActivateAccountDialog> component
  */
 function ActivateAccountDialog(props: DialogComponentProps) {
-    return (
-        <>
-            { /* TODO */ }
-        </>
-    );
-}
-
-/**
- * The <CreateAccessCodeDialog> component implements a dialog that asks for the user's confirmation
- * on creating a new access code, and then displays the access code when acknowledged.
- */
-function CreateAccessCodeDialog(props: DialogComponentProps) {
     return (
         <>
             { /* TODO */ }
@@ -187,10 +176,17 @@ export function AccountHeaderActions(props: AccountHeaderActionsProps) {
                                        onConfirm={props.activateAccountFn}
                                        firstName={props.firstName} /> }
 
-            { (!!props.createAccessCodeFn && createAccessCodeDialogOpen) &&
-                <CreateAccessCodeDialog onClose={ () => setCreateAccessCodeDialogOpen(false) }
-                                        onConfirm={props.createAccessCodeFn}
-                                        firstName={props.firstName} /> }
+            { !!props.createAccessCodeFn &&
+                <ServerActionDialog
+                    action={props.createAccessCodeFn}
+                    description={
+                        <>
+                            Request an access code for <strong>{props.firstName}</strong> using
+                            which they can sign in to their account once to reset their password.
+                        </> }
+                    onClose={ () => setCreateAccessCodeDialogOpen(false) }
+                    open={createAccessCodeDialogOpen}
+                    submitLabel="Request" title="Request an access code" /> }
 
             { (!!props.deactivateAccountFn && deactivateAccountDialogOpen) &&
                 <DeactivateAccountDialog onClose={ () => setDeactivateAccountDialogOpen(false) }
