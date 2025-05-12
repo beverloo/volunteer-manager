@@ -19,50 +19,6 @@ import { ContrastBox } from '@app/admin/components/ContrastBox';
 import { ServerActionDialog } from '@app/admin/components/ServerActionDialog';
 
 /**
- * Props accepted by the confirmation dialog components part of the header.
- */
-interface DialogComponentProps {
-    /**
-     * Callback to invoke when the dialog should be closed.
-     */
-    onClose: () => void;
-
-    /**
-     * Server action to invoke when the dialog has been confirmed.
-     */
-    onConfirm: ServerAction;
-
-    /**
-     * First name of the account holder, to contextualise warning prompts.
-     */
-    firstName: string;
-}
-
-/**
- * The <ImpersonateDialog> component implements a dialog that confirms with the user that they
- * really want to impersonate the account they're viewing, creating a nested session.
- */
-function ImpersonateDialog(props: DialogComponentProps) {
-    return (
-        <>
-            { /* TODO */ }
-        </>
-    );
-}
-
-/**
- * The <ResetPasswordDialog> component asks confirmation from the user that they want to reset the
- * password of the account they're viewing. This also invalidates all activate sessions.
- */
-function ResetPasswordDialog(props: DialogComponentProps) {
-    return (
-        <>
-            { /* TODO */ }
-        </>
-    );
-}
-
-/**
  * Props accepted by the <AccountHeaderActions> component.
  */
 interface AccountHeaderActionsProps {
@@ -130,7 +86,7 @@ export function AccountHeaderActions(props: AccountHeaderActionsProps) {
                     { !!props.resetPasswordFn &&
                         <Button onClick={ () => setResetPasswordDialogOpen(true) }
                                 startIcon={ <LockResetIcon /> }>
-                            Activate
+                            Reset password
                         </Button> }
 
                     { !!props.createAccessCodeFn &&
@@ -152,11 +108,11 @@ export function AccountHeaderActions(props: AccountHeaderActionsProps) {
                 <ServerActionDialog
                     action={props.activateAccountFn}
                     description={
-                           <>
-                               Activate <strong>{props.firstName}</strong>'s account on their
-                               behalf, which may be useful in case they aren't receiving our e-mail
-                               messages.
-                           </> }
+                        <>
+                            Activate <strong>{props.firstName}</strong>'s account on their
+                            behalf, which may be useful in case they aren't receiving our e-mail
+                            messages.
+                        </> }
                     onClose={ () => setActivateAccountDialogOpen(false) }
                     open={activateAccountDialogOpen}
                     submitLabel="Activate" title="Activate the account" /> }
@@ -198,10 +154,18 @@ export function AccountHeaderActions(props: AccountHeaderActionsProps) {
                     open={impersonateDialogOpen}
                     submitLabel="Impersonate" title="Impersonate this account" /> }
 
-            { (!!props.resetPasswordFn && resetPasswordDialogOpen) &&
-                <ResetPasswordDialog onClose={ () => setResetPasswordDialogOpen(false) }
-                                     onConfirm={props.resetPasswordFn}
-                                     firstName={props.firstName} /> }
+            { !!props.resetPasswordFn &&
+                <ServerActionDialog
+                    action={props.resetPasswordFn}
+                    description={
+                        <>
+                            Request a password reset link for <strong>{props.firstName}</strong>,
+                            using which they can immediately reset their password. The link is yours
+                            to share with them.
+                        </> }
+                    onClose={ () => setResetPasswordDialogOpen(false) }
+                    open={resetPasswordDialogOpen}
+                    submitLabel="Request" title="Request a password reset" /> }
 
         </>
     );

@@ -14,6 +14,7 @@ import db, { tUsers, tUsersAuth } from '@lib/database';
 
 import { kAuthType } from '@lib/database/Types';
 import { kTemporalPlainDate } from '@app/api/Types';
+import { sealPasswordResetRequest } from '@lib/auth/PasswordReset';
 
 
 /**
@@ -157,7 +158,7 @@ export async function impersonate(userId: number, formData: unknown) {
         const userSessionToken = await getUserSessionToken(props.user!.userId);
 
         if (!impersonatedUser || !impersonatedUserSessionToken || !userSessionToken)
-            return { success: false, error: 'Unable to find the user to impersonate' };
+            notFound();
 
         await writeSealedSessionCookieToStore({
             id: impersonatedUser.userId,
@@ -194,7 +195,30 @@ export async function resetPassword(userId: number, formData: unknown) {
             permission: 'organisation.accounts',
         });
 
-        return { success: false, error: 'Not yet implemented' };
+        const user = await db.selectFrom(tUsers)
+            .select({ sessionToken: tUsers.sessionToken })
+            .where(tUsers.userId.equals(userId))
+            .executeSelectNoneOrOne();
+
+        if (!user)
+            notFound();
+
+        const passwordResetRequest = await sealPasswordResetRequest({
+            id: userId,
+            token: user.sessionToken
+        });
+
+        RecordLog({
+            type: kLogType.AdminResetPasswordLink,
+            severity: kLogSeverity.Warning,
+            sourceUser: props.user,
+            targetUser: userId,
+        });
+
+        const passwordResetLink =
+            `https://${props.host}/?password-reset-request=${passwordResetRequest}`;
+
+        return { success: true, message: passwordResetLink };
     });
 }
 
