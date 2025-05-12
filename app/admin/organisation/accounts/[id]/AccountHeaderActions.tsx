@@ -39,29 +39,6 @@ interface DialogComponentProps {
 }
 
 /**
- * The <ActivateAccountDialog> component
- */
-function ActivateAccountDialog(props: DialogComponentProps) {
-    return (
-        <>
-            { /* TODO */ }
-        </>
-    );
-}
-
-/**
- * The <DeactivateAccountDialog> component implements a dialog that asks the user whether they
- * really want to deactivate this particular account, invalidating all associated sessions.
- */
-function DeactivateAccountDialog(props: DialogComponentProps) {
-    return (
-        <>
-            { /* TODO */ }
-        </>
-    );
-}
-
-/**
  * The <ImpersonateDialog> component implements a dialog that confirms with the user that they
  * really want to impersonate the account they're viewing, creating a nested session.
  */
@@ -171,10 +148,30 @@ export function AccountHeaderActions(props: AccountHeaderActionsProps) {
                 </Stack>
             </ContrastBox>
 
-            { (!!props.activateAccountFn && activateAccountDialogOpen) &&
-                <ActivateAccountDialog onClose={ () => setActivateAccountDialogOpen(false) }
-                                       onConfirm={props.activateAccountFn}
-                                       firstName={props.firstName} /> }
+            { !!props.activateAccountFn &&
+                <ServerActionDialog
+                    action={props.activateAccountFn}
+                    description={
+                           <>
+                               Activate <strong>{props.firstName}</strong>'s account on their
+                               behalf, which may be useful in case they aren't receiving our e-mail
+                               messages.
+                           </> }
+                    onClose={ () => setActivateAccountDialogOpen(false) }
+                    open={activateAccountDialogOpen}
+                    submitLabel="Activate" title="Activate the account" /> }
+
+            { !!props.deactivateAccountFn &&
+                <ServerActionDialog
+                    action={props.deactivateAccountFn}
+                    description={
+                        <>
+                           Deactivating the account owned by <strong>{props.firstName}</strong> will
+                           sign them out, and stops them from being able to sign in again.
+                        </> }
+                    onClose={ () => setDeactivateAccountDialogOpen(false) }
+                    open={deactivateAccountDialogOpen}
+                    submitLabel="Deactivate" title="Deactivate the account" /> }
 
             { !!props.createAccessCodeFn &&
                 <ServerActionDialog
@@ -187,11 +184,6 @@ export function AccountHeaderActions(props: AccountHeaderActionsProps) {
                     onClose={ () => setCreateAccessCodeDialogOpen(false) }
                     open={createAccessCodeDialogOpen}
                     submitLabel="Request" title="Request an access code" /> }
-
-            { (!!props.deactivateAccountFn && deactivateAccountDialogOpen) &&
-                <DeactivateAccountDialog onClose={ () => setDeactivateAccountDialogOpen(false) }
-                                         onConfirm={props.deactivateAccountFn}
-                                         firstName={props.firstName} /> }
 
             { (!!props.impersonateFn && impersonateDialogOpen) &&
                 <ImpersonateDialog onClose={ () => setImpersonateDialogOpen(false) }

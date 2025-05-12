@@ -29,7 +29,30 @@ export async function activateAccount(userId: number, formData: unknown) {
             permission: 'organisation.accounts',
         });
 
-        return { success: false, error: 'Not yet implemented' };
+        const affectedRows = await db.update(tUsers)
+            .set({
+                activated: /* true= */ 1
+            })
+            .where(tUsers.userId.equals(userId))
+            .executeUpdate();
+
+        if (!affectedRows)
+            return { success: false, error: 'Unable to activate their account…' };
+
+        RecordLog({
+            type: kLogType.AdminUpdateActivation,
+            sourceUser: props.user,
+            targetUser: userId,
+            data: {
+                activated: true,
+            },
+        });
+
+        return {
+            success: true,
+            message: 'Their account has been activated',
+            refresh: true,
+        };
     });
 }
 
@@ -69,7 +92,7 @@ export async function createAccessCode(userId: number, formData: unknown) {
                 .executeInsert();
 
             if (!insertedAccessCode)
-                return { success: false, message: 'Unable to create a new access code' };
+                return { success: false, message: 'Unable to create a new access code…' };
         }
 
         return { success: true, message: `Their access code is: **${accessCode}**`}
@@ -87,7 +110,30 @@ export async function deactivateAccount(userId: number, formData: unknown) {
             permission: 'organisation.accounts',
         });
 
-        return { success: false, error: 'Not yet implemented' };
+        const affectedRows = await db.update(tUsers)
+            .set({
+                activated: /* false= */ 0
+            })
+            .where(tUsers.userId.equals(userId))
+            .executeUpdate();
+
+        if (!affectedRows)
+            return { success: false, error: 'Unable to deactivate their account…' };
+
+        RecordLog({
+            type: kLogType.AdminUpdateActivation,
+            sourceUser: props.user,
+            targetUser: userId,
+            data: {
+                activated: false,
+            },
+        });
+
+        return {
+            success: true,
+            message: 'Their account has been deactivated',
+            refresh: true,
+        };
     });
 }
 

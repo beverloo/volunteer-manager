@@ -41,7 +41,6 @@ import type { SubmitFeedbackDefinition } from '@app/api/event/schedule/submitFee
 import type { TrainingPreferencesDefinition } from '@app/api/event/trainingPreferences';
 import type { TrainingsDefinition } from '@app/api/event/trainings/[event]/route';
 import type { UpdateAccountDefinition } from '@app/api/auth/updateAccount';
-import type { UpdateActivationDefinition } from '@app/api/admin/updateActivation';
 import type { UpdateAiSettingsDefinition } from '@app/api/ai/updateSettings';
 import type { UpdateApplicationDefinition } from '@app/api/application/updateApplication';
 import type { UpdateAvatarDefinition } from '@app/api/auth/updateAvatar';
@@ -173,7 +172,6 @@ export type ApiEndpoints = {
         '/api/admin/service-health': ServiceHealthDefinition,
         '/api/admin/trainings': TrainingsEndpoints['create'],
         '/api/admin/trainings/extra': TrainingsExtraEndpoints['create'],
-        '/api/admin/update-activation': UpdateActivationDefinition,
         '/api/admin/update-event': UpdateEventDefinition,
         '/api/admin/update-integration': UpdateIntegrationDefinition,
         '/api/admin/update-settings': UpdateSettingsDefinition,
