@@ -1,17 +1,20 @@
 // Copyright 2025 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
+import { cookies } from 'next/headers';
 import { notFound } from 'next/navigation';
 import { z } from 'zod';
 
 import { RecordLog, kLogSeverity, kLogType } from '@lib/Log';
 import { executeServerAction } from '@lib/serverAction';
-import { isUsernameAvailable } from '@lib/auth/Authentication';
+import { authenticateUser, getUserSessionToken, isUsernameAvailable } from '@lib/auth/Authentication';
 import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
+import { writeSealedSessionCookieToStore } from '@lib/auth/Session';
 import db, { tUsers, tUsersAuth } from '@lib/database';
 
 import { kAuthType } from '@lib/database/Types';
 import { kTemporalPlainDate } from '@app/api/Types';
+
 
 /**
  * Zod type that describes that no data is expected.
@@ -148,7 +151,35 @@ export async function impersonate(userId: number, formData: unknown) {
             permission: 'organisation.impersonation',
         });
 
-        return { success: false, error: 'Not yet implemented' };
+        const { user: impersonatedUser } = await authenticateUser({ type: 'userId', userId });
+
+        const impersonatedUserSessionToken = await getUserSessionToken(userId);
+        const userSessionToken = await getUserSessionToken(props.user!.userId);
+
+        if (!impersonatedUser || !impersonatedUserSessionToken || !userSessionToken)
+            return { success: false, error: 'Unable to find the user to impersonate' };
+
+        await writeSealedSessionCookieToStore({
+            id: impersonatedUser.userId,
+            token: impersonatedUserSessionToken,
+            parent: {
+                id: props.user!.userId,
+                token: userSessionToken,
+            },
+        }, await cookies());
+
+        RecordLog({
+            type: kLogType.AdminImpersonateVolunteer,
+            severity: kLogSeverity.Warning,
+            sourceUser: props.user,
+            targetUser: impersonatedUser,
+        });
+
+        return {
+            success: true,
+            message: 'Impersonation successful. You are being redirected…',
+            redirect: '/',
+        };
     });
 }
 

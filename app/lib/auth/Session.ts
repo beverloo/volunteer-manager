@@ -92,3 +92,16 @@ export async function writeSealedSessionCookie(session: SessionData, headers: He
         path: '/',
     }));
 }
+
+/**
+ * Writes the given `session` in sealed format to the given `cookieStore`.
+ */
+export async function writeSealedSessionCookieToStore(session: SessionData, cookieStore: any)
+    : Promise<void>
+{
+    cookieStore.set(kSessionCookieName, await sealSession(session), {
+        httpOnly: true,
+        maxAge: kSessionExpirationTimeSeconds,
+        path: '/',
+    });
+}

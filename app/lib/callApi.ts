@@ -32,7 +32,6 @@ import type { ResetPasswordLinkDefinition } from '@app/api/admin/resetPasswordLi
 import type { ScheduleTaskDefinition } from '@app/api/admin/scheduler/scheduleTask';
 import type { ServiceHealthDefinition } from '@app/api/admin/serviceHealth';
 import type { SettingsDefinition } from '@app/api/auth/settings';
-import type { SignInImpersonateDefinition } from '@app/api/auth/signInImpersonate';
 import type { SignInPasskeyDefinition } from '@app/api/auth/signInPasskey';
 import type { SignInPasswordDefinition } from '@app/api/auth/signInPassword';
 import type { SignInPasswordUpdateDefinition } from '@app/api/auth/signInPasswordUpdate';
@@ -195,7 +194,6 @@ export type ApiEndpoints = {
         '/api/auth/register-activate': RegisterActivateDefinition,
         '/api/auth/register': RegisterDefinition,
         '/api/auth/settings': SettingsDefinition,
-        '/api/auth/sign-in-impersonate': SignInImpersonateDefinition,
         '/api/auth/sign-in-passkey': SignInPasskeyDefinition,
         '/api/auth/sign-in-password': SignInPasswordDefinition,
         '/api/auth/sign-in-password-update': SignInPasswordUpdateDefinition,

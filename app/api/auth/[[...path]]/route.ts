@@ -13,7 +13,6 @@ import { passwordResetVerify, kPasswordResetVerifyDefinition } from '../password
 import { register, kRegisterDefinition } from '../register';
 import { registerActivate, kRegisterActivateDefinition } from '../registerActivate';
 import { settings, kSettingsDefinition } from '../settings';
-import { signInImpersonate, kSignInImpersonateDefinition } from '../signInImpersonate';
 import { signInPasskey, kSignInPasskeyDefinition } from '../signInPasskey';
 import { signInPassword, kSignInPasswordDefinition } from '../signInPassword';
 import { signInPasswordUpdate, kSignInPasswordUpdateDefinition } from '../signInPasswordUpdate';
@@ -47,8 +46,6 @@ export async function POST(request: NextRequest, props: NextRouteParams<never, '
             return executeAction(request, kRegisterActivateDefinition, registerActivate);
         case 'settings':
             return executeAction(request, kSettingsDefinition, settings);
-        case 'sign-in-impersonate':
-            return executeAction(request, kSignInImpersonateDefinition, signInImpersonate);
         case 'sign-in-passkey':
             return executeAction(request, kSignInPasskeyDefinition, signInPasskey);
         case 'sign-in-password':

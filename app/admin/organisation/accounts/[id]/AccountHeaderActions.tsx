@@ -142,7 +142,7 @@ export function AccountHeaderActions(props: AccountHeaderActionsProps) {
                     { !!props.impersonateFn &&
                         <Button onClick={ () => setImpersonateDialogOpen(true) }
                                 startIcon={ <AttributionIcon /> }>
-                            Activate
+                            Impersonate
                         </Button> }
 
                 </Stack>
@@ -185,10 +185,18 @@ export function AccountHeaderActions(props: AccountHeaderActionsProps) {
                     open={createAccessCodeDialogOpen}
                     submitLabel="Request" title="Request an access code" /> }
 
-            { (!!props.impersonateFn && impersonateDialogOpen) &&
-                <ImpersonateDialog onClose={ () => setImpersonateDialogOpen(false) }
-                                   onConfirm={props.impersonateFn}
-                                   firstName={props.firstName} /> }
+            { !!props.impersonateFn &&
+                <ServerActionDialog
+                    action={props.impersonateFn}
+                    description={
+                        <>
+                            You can impersonate <strong>{props.firstName}</strong>, which
+                            means that you will be signed in to their account. You will be back
+                            to your own account after signing out.
+                        </> }
+                    onClose={ () => setImpersonateDialogOpen(false) }
+                    open={impersonateDialogOpen}
+                    submitLabel="Impersonate" title="Impersonate this account" /> }
 
             { (!!props.resetPasswordFn && resetPasswordDialogOpen) &&
                 <ResetPasswordDialog onClose={ () => setResetPasswordDialogOpen(false) }
