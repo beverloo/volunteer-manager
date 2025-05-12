@@ -235,6 +235,16 @@ export const kPermissions = {
         type: 'boolean',
     },
 
+    'organisation.impersonation': {
+        name: 'Impersonation',
+        description:
+            'This permission allows the volunteer to impersonate other accounts by signing in ' +
+            'as them without needing their authentication information. Any modifications made ' +
+            'while impersonating someone will be attributed to the other person!',
+        type: 'boolean',
+        warning: true,
+    },
+
     'organisation.nardo': {
         name: 'Del a Rie Advies',
         description:
@@ -381,14 +391,6 @@ export const kPermissions = {
             'update and reset passwords, impersonate users and disable their accounts.',
         type: 'boolean',
         warning: true,
-    },
-
-    'volunteer.account.impersonation': {
-        name: 'Impersonate account',
-        description:
-            'This permission allows the volunteer to impersonate other accounts by signing in ' +
-            'as them without needing their authentication information.',
-        type: 'boolean',
     },
 
     'volunteer.account.information': {

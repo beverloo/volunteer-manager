@@ -86,7 +86,7 @@ export default async function VolunteerPage(props: NextPageParams<'id'>) {
 
     const { account } = volunteerInfo;
 
-    const canImpersonate = access.can('volunteer.account.impersonation');
+    const canImpersonate = access.can('organisation.impersonation');
 
     return (
         <>

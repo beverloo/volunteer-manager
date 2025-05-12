@@ -46,7 +46,7 @@ type Response = ApiResponse<typeof kSignInImpersonateDefinition>;
 export async function signInImpersonate(request: Request, props: ActionProps): Promise<Response> {
     executeAccessCheck(props.authenticationContext, {
         check: 'admin',
-        permission: 'volunteer.account.impersonation',
+        permission: 'organisation.impersonation',
     });
 
     const { user: impersonatedUser } =

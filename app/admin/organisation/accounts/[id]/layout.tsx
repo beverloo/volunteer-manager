@@ -18,6 +18,8 @@ import { Section } from '@app/admin/components/Section';
 import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
 import db, { tUsers } from '@lib/database';
 
+import * as actions from './AccountActions';
+
 /**
  * The <AccountLayout> component contains the layout surrounding the account page. The page is built
  * up of one or more tabs, each of which provides access to a separate section of account details.
@@ -43,6 +45,8 @@ export default async function AccountLayout(
         .select({
             id: tUsers.userId,
             name: tUsers.name,
+            firstName: tUsers.firstName,
+            activated: tUsers.activated,
         })
         .executeSelectNoneOrOne();
 
@@ -85,10 +89,25 @@ export default async function AccountLayout(
 
     // ---------------------------------------------------------------------------------------------
 
+    const activateAccountFn =
+        !account.activated ? actions.activateAccount.bind(null, account.id) : undefined;
+    const deactivateAccountFn =
+        !!account.activated ? actions.deactivateAccount.bind(null, account.id) : undefined;
+
+    const impersonateFn =
+        access.can('organisation.impersonation') ? actions.impersonate.bind(null, account.id)
+                                                 : undefined;
+
     return (
         <>
             <Section title={account.name}>
-                <AccountHeaderActions />
+                <AccountHeaderActions
+                    firstName={account.firstName}
+                    activateAccountFn={activateAccountFn}
+                    createAccessCodeFn={actions.createAccessCode.bind(null, account.id)}
+                    deactivateAccountFn={deactivateAccountFn}
+                    impersonateFn={impersonateFn}
+                    resetPasswordFn={actions.resetPassword.bind(null, account.id)} />
             </Section>
             <Paper>
                 <AccountNavigation pages={pages} />
