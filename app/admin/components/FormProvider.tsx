@@ -59,6 +59,11 @@ export interface FormProviderProps {
     defaultValues?: Record<string, any>;
 
     /**
+     * The form that should be used. Will create a new form when omitted.
+     */
+    form?: ReturnType<typeof useForm>;
+
+    /**
      * Name of the timezone through which dates and times included in the `defaultValues` should be
      * interpret. Defaults to UTC.
      */
@@ -122,7 +127,7 @@ export function FormProvider(props: React.PropsWithChildren<FormProviderProps>) 
 
     }, [ defaultValues, timezone ]);
 
-    const form = useForm({ defaultValues: processedDefaultValues });
+    const form = props.form ?? useForm({ defaultValues: processedDefaultValues });
     const router = useRouter();
 
     // For the values we pass to `reset()`, see the following react-hook-form documentation:
