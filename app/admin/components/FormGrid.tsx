@@ -36,7 +36,7 @@ export function FormGrid(props: React.PropsWithChildren<FormGridProps>) {
         <FormProvider {...formProviderProps}>
             <Grid container spacing={2} sx={{ mb: -2 }}>
                 {children}
-                <InnerFormGrid callToAction={props.callToAction} />
+                <InnerFormGrid callToAction={callToAction} />
             </Grid>
         </FormProvider>
     );

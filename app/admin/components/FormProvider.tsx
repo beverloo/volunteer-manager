@@ -127,6 +127,7 @@ export function FormProvider(props: React.PropsWithChildren<FormProviderProps>) 
 
     }, [ defaultValues, timezone ]);
 
+    // eslint-disable-next-line react-hooks/rules-of-hooks
     const form = props.form ?? useForm({ defaultValues: processedDefaultValues });
     const router = useRouter();
 
