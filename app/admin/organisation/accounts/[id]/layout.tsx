@@ -5,6 +5,7 @@ import { notFound } from 'next/navigation';
 
 import Box from '@mui/material/Box';
 import CategoryIcon from '@mui/icons-material/Category';
+import Divider from '@mui/material/Divider';
 import DvrIcon from '@mui/icons-material/Dvr';
 import Paper from '@mui/material/Paper';
 import PersonIcon from '@mui/icons-material/Person';
@@ -91,6 +92,7 @@ export default async function AccountLayout(
             </Section>
             <Paper>
                 <AccountNavigation pages={pages} />
+                <Divider />
                 <Box sx={{ p: 2 }}>
                     {props.children}
                 </Box>
