@@ -3,11 +3,98 @@
 
 'use client';
 
+import { useState } from 'react';
+
+import AttributionIcon from '@mui/icons-material/Attribution';
+import Button from '@mui/material/Button';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import Divider from '@mui/material/Divider';
+import LockResetIcon from '@mui/icons-material/LockReset';
+import PinIcon from '@mui/icons-material/Pin';
 import Stack from '@mui/material/Stack';
+import UnpublishedIcon from '@mui/icons-material/Unpublished';
 
 import type { ServerAction } from '@lib/serverAction';
 import { ContrastBox } from '@app/admin/components/ContrastBox';
+
+/**
+ * Props accepted by the confirmation dialog components part of the header.
+ */
+interface DialogComponentProps {
+    /**
+     * Callback to invoke when the dialog should be closed.
+     */
+    onClose: () => void;
+
+    /**
+     * Server action to invoke when the dialog has been confirmed.
+     */
+    onConfirm: ServerAction;
+
+    /**
+     * First name of the account holder, to contextualise warning prompts.
+     */
+    firstName: string;
+}
+
+/**
+ * The <ActivateAccountDialog> component
+ */
+function ActivateAccountDialog(props: DialogComponentProps) {
+    return (
+        <>
+            { /* TODO */ }
+        </>
+    );
+}
+
+/**
+ * The <CreateAccessCodeDialog> component implements a dialog that asks for the user's confirmation
+ * on creating a new access code, and then displays the access code when acknowledged.
+ */
+function CreateAccessCodeDialog(props: DialogComponentProps) {
+    return (
+        <>
+            { /* TODO */ }
+        </>
+    );
+}
+
+/**
+ * The <DeactivateAccountDialog> component implements a dialog that asks the user whether they
+ * really want to deactivate this particular account, invalidating all associated sessions.
+ */
+function DeactivateAccountDialog(props: DialogComponentProps) {
+    return (
+        <>
+            { /* TODO */ }
+        </>
+    );
+}
+
+/**
+ * The <ImpersonateDialog> component implements a dialog that confirms with the user that they
+ * really want to impersonate the account they're viewing, creating a nested session.
+ */
+function ImpersonateDialog(props: DialogComponentProps) {
+    return (
+        <>
+            { /* TODO */ }
+        </>
+    );
+}
+
+/**
+ * The <ResetPasswordDialog> component asks confirmation from the user that they want to reset the
+ * password of the account they're viewing. This also invalidates all activate sessions.
+ */
+function ResetPasswordDialog(props: DialogComponentProps) {
+    return (
+        <>
+            { /* TODO */ }
+        </>
+    );
+}
 
 /**
  * Props accepted by the <AccountHeaderActions> component.
@@ -50,20 +137,76 @@ interface AccountHeaderActionsProps {
  * user interface will be built based on the server actions passed to this component.
  */
 export function AccountHeaderActions(props: AccountHeaderActionsProps) {
+    const [ activateAccountDialogOpen, setActivateAccountDialogOpen ] = useState(false);
+    const [ createAccessCodeDialogOpen, setCreateAccessCodeDialogOpen ] = useState(false);
+    const [ deactivateAccountDialogOpen, setDeactivateAccountDialogOpen ] = useState(false);
+    const [ impersonateDialogOpen, setImpersonateDialogOpen ] = useState(false);
+    const [ resetPasswordDialogOpen, setResetPasswordDialogOpen ] = useState(false);
+
     return (
         <>
             <ContrastBox sx={{ mt: 1, px: 2, py: 1 }}>
                 <Stack divider={ <Divider orientation="vertical" flexItem /> }
                        direction="row" spacing={1}>
 
-                    { /* TODO: Deactivate */ }
-                    { /* TODO: Activate */ }
-                    { /* TODO: Reset password */ }
-                    { /* TODO: Access code */ }
-                    { /* TODO: Impersonate */ }
+                    { !!props.deactivateAccountFn &&
+                        <Button onClick={ () => setDeactivateAccountDialogOpen(true) }
+                                startIcon={ <UnpublishedIcon /> }>
+                            Deactivate
+                        </Button> }
+
+                    { !!props.activateAccountFn &&
+                        <Button onClick={ () => setActivateAccountDialogOpen(true) }
+                                startIcon={ <CheckCircleIcon /> }>
+                            Activate
+                        </Button> }
+
+                    { !!props.resetPasswordFn &&
+                        <Button onClick={ () => setResetPasswordDialogOpen(true) }
+                                startIcon={ <LockResetIcon /> }>
+                            Activate
+                        </Button> }
+
+                    { !!props.createAccessCodeFn &&
+                        <Button onClick={ () => setCreateAccessCodeDialogOpen(true) }
+                                startIcon={ <PinIcon /> }>
+                            Access code
+                        </Button> }
+
+                    { !!props.impersonateFn &&
+                        <Button onClick={ () => setImpersonateDialogOpen(true) }
+                                startIcon={ <AttributionIcon /> }>
+                            Activate
+                        </Button> }
 
                 </Stack>
             </ContrastBox>
+
+            { (!!props.activateAccountFn && activateAccountDialogOpen) &&
+                <ActivateAccountDialog onClose={ () => setActivateAccountDialogOpen(false) }
+                                       onConfirm={props.activateAccountFn}
+                                       firstName={props.firstName} /> }
+
+            { (!!props.createAccessCodeFn && createAccessCodeDialogOpen) &&
+                <CreateAccessCodeDialog onClose={ () => setCreateAccessCodeDialogOpen(false) }
+                                        onConfirm={props.createAccessCodeFn}
+                                        firstName={props.firstName} /> }
+
+            { (!!props.deactivateAccountFn && deactivateAccountDialogOpen) &&
+                <DeactivateAccountDialog onClose={ () => setDeactivateAccountDialogOpen(false) }
+                                         onConfirm={props.deactivateAccountFn}
+                                         firstName={props.firstName} /> }
+
+            { (!!props.impersonateFn && impersonateDialogOpen) &&
+                <ImpersonateDialog onClose={ () => setImpersonateDialogOpen(false) }
+                                   onConfirm={props.impersonateFn}
+                                   firstName={props.firstName} /> }
+
+            { (!!props.resetPasswordFn && resetPasswordDialogOpen) &&
+                <ResetPasswordDialog onClose={ () => setResetPasswordDialogOpen(false) }
+                                     onConfirm={props.resetPasswordFn}
+                                     firstName={props.firstName} /> }
+
         </>
     );
 }
