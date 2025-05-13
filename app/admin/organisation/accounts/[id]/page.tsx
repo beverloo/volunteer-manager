@@ -73,7 +73,7 @@ export default async function AccountInformationPage(props: NextPageParams<'id'>
             username: tUsers.username,
             phoneNumber: tUsers.phoneNumber,
             discordHandle: tUsers.discordHandle,
-            discordHandleUpdated: tUsers.discordHandleUpdated,
+            discordHandleUpdated: tUsers.discordHandleUpdated.isNotNull(),
         })
         .executeSelectNoneOrOne();
 
@@ -84,7 +84,7 @@ export default async function AccountInformationPage(props: NextPageParams<'id'>
         <>
             <FormGrid action={action} defaultValues={defaultValues}>
                 <AccountInformation discordHandle={defaultValues.discordHandle}
-                                    discordHandleUpdated={!!defaultValues.discordHandleUpdated}
+                                    discordHandleUpdated={defaultValues.discordHandleUpdated}
                                     userId={userId} />
             </FormGrid>
             <Divider sx={{ my: 2 }} />
