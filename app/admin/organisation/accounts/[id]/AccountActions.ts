@@ -61,6 +61,39 @@ export async function activateAccount(userId: number, formData: unknown) {
 }
 
 /**
+ * Server action that confirms the account's associated Discord handle as having been verified.
+ */
+export async function confirmDiscord(userId: number, formData: unknown) {
+    'use server';
+    return executeServerAction(formData, kNoDataRequired, async (data, props) => {
+        await requireAuthenticationContext({
+            check: 'admin',
+            permission: 'organisation.accounts',
+        });
+
+        const affectedRows = await db.update(tUsers)
+            .set({
+                discordHandleUpdated: null,
+            })
+            .where(tUsers.userId.equals(userId))
+                .and(tUsers.discordHandleUpdated.isNotNull())
+            .executeUpdate();
+
+        if (!affectedRows)
+            return { success: false, error: 'The verification could not be stored…' };
+
+        RecordLog({
+            type: kLogType.AdminVerifyDiscord,
+            severity: kLogSeverity.Warning,
+            sourceUser: props.user,
+            targetUser: userId,
+        });
+
+        return { success: true };
+    });
+}
+
+/**
  * Server action that associates an access code with the account identified by the given `userId`
  */
 export async function createAccessCode(userId: number, formData: unknown) {

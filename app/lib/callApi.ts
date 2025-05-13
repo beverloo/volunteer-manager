@@ -51,7 +51,6 @@ import type { UpdateScheduleEntryDefinition } from '@app/api/admin/event/schedul
 import type { UpdateSettingsDefinition } from '@app/api/admin/updateSettings';
 import type { UpdateTeamDefinition } from '@app/api/admin/updateTeam';
 import type { UpdateVendorScheduleDefinition } from '@app/api/admin/vendors/updateVendorSchedule';
-import type { VerifyDiscordDefinition } from '@app/api/admin/verifyDiscord';
 import type { VertexAiDefinition } from '@app/api/admin/vertexAi';
 import type { VolunteerContactInfoDefinition } from '@app/api/admin/volunteerContactInfo';
 import type { VolunteerListDefinition } from '@app/api/admin/volunteerList';
@@ -174,7 +173,6 @@ export type ApiEndpoints = {
         '/api/admin/update-settings': UpdateSettingsDefinition,
         '/api/admin/update-team': UpdateTeamDefinition,
         '/api/admin/vendors': VendorEndpoints['create'],
-        '/api/admin/verify-discord': VerifyDiscordDefinition,
         '/api/admin/vertex-ai': VertexAiDefinition,
         '/api/admin/volunteer-contact-info': VolunteerContactInfoDefinition,
         '/api/admin/volunteer-list': VolunteerListDefinition,

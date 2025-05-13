@@ -15,9 +15,9 @@ import IconButton from '@mui/material/IconButton';
 import Stack from '@mui/material/Stack';
 import Tooltip from '@mui/material/Tooltip';
 
+import type { ServerAction } from '@lib/serverAction';
 import { ConfirmationDialog } from '@app/admin/components/ConfirmationDialog';
 import { DiscordIcon } from './DiscordIcon';
-import { callApi } from '@lib/callApi';
 
 import { kGenderOptions } from '@app/registration/authentication/RegisterForm';
 
@@ -25,6 +25,11 @@ import { kGenderOptions } from '@app/registration/authentication/RegisterForm';
  * Props accepted by the <AccountInformation> component.
  */
 interface AccountInformationProps {
+    /**
+     * Server action that can be invoked to confirm this account's Discord handle.
+     */
+    confirmDiscordFn: ServerAction;
+
     /**
      * The user's Discord handle, when known.
      */
@@ -52,12 +57,9 @@ export function AccountInformation(props: AccountInformationProps) {
 
     const handleCloseDiscord = useCallback(() => setDiscordConfirmationOpen(false), []);
     const handleConfirmDiscord = useCallback(async () => {
-        const response = await callApi('post', '/api/admin/verify-discord', {
-            userId: props.userId,
-        });
-
+        const response = await props.confirmDiscordFn(new FormData);
         if (!response.success)
-            return { error: response.error || 'The verification could not be processed' };
+            return { error: response.error || 'The verification could not be processed…' };
 
         router.refresh();
         return true;

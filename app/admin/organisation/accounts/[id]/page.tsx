@@ -83,7 +83,8 @@ export default async function AccountInformationPage(props: NextPageParams<'id'>
     return (
         <>
             <FormGrid action={action} defaultValues={defaultValues}>
-                <AccountInformation discordHandle={defaultValues.discordHandle}
+                <AccountInformation confirmDiscordFn={ actions.confirmDiscord.bind(null, userId) }
+                                    discordHandle={defaultValues.discordHandle}
                                     discordHandleUpdated={defaultValues.discordHandleUpdated}
                                     userId={userId} />
             </FormGrid>
