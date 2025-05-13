@@ -15,6 +15,7 @@ import db, { tUsers, tUsersAuth } from '@lib/database';
 import { kAuthType } from '@lib/database/Types';
 import { kTemporalPlainDate } from '@app/api/Types';
 import { sealPasswordResetRequest } from '@lib/auth/PasswordReset';
+import { setExampleMessagesForUser } from '@app/admin/lib/getExampleMessagesForUser';
 
 
 /**
@@ -331,5 +332,34 @@ export async function updateAccountInformation(userId: number, formData: unknown
         });
 
         return { success: true, refresh: true };
+    });
+}
+
+/**
+ * Data associated with an account settings update.
+ */
+const kAccountSettingsData = z.object({
+    /**
+     * Example messages that are used to personalise generated AI responses.
+     */
+    exampleMessages: z.array(z.string().nullish()),
+});
+
+/**
+ * Server Action called when the account settings are being updated.
+ */
+export async function updateAccountSettings(userId: number, formData: unknown) {
+    'use server';
+    return executeServerAction(formData, kAccountSettingsData, async (data, props) => {
+        await requireAuthenticationContext({
+            check: 'admin',
+            permission: 'organisation.accounts',
+        });
+
+        // Write the example messages to the database. The filter operation ensures that only string
+        // values remain, but TypeScript is not yet smart enough to detect this.
+        await setExampleMessagesForUser(userId, data.exampleMessages.filter(Boolean) as string[]);
+
+        return { success: true };
     });
 }
