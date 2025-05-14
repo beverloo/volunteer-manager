@@ -214,7 +214,8 @@ export const kPermissions = {
             'This permission determines whether the volunteer has the ability to manage all ' +
             'known accounts, including their own. This is a dangerous permission, as access to ' +
             'PII is by necessity included in this.',
-        type: 'boolean',
+        hide: [ 'create', 'delete' ],
+        type: 'crud',
     },
 
     'organisation.displays': {

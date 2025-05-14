@@ -26,7 +26,7 @@ export default async function OrganisationPage() {
         permission: kDashboardPermissions,
     });
 
-    const canAccessAccounts = access.can('organisation.accounts');
+    const canAccessAccounts = access.can('organisation.accounts', 'read');
     const canAccessDisplays = access.can('organisation.displays');
     const canAccessFeedback = access.can('organisation.feedback');
 

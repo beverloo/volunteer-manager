@@ -41,6 +41,11 @@ interface AccountInformationProps {
     discordHandleUpdated?: boolean;
 
     /**
+     * Whether the form should be displayed in read-only mode, i.e. submission should be disabled.
+     */
+    readOnly?: boolean;
+
+    /**
      * Unique ID of the user for whom the information is being shown.
      */
     userId: number;
@@ -74,44 +79,52 @@ export function AccountInformation(props: AccountInformationProps) {
         <>
             <Grid size={{ xs: 6, md: 3 }}>
                 <TextFieldElement name="firstName" label="First name" type="text"
-                                    fullWidth size="small" required />
+                                  fullWidth size="small" required
+                                  slotProps={{ input: { readOnly: !!props.readOnly } }} />
             </Grid>
             <Grid size={{ xs: 6, md: 3 }}>
                 <TextFieldElement name="lastName" label="Last name" type="text"
-                                    fullWidth size="small" required />
+                                  fullWidth size="small" required
+                                  slotProps={{ input: { readOnly: !!props.readOnly } }} />
             </Grid>
             <Grid size={{ xs: 12, md: 6 }}>
                 <TextFieldElement name="displayName" label="Display name" type="text"
-                                    fullWidth size="small" />
+                                  fullWidth size="small"
+                                  slotProps={{ input: { readOnly: !!props.readOnly } }} />
             </Grid>
 
             <Grid size={{ xs: 6 }}>
                 <DatePickerElement name="birthdate" label="Date of birth"
-                                    disableFuture disableHighlightToday openTo="year"
-                                    inputProps={{ fullWidth: true, size: 'small' }} />
+                                   disableFuture disableHighlightToday openTo="year"
+                                   inputProps={{ fullWidth: true, size: 'small' }}
+                                   readOnly={!!props.readOnly} />
             </Grid>
             <Grid size={{ xs: 6 }}>
                 <SelectElement name="gender" label="Gender" options={kGenderOptions}
-                                fullWidth size="small" required />
+                               fullWidth size="small" required
+                               slotProps={{ select: { readOnly: !!props.readOnly } }} />
             </Grid>
 
             <Grid size={{ xs: 6 }}>
                 <TextFieldElement name="username" label="E-mail address" type="email"
-                                    fullWidth size="small" />
+                                  fullWidth size="small"
+                                  slotProps={{ input: { readOnly: !!props.readOnly } }} />
             </Grid>
             <Grid size={{ xs: 6 }}>
                 <TextFieldElement name="phoneNumber" label="Phone number" type="tel"
-                                    fullWidth size="small" />
+                                  fullWidth size="small"
+                                  slotProps={{ input: { readOnly: !!props.readOnly } }} />
             </Grid>
 
             <Grid size={{ xs: 6 }}>
                 <Stack direction="row" spacing={1}>
                     <TextFieldElement name="discordHandle" label="Discord handle"
-                                        fullWidth size="small" />
+                                      fullWidth size="small"
+                                      slotProps={{ input: { readOnly: !!props.readOnly } }} />
 
                     { !!props.discordHandleUpdated &&
                         <Tooltip title="Mark their handle as verified">
-                            <IconButton onClick={handleVerifyDiscord}>
+                            <IconButton onClick={handleVerifyDiscord} disabled={!!props.readOnly}>
                                 <DiscordIcon htmlColor="#5865F2" />
                             </IconButton>
                         </Tooltip> }

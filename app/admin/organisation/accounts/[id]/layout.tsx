@@ -21,6 +21,7 @@ import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
 import db, { tUsers } from '@lib/database';
 
 import * as actions from './AccountActions';
+import type { ServerAction } from '@lib/serverAction';
 
 /**
  * The <AccountLayout> component contains the layout surrounding the account page. The page is built
@@ -31,7 +32,10 @@ export default async function AccountLayout(
 {
     const { access } = await requireAuthenticationContext({
         check: 'admin',
-        permission: 'organisation.accounts',
+        permission: {
+            permission: 'organisation.accounts',
+            operation: 'read',
+        },
     });
 
     // ---------------------------------------------------------------------------------------------
@@ -91,14 +95,24 @@ export default async function AccountLayout(
 
     // ---------------------------------------------------------------------------------------------
 
-    const activateAccountFn =
-        !account.activated ? actions.activateAccount.bind(null, account.id) : undefined;
-    const deactivateAccountFn =
-        !!account.activated ? actions.deactivateAccount.bind(null, account.id) : undefined;
+    let activateAccountFn: ServerAction | undefined;
+    let createAccessCodeFn: ServerAction | undefined;
+    let deactivateAccountFn: ServerAction | undefined;
+    let impersonateFn: ServerAction | undefined;
+    let resetPasswordFn: ServerAction | undefined;
 
-    const impersonateFn =
-        access.can('organisation.impersonation') ? actions.impersonate.bind(null, account.id)
-                                                 : undefined;
+    if (access.can('organisation.accounts', 'update')) {
+        createAccessCodeFn = actions.createAccessCode.bind(null, account.id);
+        resetPasswordFn = actions.resetPassword.bind(null, account.id);
+
+        if (!account.activated)
+            activateAccountFn = actions.activateAccount.bind(null, account.id);
+        else
+            deactivateAccountFn = actions.deactivateAccount.bind(null, account.id);
+    }
+
+    if (access.can('organisation.impersonation'))
+        impersonateFn = actions.impersonate.bind(null, account.id);
 
     return (
         <>
@@ -114,10 +128,10 @@ export default async function AccountLayout(
                 <AccountHeaderActions
                     firstName={account.firstName}
                     activateAccountFn={activateAccountFn}
-                    createAccessCodeFn={actions.createAccessCode.bind(null, account.id)}
+                    createAccessCodeFn={createAccessCodeFn}
                     deactivateAccountFn={deactivateAccountFn}
                     impersonateFn={impersonateFn}
-                    resetPasswordFn={actions.resetPassword.bind(null, account.id)} />
+                    resetPasswordFn={resetPasswordFn} />
             </Paper>
             <Paper>
                 <AccountNavigation pages={pages} />

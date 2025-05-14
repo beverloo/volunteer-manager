@@ -50,9 +50,12 @@ async function AccountParticipationTable(props: { userId: number }) {
  * series of actions that are available to this account, for example to toggle its availability.
  */
 export default async function AccountInformationPage(props: NextPageParams<'id'>) {
-    await requireAuthenticationContext({
+    const { access } = await requireAuthenticationContext({
         check: 'admin',
-        permission: 'organisation.accounts',
+        permission: {
+            permission: 'organisation.accounts',
+            operation: 'read',
+        },
     });
 
     const userId = parseInt((await props.params).id, /* radix= */ 10);
@@ -80,13 +83,15 @@ export default async function AccountInformationPage(props: NextPageParams<'id'>
     if (!defaultValues)
         notFound();
 
+    const readOnly = !access.can('organisation.accounts', 'update');
+
     return (
         <>
             <FormGrid action={action} defaultValues={defaultValues}>
                 <AccountInformation confirmDiscordFn={ actions.confirmDiscord.bind(null, userId) }
                                     discordHandle={defaultValues.discordHandle}
                                     discordHandleUpdated={defaultValues.discordHandleUpdated}
-                                    userId={userId} />
+                                    userId={userId} readOnly={readOnly} />
             </FormGrid>
             <Divider sx={{ my: 2 }} />
             <AccountParticipationTable userId={userId} />

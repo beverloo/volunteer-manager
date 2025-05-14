@@ -40,7 +40,10 @@ export default async function OrganisationLayout(props: React.PropsWithChildren)
         {
             icon: <PersonIcon />,
             label: 'Accounts',
-            permission: 'organisation.accounts',
+            permission: {
+                permission: 'organisation.accounts',
+                operation: 'read',
+            },
             url: '/admin/organisation/accounts',
         },
         {

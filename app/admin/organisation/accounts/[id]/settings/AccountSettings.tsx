@@ -32,6 +32,11 @@ interface AccountSettingsProps {
      * Zero or more example messages that can be provided to improve Generated AI performance.
      */
     exampleMessages: string[];
+
+    /**
+     * Whether the form should be displayed in read-only mode, i.e. submission should be disabled.
+     */
+    readOnly?: boolean;
 }
 
 /**
@@ -59,7 +64,8 @@ export function AccountSettings(props: AccountSettingsProps) {
                     { Array(kExampleMessageCount).fill(null).map((_, index) =>
                         <TextFieldElement key={index} name={`exampleMessages[${index}]`}
                                           label={`Example message ${index + 1}`}
-                                          fullWidth size="small" /> ) }
+                                          fullWidth size="small"
+                                          slotProps={{ input: { readOnly: !!props.readOnly } }}/> )}
                 </Stack>
             </Grid>
         </FormGrid>

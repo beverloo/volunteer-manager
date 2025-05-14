@@ -8,7 +8,10 @@ import { or } from '@lib/auth/AuthenticationContext';
  * This check is shared and verified in at least three different places, hence factored out.
  */
 export const kDashboardPermissions = or(
-    'organisation.accounts',
+    {
+        permission: 'organisation.accounts',
+        operation: 'read',
+    },
     'organisation.displays',
     // TODO: Environments
     'organisation.feedback',

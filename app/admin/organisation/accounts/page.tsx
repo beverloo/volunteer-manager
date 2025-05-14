@@ -19,7 +19,10 @@ import { kRegistrationStatus } from '@lib/database/Types';
 export default async function AccountsPage() {
     const { user } = await requireAuthenticationContext({
         check: 'admin',
-        permission: 'organisation.accounts',
+        permission: {
+            permission: 'organisation.accounts',
+            operation: 'read',
+        },
     });
 
     const dbInstance = db;

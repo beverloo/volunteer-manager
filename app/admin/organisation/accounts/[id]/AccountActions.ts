@@ -31,7 +31,10 @@ export async function activateAccount(userId: number, formData: unknown) {
     return executeServerAction(formData, kNoDataRequired, async (data, props) => {
         await requireAuthenticationContext({
             check: 'admin',
-            permission: 'organisation.accounts',
+            permission: {
+                permission: 'organisation.accounts',
+                operation: 'update',
+            },
         });
 
         const affectedRows = await db.update(tUsers)
@@ -69,7 +72,10 @@ export async function confirmDiscord(userId: number, formData: unknown) {
     return executeServerAction(formData, kNoDataRequired, async (data, props) => {
         await requireAuthenticationContext({
             check: 'admin',
-            permission: 'organisation.accounts',
+            permission: {
+                permission: 'organisation.accounts',
+                operation: 'update',
+            },
         });
 
         const affectedRows = await db.update(tUsers)
@@ -102,7 +108,10 @@ export async function createAccessCode(userId: number, formData: unknown) {
     return executeServerAction(formData, kNoDataRequired, async (data, props) => {
         await requireAuthenticationContext({
             check: 'admin',
-            permission: 'organisation.accounts',
+            permission: {
+                permission: 'organisation.accounts',
+                operation: 'update',
+            },
         });
 
         RecordLog({
@@ -145,7 +154,10 @@ export async function deactivateAccount(userId: number, formData: unknown) {
     return executeServerAction(formData, kNoDataRequired, async (data, props) => {
         await requireAuthenticationContext({
             check: 'admin',
-            permission: 'organisation.accounts',
+            permission: {
+                permission: 'organisation.accounts',
+                operation: 'update',
+            },
         });
 
         const affectedRows = await db.update(tUsers)
@@ -226,7 +238,10 @@ export async function resetPassword(userId: number, formData: unknown) {
     return executeServerAction(formData, kNoDataRequired, async (data, props) => {
         await requireAuthenticationContext({
             check: 'admin',
-            permission: 'organisation.accounts',
+            permission: {
+                permission: 'organisation.accounts',
+                operation: 'update',
+            },
         });
 
         const user = await db.selectFrom(tUsers)
@@ -278,7 +293,10 @@ export async function updateAccountInformation(userId: number, formData: unknown
     return executeServerAction(formData, kAccountPermissionData, async (data, props) => {
         await requireAuthenticationContext({
             check: 'admin',
-            permission: 'organisation.accounts',
+            permission: {
+                permission: 'organisation.accounts',
+                operation: 'update',
+            },
         });
 
         const currentUser = await db.selectFrom(tUsers)
@@ -353,7 +371,10 @@ export async function updateAccountSettings(userId: number, formData: unknown) {
     return executeServerAction(formData, kAccountSettingsData, async (data, props) => {
         await requireAuthenticationContext({
             check: 'admin',
-            permission: 'organisation.accounts',
+            permission: {
+                permission: 'organisation.accounts',
+                operation: 'update',
+            },
         });
 
         // Write the example messages to the database. The filter operation ensures that only string

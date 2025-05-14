@@ -6,6 +6,7 @@
 import { useState } from 'react';
 
 import AttributionIcon from '@mui/icons-material/Attribution';
+import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import Divider from '@mui/material/Divider';
@@ -64,6 +65,16 @@ export function AccountHeaderActions(props: AccountHeaderActionsProps) {
     const [ deactivateAccountDialogOpen, setDeactivateAccountDialogOpen ] = useState(false);
     const [ impersonateDialogOpen, setImpersonateDialogOpen ] = useState(false);
     const [ resetPasswordDialogOpen, setResetPasswordDialogOpen ] = useState(false);
+
+    const hasAnyAction =
+        props.activateAccountFn ||
+        props.createAccessCodeFn ||
+        props.deactivateAccountFn ||
+        props.impersonateFn ||
+        props.resetPasswordFn;
+
+    if (!hasAnyAction)
+        return <Box sx={{ height: '8px', mt: '0px !important' }} />;
 
     return (
         <>

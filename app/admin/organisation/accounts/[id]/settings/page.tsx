@@ -14,9 +14,12 @@ import { getExampleMessagesForUser } from '@app/admin/lib/getExampleMessagesForU
  * profile. It defers to a component that's available in other places of the admin area as well.
  */
 export default async function AccountSettingsPage(props: NextPageParams<'id'>) {
-    await requireAuthenticationContext({
+    const { access } = await requireAuthenticationContext({
         check: 'admin',
-        permission: 'organisation.accounts',
+        permission: {
+            permission: 'organisation.accounts',
+            operation: 'read',
+        },
     });
 
     const userId = parseInt((await props.params).id, /* radix= */ 10);
@@ -26,8 +29,11 @@ export default async function AccountSettingsPage(props: NextPageParams<'id'>) {
     const exampleMessages = await getExampleMessagesForUser(userId);
     const updateAccountSettingsFn = updateAccountSettings.bind(null, userId);
 
+    const readOnly = !access.can('organisation.accounts', 'update');
+
     return (
         <AccountSettings updateAccountSettingsFn={updateAccountSettingsFn}
-                         exampleMessages={exampleMessages} />
+                         exampleMessages={exampleMessages}
+                         readOnly={readOnly} />
     );
 }
