@@ -7,6 +7,16 @@ import type { NextPageParams } from '@lib/NextRouterParams';
 import db, { tTeams, tUsers } from '@lib/database';
 
 /**
+ * Type that defines the fetcher for a special value, orthogonal to its data source.
+ */
+type SpecialValueFetcher = (value: string) => Promise<string | undefined>;
+
+/**
+ * Type that defines the sort of special values that are known to this sytem.
+ */
+type SpecialValues = 'team' | 'user';
+
+/**
  * Name of the product. Will be the last component in every page's title.
  */
 const kProductName = 'AnimeCon Volunteer Manager';
@@ -14,9 +24,28 @@ const kProductName = 'AnimeCon Volunteer Manager';
 /**
  * Cache of the values that can be loaded from the database during metadata generation.
  */
-const kSpecialValueCache = {
-    teams: new Map<string, string>(),
-    users: new Map<number, string>(),
+const kSpecialValueCache: { [key in SpecialValues]: Map<any, string> } = {
+    team: new Map<string, string>(),
+    user: new Map<number, string>(),
+};
+
+/**
+ * Fetchers that can obtain a special from the database when required.
+ */
+const kSpecialValueFetcher: { [key in SpecialValues]: SpecialValueFetcher } = {
+    team: async (value: string) => {
+        return await db.selectFrom(tTeams)
+            .where(tTeams.teamSlug.equals(value))
+            .selectOneColumn(tTeams.teamName)
+            .executeSelectNoneOrOne() ?? undefined;
+    },
+
+    user: async (value: string) => {
+        return await db.selectFrom(tUsers)
+            .where(tUsers.userId.equals(parseInt(value, /* radix= */ 10)))
+            .selectOneColumn(tUsers.name)
+            .executeSelectNoneOrOne() ?? undefined;
+    },
 };
 
 /**
@@ -67,39 +96,23 @@ async function generateMetadata(props: NextPageParams<any>, path: PathValue[]): 
             lazyParams = await props.params;
         }
 
-        if ('team' in component) {
-            if (!lazyParams.hasOwnProperty(component.team))
-                throw new Error(`The "team" parameter name does not exist: ${component.team}`);
+        for (const [ key, fetcher ] of Object.entries(kSpecialValueFetcher)) {
+            const typedKey = key as SpecialValues;
+            if (!(typedKey in component))
+                continue;
 
-            const slug = lazyParams[component.team];
-            const value =
-                kSpecialValueCache.teams.get(slug) ||
-                await db.selectFrom(tTeams)
-                    .where(tTeams.teamSlug.equals(slug))
-                    .selectOneColumn(tTeams.teamName)
-                    .executeSelectNoneOrOne();
+            const paramName: string = (component as any)[typedKey];
+            if (!lazyParams.hasOwnProperty(paramName))
+                throw new Error(`The "${key}" parameter name does not exist: ${paramName}`);
 
-            kSpecialValueCache.teams.set(slug, value!);
-            resolvedPath.push(value!);
-        }
+            const paramValue = lazyParams[paramName];
+            const specialValue =
+                kSpecialValueCache[typedKey].get(paramValue) ||
+                await kSpecialValueFetcher[typedKey](paramValue);
 
-        if ('user' in component) {
-            if (!lazyParams.hasOwnProperty(component.user))
-                throw new Error(`The "user" parameter name does not exist: ${component.user}`);
+            kSpecialValueCache[typedKey].set(paramValue, specialValue!);
 
-            const id = parseInt(lazyParams[component.user], /* radix= */ 10);
-            if (!Number.isSafeInteger(id))
-                continue;  // silently ignore, invalid user input
-
-            const value =
-                kSpecialValueCache.users.get(id) ||
-                await db.selectFrom(tUsers)
-                    .where(tUsers.userId.equals(id))
-                    .selectOneColumn(tUsers.name)
-                    .executeSelectNoneOrOne();
-
-            kSpecialValueCache.users.set(id, value!);
-            resolvedPath.push(value!);
+            resolvedPath.push(specialValue);
         }
     }
 
@@ -111,6 +124,6 @@ async function generateMetadata(props: NextPageParams<any>, path: PathValue[]): 
 /**
  * Clears the Special Value Cache for the given `key`.
  */
-export function clearPageMetadataCache(key: keyof typeof kSpecialValueCache): void {
+export function clearPageMetadataCache(key: SpecialValues): void {
     kSpecialValueCache[key].clear();
 }

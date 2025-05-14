@@ -352,7 +352,7 @@ export async function updateAccountInformation(userId: number, formData: unknown
 
         // The account's name may have been updated, make sure that this is reflected in any
         // subsequent page loads by clearing the page title cache.
-        clearPageMetadataCache('users');
+        clearPageMetadataCache('user');
 
         return { success: true, refresh: true };
     });
