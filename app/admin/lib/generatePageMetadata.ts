@@ -108,7 +108,7 @@ async function generateMetadata(props: NextPageParams<any>, path: PathValue[]): 
             const paramValue = lazyParams[paramName];
             const specialValue =
                 kSpecialValueCache[typedKey].get(paramValue) ||
-                await kSpecialValueFetcher[typedKey](paramValue);
+                await fetcher(paramValue);
 
             kSpecialValueCache[typedKey].set(paramValue, specialValue!);
 
