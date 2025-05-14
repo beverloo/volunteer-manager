@@ -31,6 +31,12 @@ export interface NavigationTabsProps {
          * URL that should be navigated to when the page has been activated.
          */
         url: string;
+
+        /**
+         * Match to apply to the URL (or URL prefix) when deciding on highlight state. A strict
+         * match is executed by default, unlike the admin's menu options.
+         */
+        urlMatchMode?: 'prefix' | 'strict';
     }[];
 }
 
@@ -47,7 +53,11 @@ export function NavigationTabs(props: NavigationTabsProps) {
 
     useEffect(() => {
         for (let index = 0; index < props.tabs.length; ++index) {
-            if (pathname !== props.tabs[index].url)
+            const matchMode = props.tabs[index].urlMatchMode ?? 'strict';
+            if (matchMode === 'strict' && pathname !== props.tabs[index].url)
+                continue;
+
+            if (matchMode === 'prefix' && !pathname.startsWith(props.tabs[index].url))
                 continue;
 
             setSelectedTabIndex(index);
