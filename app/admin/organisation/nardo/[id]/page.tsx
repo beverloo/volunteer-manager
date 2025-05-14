@@ -1,7 +1,6 @@
 // Copyright 2025 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
-import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 
@@ -17,6 +16,7 @@ import { LocalDateTime } from '@app/admin/components/LocalDateTime';
 import { Markdown } from '@components/Markdown';
 import { Section } from '@app/admin/components/Section';
 import { SectionIntroduction } from '@app/admin/components/SectionIntroduction';
+import { createGenerateMetadataFn } from '../../../lib/generatePageMetadata';
 import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
 import db, { tNardoPersonalised, tUsers } from '@lib/database';
 
@@ -93,6 +93,5 @@ export default async function PersonalisedNardoAdvicePage(props: NextPageParams<
     );
 }
 
-export const metadata: Metadata = {
-    title: 'Personalised Advice | Del a Rie Advies | AnimeCon Volunteer Manager',
-};
+export const generateMetadata =
+    createGenerateMetadataFn('Personalised Advice', 'Del a Rie Advies', 'Organisation');

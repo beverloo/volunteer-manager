@@ -13,6 +13,7 @@ import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
 import db, { tEvents, tRoles, tTeams, tUsers, tUsersEvents } from '@lib/database';
 
 import * as actions from './AccountActions';
+import { createGenerateMetadataFn } from '@app/admin/lib/generatePageMetadata';
 
 /**
  * Displays an account participation table for the user identified by the given `userId`.
@@ -98,3 +99,6 @@ export default async function AccountInformationPage(props: NextPageParams<'id'>
         </>
     );
 }
+
+export const generateMetadata =
+    createGenerateMetadataFn({ user: 'id' }, 'Accounts', 'Organisation');

@@ -8,14 +8,15 @@ import { z } from 'zod';
 import { RecordLog, kLogSeverity, kLogType } from '@lib/Log';
 import { executeServerAction } from '@lib/serverAction';
 import { authenticateUser, getUserSessionToken, isUsernameAvailable } from '@lib/auth/Authentication';
+import { clearPageMetadataCache } from '@app/admin/lib/generatePageMetadata';
 import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
+import { sealPasswordResetRequest } from '@lib/auth/PasswordReset';
+import { setExampleMessagesForUser } from '@app/admin/lib/getExampleMessagesForUser';
 import { writeSealedSessionCookieToStore } from '@lib/auth/Session';
 import db, { tUsers, tUsersAuth } from '@lib/database';
 
 import { kAuthType } from '@lib/database/Types';
 import { kTemporalPlainDate } from '@app/api/Types';
-import { sealPasswordResetRequest } from '@lib/auth/PasswordReset';
-import { setExampleMessagesForUser } from '@app/admin/lib/getExampleMessagesForUser';
 
 
 /**
@@ -348,6 +349,10 @@ export async function updateAccountInformation(userId: number, formData: unknown
                 user: currentUser
             }
         });
+
+        // The account's name may have been updated, make sure that this is reflected in any
+        // subsequent page loads by clearing the page title cache.
+        clearPageMetadataCache('users');
 
         return { success: true, refresh: true };
     });

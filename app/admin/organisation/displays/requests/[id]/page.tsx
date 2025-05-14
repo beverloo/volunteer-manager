@@ -1,7 +1,6 @@
 // Copyright 2024 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
-import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 
@@ -18,6 +17,7 @@ import type { NextPageParams } from '@lib/NextRouterParams';
 import { LocalDateTime } from '@app/admin/components/LocalDateTime';
 import { Section } from '@app/admin/components/Section';
 import { SectionIntroduction } from '@app/admin/components/SectionIntroduction';
+import { createGenerateMetadataFn } from '../../../../lib/generatePageMetadata';
 import { formatDuration } from '@lib/Temporal';
 import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
 import db, { tDisplays, tDisplaysRequests, tEvents, tUsers } from '@lib/database';
@@ -210,6 +210,5 @@ export default async function DisplayRequestPage(props: NextPageParams<'id'>) {
     );
 }
 
-export const metadata: Metadata = {
-    title: 'Help request | Displays | Organisation | AnimeCon Volunteer Manager',
-};
+export const generateMetadata =
+    createGenerateMetadataFn('Help request', 'Displays', 'Organisation');

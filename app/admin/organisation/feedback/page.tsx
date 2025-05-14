@@ -1,10 +1,9 @@
 // Copyright 2024 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
-import type { Metadata } from 'next';
-
 import { Section } from '../../components/Section';
 import { SectionIntroduction } from '../../components/SectionIntroduction';
+import { createGenerateMetadataFn } from '../../lib/generatePageMetadata';
 import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
 import { FeedbackDataTable } from './FeedbackDataTable';
 
@@ -29,6 +28,4 @@ export default async function FeedbackPage() {
     );
 }
 
-export const metadata: Metadata = {
-    title: 'Feedback | AnimeCon Volunteer Manager',
-};
+export const generateMetadata = createGenerateMetadataFn('Feedback', 'Organisation');

@@ -5,6 +5,7 @@ import { notFound } from 'next/navigation';
 
 import type { NextPageParams } from '@lib/NextRouterParams';
 import { AccountPermissions } from './AccountPermissions';
+import { createGenerateMetadataFn } from '@app/admin/lib/generatePageMetadata';
 import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
 
 /**
@@ -27,3 +28,6 @@ export default async function AccountPermissionsPage(props: NextPageParams<'id'>
     const readOnly = !access.can('organisation.permissions', 'update');
     return <AccountPermissions readOnly={readOnly} userId={userId} />
 }
+
+export const generateMetadata =
+    createGenerateMetadataFn('Permissions', { user: 'id' }, 'Accounts', 'Organisation');

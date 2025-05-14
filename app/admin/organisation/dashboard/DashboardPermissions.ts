@@ -13,12 +13,13 @@ export const kDashboardPermissions = or(
         operation: 'read',
     },
     'organisation.displays',
-    // TODO: Environments
+    'organisation.environments',
     'organisation.feedback',
     'organisation.nardo',
     {
         permission: 'organisation.permissions',
         operation: 'read',
     },
+    'organisation.roles',
     'organisation.teams',
 );

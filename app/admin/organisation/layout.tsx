@@ -58,7 +58,6 @@ export default async function OrganisationLayout(props: React.PropsWithChildren)
             permission: 'organisation.displays',
             url: '/admin/organisation/displays',
         },
-        // TODO: Environments
         {
             icon: <FeedbackOutlinedIcon />,
             label: 'Feedback',
@@ -76,8 +75,12 @@ export default async function OrganisationLayout(props: React.PropsWithChildren)
         },
         {
             icon: <GroupsIcon />,
-            label: 'Teams & roles',
-            permission: 'organisation.teams',
+            label: 'Teams',
+            permission: [
+                'organisation.environments',
+                'organisation.roles',
+                'organisation.teams',
+            ],
             url: '/admin/organisation/teams',
         },
     ];

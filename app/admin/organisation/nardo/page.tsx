@@ -1,12 +1,11 @@
 // Copyright 2023 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
-import type { Metadata } from 'next';
-
 import { NardoDataTable } from './NardoDataTable';
 import { NardoPersonalisedDataTable } from './NardoPersonalisedDataTable';
 import { Section } from '../../components/Section';
 import { SectionIntroduction } from '../../components/SectionIntroduction';
+import { createGenerateMetadataFn } from '../../lib/generatePageMetadata';
 import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
 
 /**
@@ -41,6 +40,4 @@ export default async function DelARieAdviesPage() {
     );
 }
 
-export const metadata: Metadata = {
-    title: 'Del a Rie Advies | AnimeCon Volunteer Manager',
-};
+export const generateMetadata = createGenerateMetadataFn('Del a Rie Advies', 'Organisation');

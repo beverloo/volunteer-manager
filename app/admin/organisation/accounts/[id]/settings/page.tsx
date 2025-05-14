@@ -5,9 +5,10 @@ import { notFound } from 'next/navigation';
 
 import type { NextPageParams } from '@lib/NextRouterParams';
 import { AccountSettings } from './AccountSettings';
-import { updateAccountSettings } from '../AccountActions';
-import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
+import { createGenerateMetadataFn } from '@app/admin/lib/generatePageMetadata';
 import { getExampleMessagesForUser } from '@app/admin/lib/getExampleMessagesForUser';
+import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
+import { updateAccountSettings } from '../AccountActions';
 
 /**
  * The <AccountSettingsPage> component displays the settings that have been associated with this
@@ -37,3 +38,6 @@ export default async function AccountSettingsPage(props: NextPageParams<'id'>) {
                          readOnly={readOnly} />
     );
 }
+
+export const generateMetadata =
+    createGenerateMetadataFn('Settings', { user: 'id' }, 'Accounts', 'Organisation');

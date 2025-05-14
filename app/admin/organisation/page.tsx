@@ -1,8 +1,6 @@
 // Copyright 2025 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
-import type { Metadata } from 'next';
-
 import Grid from '@mui/material/Grid';
 import Stack from '@mui/material/Stack';
 
@@ -11,6 +9,7 @@ import { AccountWarningCard } from './dashboard/AccountWarningCard';
 import { DisplaysCard } from './dashboard/DisplaysCard';
 import { FeedbackCard } from './dashboard/FeedbackCard';
 import { NardoCard } from './dashboard/NardoCard';
+import { createGenerateMetadataFn } from '../lib/generatePageMetadata';
 import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
 
 import { kDashboardPermissions } from './dashboard/DashboardPermissions';
@@ -69,6 +68,4 @@ export default async function OrganisationPage() {
     );
 }
 
-export const metadata: Metadata = {
-    title: 'Organisation | AnimeCon Volunteer Manager',
-};
+export const generateMetadata = createGenerateMetadataFn('Organisation');

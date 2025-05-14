@@ -1,11 +1,10 @@
 // Copyright 2025 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
-import type { Metadata } from 'next';
-
 import { AccountDataTable } from './AccountDataTable';
 import { Section } from '../../components/Section';
 import { SectionIntroduction } from '../../components/SectionIntroduction';
+import { createGenerateMetadataFn } from '@app/admin/lib/generatePageMetadata';
 import { readUserSettings } from '@lib/UserSettings';
 import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
 import db, { tTeams, tUsers, tUsersEvents } from '@lib/database';
@@ -98,6 +97,4 @@ export default async function AccountsPage() {
     );
 }
 
-export const metadata: Metadata = {
-    title: 'Accounts | Organisation | AnimeCon Volunteer Manager',
-};
+export const generateMetadata = createGenerateMetadataFn('Accounts', 'Organisation');

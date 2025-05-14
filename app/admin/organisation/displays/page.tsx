@@ -1,13 +1,12 @@
 // Copyright 2024 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
-import type { Metadata } from 'next';
-
 import type { DisplayTableEventOption, DisplayTableLocationOption } from './DisplaysTable';
 import { DisplaysTable } from './DisplaysTable';
 import { HelpRequestTable } from './HelpRequestTable';
 import { Section } from '@app/admin/components/Section';
 import { SectionIntroduction } from '@app/admin/components/SectionIntroduction';
+import { createGenerateMetadataFn } from '../../lib/generatePageMetadata';
 import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
 import db, { tEvents, tActivitiesLocations } from '@lib/database';
 
@@ -67,6 +66,4 @@ export default async function DisplaysPage() {
     );
 }
 
-export const metadata: Metadata = {
-    title: 'Displays | Organisation | AnimeCon Volunteer Manager',
-};
+export const generateMetadata = createGenerateMetadataFn('Displays', 'Organisation');

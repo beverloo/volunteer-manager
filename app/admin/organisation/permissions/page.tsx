@@ -1,8 +1,6 @@
 // Copyright 2024 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
-import type { Metadata } from 'next';
-
 import CategoryIcon from '@mui/icons-material/Category';
 
 import type { AccessDescriptor } from '@lib/auth/AccessDescriptor';
@@ -10,6 +8,7 @@ import { AccessControl, kAnyEvent, kAnyTeam } from '@lib/auth/AccessControl';
 import { PermissionsTable, type PermissionRecord, type PermissionUserRecord } from './PermissionsTable';
 import { Section } from '@app/admin/components/Section';
 import { SectionIntroduction } from '@app/admin/components/SectionIntroduction';
+import { createGenerateMetadataFn } from '../../lib/generatePageMetadata';
 import { getBlobUrl } from '@lib/database/BlobStore';
 import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
 import db, { tEvents, tRoles, tStorage, tTeams, tUsersEvents, tUsers } from '@lib/database';
@@ -273,6 +272,4 @@ export default async function PermissionsPage() {
     );
 }
 
-export const metadata: Metadata = {
-    title: 'Permissions | Organisation | AnimeCon Volunteer Manager',
-};
+export const generateMetadata = createGenerateMetadataFn('Permissions', 'Organisation');

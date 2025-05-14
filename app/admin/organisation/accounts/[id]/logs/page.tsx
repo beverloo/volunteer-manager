@@ -5,6 +5,7 @@ import { notFound } from 'next/navigation';
 
 import type { NextPageParams } from '@lib/NextRouterParams';
 import { LogsDataTable } from '@app/admin/system/logs/LogsDataTable';
+import { createGenerateMetadataFn } from '@app/admin/lib/generatePageMetadata';
 import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
 
 /**
@@ -29,3 +30,6 @@ export default async function AccountLogsPage(props: NextPageParams<'id'>) {
                        enableDelete={ access.can('system.logs', 'delete') } />
     );
 }
+
+export const generateMetadata =
+    createGenerateMetadataFn('Logs', { user: 'id' }, 'Accounts', 'Organisation');
