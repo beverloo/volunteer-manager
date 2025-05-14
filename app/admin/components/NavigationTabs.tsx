@@ -10,13 +10,13 @@ import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
 
 /**
- * Props accepted by the <AccountNavigation> component.
+ * Props accepted by the <NavigationTabs> component.
  */
-export interface AccountNavigationProps {
+export interface NavigationTabsProps {
     /**
-     * Pages that should be displayed as part of account navigation.
+     * Tabs that should be displayed as part of navigation.
      */
-    pages: {
+    tabs: {
         /**
          * Icon that should be shown on the page's tab.
          */
@@ -35,38 +35,38 @@ export interface AccountNavigationProps {
 }
 
 /**
- * The <AccountNavigation> component provides client-side navigation options designed to switch
- * between different pages of a particular user's account.
+ * The <NavigationTabs> component provides client-side navigation options designed to switch between
+ * different tabs that are made available through this component's props.
  */
-export function AccountNavigation(props: AccountNavigationProps) {
+export function NavigationTabs(props: NavigationTabsProps) {
     const pathname = usePathname();
     const router = useRouter();
 
     const [ selectedTabIndex, setSelectedTabIndex ] =
-        useState<number | undefined>(/* Information= */ 0);
+        useState<number | undefined>(/* Left-most tab= */ 0);
 
     useEffect(() => {
-        for (let index = 0; index < props.pages.length; ++index) {
-            if (pathname !== props.pages[index].url)
+        for (let index = 0; index < props.tabs.length; ++index) {
+            if (pathname !== props.tabs[index].url)
                 continue;
 
             setSelectedTabIndex(index);
             break;
         }
-    }, [ pathname, props.pages ]);
+    }, [ pathname, props.tabs ]);
 
     const handleChange = useCallback((event: unknown, index: number) => {
-        if (index < 0 || index >= props.pages.length)
+        if (index < 0 || index >= props.tabs.length)
             return;
 
         // Note that the `useEffect` above will take care of updating the tab bar.
-        router.push(props.pages[index].url);
+        router.push(props.tabs[index].url);
 
-    }, [ props.pages, router ]);
+    }, [ props.tabs, router ]);
 
     return (
         <Tabs onChange={handleChange} value={selectedTabIndex} variant="fullWidth">
-            { props.pages.map(({ label, icon }, index) =>
+            { props.tabs.map(({ label, icon }, index) =>
                 <Tab key={index} icon={icon} iconPosition="start" label={label} /> )}
         </Tabs>
     );

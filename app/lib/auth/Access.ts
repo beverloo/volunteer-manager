@@ -227,6 +227,15 @@ export const kPermissions = {
         type: 'boolean',
     },
 
+    'organisation.environments': {
+        name: 'Environment management',
+        description:
+            'This permission determines whether the volunteer has the ability to manage the ' +
+            'runtime environments that the Volunteer Manager can operate under. This is a ' +
+            'dangerous permission as mistakes can render the system unusable.',
+        type: 'boolean',
+    },
+
     'organisation.feedback': {
         name: 'Feedback access',
         description:
@@ -265,8 +274,16 @@ export const kPermissions = {
         warning: true,
     },
 
+    'organisation.roles': {
+        name: 'Role management',
+        description:
+            'This permission decides whether the volunteer is able to manage volunteering roles ' +
+            'available during AnimeCon.',
+        type: 'boolean',
+    },
+
     'organisation.teams': {
-        name: 'Team and role settings',
+        name: 'Team management',
         description:
             'This permission decides whether they have access to settings regarding teams and ' +
             'roles that existing within the Volunteer Manager. This is considered a dangerous ' +
@@ -520,9 +537,12 @@ export const kPermissionGroups: Record<string, string[]> = {
 
         'organisation.accounts',
         'organisation.displays',
+        // note: organisation.environments omitted
         'organisation.feedback',
+        // note: organisation.impersonation omitted
         'organisation.nardo',
         'organisation.permissions',
+        'organisation.roles',
         'organisation.teams',
 
         'statistics',
@@ -561,6 +581,18 @@ export const kPermissionGroups: Record<string, string[]> = {
         'event.volunteers.information',
         'event.volunteers.overrides',
         'event.volunteers.participation',
+
+        'organisation.accounts:read',
+        // note: organisation.accounts:update omitted
+        // note: organisation.displays omitted
+        // note: organisation.environments omitted
+        'organisation.feedback',
+        // note: organisation.impersonation omitted
+        'organisation.nardo',
+        // note: organisation.permissions omitted
+        // note: organisation.roles omitted
+        // note: organisation.teams omitted
+
         'statistics.basic',
         'statistics.finances',
         'system.subscriptions.eligible',
@@ -577,6 +609,17 @@ export const kPermissionGroups: Record<string, string[]> = {
         'event.vendors:read',
         'event.visible',
         'event.volunteers.information',
+
+        // note: organisation.accounts omitted
+        // note: organisation.displays omitted
+        // note: organisation.environments omitted
+        // note: organisation.feedback omitted
+        // note: organisation.impersonation omitted
+        // note: organisation.nardo omitted
+        // note: organisation.permissions omitted
+        // note: organisation.roles omitted
+        // note: organisation.teams omitted
+
         'statistics.basic',
         'system.subscriptions.eligible',
         'volunteer.avatars',

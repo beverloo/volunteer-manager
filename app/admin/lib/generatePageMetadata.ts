@@ -4,7 +4,7 @@
 import type { Metadata } from 'next';
 
 import type { NextPageParams } from '@lib/NextRouterParams';
-import db, { tUsers } from '@lib/database';
+import db, { tTeams, tUsers } from '@lib/database';
 
 /**
  * Name of the product. Will be the last component in every page's title.
@@ -15,6 +15,7 @@ const kProductName = 'AnimeCon Volunteer Manager';
  * Cache of the values that can be loaded from the database during metadata generation.
  */
 const kSpecialValueCache = {
+    teams: new Map<string, string>(),
     users: new Map<number, string>(),
 };
 
@@ -25,9 +26,10 @@ const kSpecialValueCache = {
  *
  * Special value types are:
  *
+ *   { team } - the parameter must include the team's URL-safe slug
  *   { user } - the parameter must include the user ID
  */
-type PathValue = string | { user: string };
+type PathValue = string | { team: string } | { user: string };
 
 /**
  * Creates a generateMetadata() function compatible with Next.js based on the given `path`. The path
@@ -65,7 +67,23 @@ async function generateMetadata(props: NextPageParams<any>, path: PathValue[]): 
             lazyParams = await props.params;
         }
 
-        if (component.hasOwnProperty('user')) {
+        if ('team' in component) {
+            if (!lazyParams.hasOwnProperty(component.team))
+                throw new Error(`The "team" parameter name does not exist: ${component.team}`);
+
+            const slug = lazyParams[component.team];
+            const value =
+                kSpecialValueCache.teams.get(slug) ||
+                await db.selectFrom(tTeams)
+                    .where(tTeams.teamSlug.equals(slug))
+                    .selectOneColumn(tTeams.teamName)
+                    .executeSelectNoneOrOne();
+
+            kSpecialValueCache.teams.set(slug, value!);
+            resolvedPath.push(value!);
+        }
+
+        if ('user' in component) {
             if (!lazyParams.hasOwnProperty(component.user))
                 throw new Error(`The "user" parameter name does not exist: ${component.user}`);
 

@@ -15,13 +15,13 @@ import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 
 import type { NextLayoutParams } from '@lib/NextRouterParams';
+import type { ServerAction } from '@lib/serverAction';
 import { AccountHeaderActions } from './AccountHeaderActions';
-import { AccountNavigation, type AccountNavigationProps } from './AccountNavigation';
+import { NavigationTabs, type NavigationTabsProps } from '@app/admin/components/NavigationTabs';
 import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
 import db, { tUsers } from '@lib/database';
 
 import * as actions from './AccountActions';
-import type { ServerAction } from '@lib/serverAction';
 
 /**
  * The <AccountLayout> component contains the layout surrounding the account page. The page is built
@@ -60,10 +60,10 @@ export default async function AccountLayout(
         notFound();
 
     // ---------------------------------------------------------------------------------------------
-    // Determine the pages that the signed in user has access to:
+    // Determine the tabs that the signed in user has access to:
     // ---------------------------------------------------------------------------------------------
 
-    const pages: AccountNavigationProps['pages'] = [
+    const tabs: NavigationTabsProps['tabs'] = [
         {
             icon: <PersonIcon />,
             label: 'Information',
@@ -72,7 +72,7 @@ export default async function AccountLayout(
     ];
 
     if (access.can('system.logs', 'read')) {
-        pages.push({
+        tabs.push({
             icon: <DvrIcon />,
             label: 'Logs',
             url: `/admin/organisation/accounts/${account.id}/logs`,
@@ -80,14 +80,14 @@ export default async function AccountLayout(
     }
 
     if (access.can('organisation.permissions', 'read')) {
-        pages.push({
+        tabs.push({
             icon: <CategoryIcon />,
             label: 'Permissions',
             url: `/admin/organisation/accounts/${account.id}/permissions`,
         });
     }
 
-    pages.push({
+    tabs.push({
         icon: <SettingsIcon />,
         label: 'Settings',
         url: `/admin/organisation/accounts/${account.id}/settings`,
@@ -134,7 +134,7 @@ export default async function AccountLayout(
                     resetPasswordFn={resetPasswordFn} />
             </Paper>
             <Paper>
-                <AccountNavigation pages={pages} />
+                <NavigationTabs tabs={tabs} />
                 <Divider />
                 <Box sx={{ p: 2 }}>
                     {props.children}
