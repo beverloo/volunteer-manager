@@ -9,7 +9,6 @@ import EventNoteIcon from '@mui/icons-material/EventNote';
 import FeedOutlinedIcon from '@mui/icons-material/FeedOutlined';
 import ForumIcon from '@mui/icons-material/Forum';
 import GridViewIcon from '@mui/icons-material/GridView';
-import LanguageIcon from '@mui/icons-material/Language';
 import ManageHistoryIcon from '@mui/icons-material/ManageHistory';
 import ModelTrainingIcon from '@mui/icons-material/ModelTraining';
 import OutboxIcon from '@mui/icons-material/Outbox';
@@ -99,12 +98,6 @@ export default async function TopLevelLayout(props: React.PropsWithChildren) {
             ],
             defaultOpen: access.can('system.internals'),
             menu: [
-                {
-                    icon: <LanguageIcon />,
-                    label: 'Environments',
-                    permission: 'system.internals',
-                    url: '/admin/system/environments',
-                },
                 {
                     icon: <ModelTrainingIcon />,
                     label: 'Generative AI',
