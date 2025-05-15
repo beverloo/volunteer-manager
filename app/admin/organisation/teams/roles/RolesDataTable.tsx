@@ -6,7 +6,7 @@
 import CancelIcon from '@mui/icons-material/Cancel';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 
-import type { RoleRowModel } from '@app/api/admin/volunteers/roles/[[...id]]/route';
+import type { RoleRowModel } from '@app/api/admin/organisation/roles/[[...id]]/route';
 import { RemoteDataTable, type RemoteDataTableColumn } from '@app/admin/components/RemoteDataTable';
 import { VolunteerBadge } from '@components/VolunteerBadge';
 
@@ -104,7 +104,7 @@ export function RolesDataTable(props: RolesDataTableProps) {
     ];
 
     return (
-        <RemoteDataTable columns={columns} endpoint="/api/admin/volunteers/roles" enableReorder
+        <RemoteDataTable columns={columns} endpoint="/api/admin/organisation/roles" enableReorder
                          enableCreate={props.enableCreate} enableUpdate disableFooter
                          defaultSort={{ field: 'roleOrder', sort: 'asc' }} pageSize={25} />
     );

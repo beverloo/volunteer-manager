@@ -59,8 +59,8 @@ import type { VolunteerTeamsDefinition } from '@app/api/admin/volunteerTeams';
 
 import type { ContentCategoriesEndpoints } from '@app/api/admin/content/categories/[[...id]]/route';
 import type { ContentEndpoints } from '@app/api/admin/content/[[...id]]/route';
-import type { DisplayRequestsEndpoints } from '@app/api/admin/displays/requests/route';
-import type { DisplaysEndpoints } from '@app/api/admin/displays/[[...id]]/route';
+import type { DisplayRequestsEndpoints } from '@app/api/admin/organisation/displays/requests/route';
+import type { DisplaysEndpoints } from '@app/api/admin/organisation/displays/[[...id]]/route';
 import type { EventDeadlinesEndpoints } from '@app/api/admin/event/deadlines/[[...id]]/route';
 import type { EventFinanceEndpoints } from '@app/api/admin/event/finance/[[...id]]/route';
 import type { EventScheduleHistoryEndpoints } from '@app/api/admin/event/schedule/history/[[...id]]/route';
@@ -68,7 +68,7 @@ import type { EventShiftCategoriesEndpoints } from '@app/api/admin/event/shifts/
 import type { EventShiftEndpoints } from '@app/api/admin/event/shifts/[[...id]]/route';
 import type { EventTeamEndpoints } from '@app/api/admin/event/teams/[[...id]]/route';
 import type { ExportsEndpoints } from '@app/api/admin/exports/[[...id]]/route';
-import type { FeedbackEndpoints } from '@app/api/admin/feedback/route';
+import type { FeedbackEndpoints } from '@app/api/admin/organisation/feedback/route';
 import type { HotelsAssignmentsEndpoints } from '@app/api/admin/hotels/assignments/[[...id]]/route';
 import type { HotelsEndpoints } from '@app/api/admin/hotels/[[...id]]/route';
 import type { LogsEndpoints } from '@app/api/admin/logs/[[...id]]/route';
@@ -83,7 +83,7 @@ import type { ProgramLocationsEndpoints } from '@app/api/admin/program/locations
 import type { ProgramRequestEndpoints } from '@app/api/admin/program/requests/[[...id]]/route';
 import type { RefundRequestEndpoints } from '@app/api/admin/refunds/[[...id]]/route';
 import type { RetentionEndpoints } from '@app/api/admin/retention/[[...id]]/route';
-import type { RolesEndpoints } from '@app/api/admin/volunteers/roles/[[...id]]/route';
+import type { RolesEndpoints } from '@app/api/admin/organisation/roles/[[...id]]/route';
 import type { SchedulerEndpoints } from '@app/api/admin/scheduler/[[...id]]/route';
 import type { SubscriptionsEndpoints } from '@app/api/admin/subscriptions/[[...id]]/route';
 import type { TrainingsAssignmentsEndpoints } from '@app/api/admin/trainings/assignments/[[...id]]/route';
@@ -108,8 +108,6 @@ export type ApiEndpoints = {
         '/api/admin/content/categories': ContentCategoriesEndpoints['list'],
         '/api/admin/content': ContentEndpoints['list'],
         '/api/admin/content/:id': ContentEndpoints['get'],
-        '/api/admin/displays': DisplaysEndpoints['list'],
-        '/api/admin/displays/requests': DisplayRequestsEndpoints['list'],
         '/api/admin/event/deadlines': EventDeadlinesEndpoints['list'],
         '/api/admin/event/finance': EventFinanceEndpoints['list'],
         '/api/admin/event/schedule/history': EventScheduleHistoryEndpoints['list'],
@@ -118,10 +116,13 @@ export type ApiEndpoints = {
         '/api/admin/event/shifts': EventShiftEndpoints['list'],
         '/api/admin/event/teams': EventTeamEndpoints['list'],
         '/api/admin/exports': ExportsEndpoints['list'],
-        '/api/admin/feedback': FeedbackEndpoints['list'],
         '/api/admin/hotels/assignments': HotelsAssignmentsEndpoints['list'],
         '/api/admin/hotels': HotelsEndpoints['list'],
         '/api/admin/logs': LogsEndpoints['list'],
+        '/api/admin/organisation/displays': DisplaysEndpoints['list'],
+        '/api/admin/organisation/displays/requests': DisplayRequestsEndpoints['list'],
+        '/api/admin/organisation/feedback': FeedbackEndpoints['list'],
+        '/api/admin/organisation/roles': RolesEndpoints['list'],
         '/api/admin/outbox/email': OutboxEmailEndpoints['list'],
         '/api/admin/outbox/email/:id': OutboxEmailEndpoints['get'],
         '/api/admin/outbox/twilio': OutboxTwilioEndpoints['list'],
@@ -139,7 +140,6 @@ export type ApiEndpoints = {
         '/api/admin/trainings/assignments': TrainingsAssignmentsEndpoints['list'],
         '/api/admin/trainings/extra': TrainingsExtraEndpoints['list'],
         '/api/admin/vendors': VendorEndpoints['list'],
-        '/api/admin/volunteers/roles': RolesEndpoints['list'],
         '/api/admin/webhooks': WebhookEndpoints['list'],
         '/api/auth/passkeys/list': ListPasskeysDefinition,
         '/api/event/hotels/:event': HotelsDefinition,
@@ -160,6 +160,7 @@ export type ApiEndpoints = {
         '/api/admin/exports': ExportsEndpoints['create'],
         '/api/admin/hotels/assignments': HotelsAssignmentsEndpoints['create'],
         '/api/admin/hotels': HotelsEndpoints['create'],
+        '/api/admin/organisation/roles': RolesEndpoints['create'],
         '/api/admin/program/activities': ProgramActivitiesEndpoints['create'],
         '/api/admin/program/areas': ProgramAreasEndpoints['create'],
         '/api/admin/program/locations': ProgramLocationsEndpoints['create'],
@@ -178,7 +179,6 @@ export type ApiEndpoints = {
         '/api/admin/volunteer-list': VolunteerListDefinition,
         '/api/admin/volunteer-roles': VolunteerRolesDefinition,
         '/api/admin/volunteer-teams': VolunteerTeamsDefinition,
-        '/api/admin/volunteers/roles': RolesEndpoints['create'],
         '/api/ai/generate/:type': GeneratePromptDefinition,
         '/api/auth/confirm-identity': ConfirmIdentityDefinition,
         '/api/auth/passkeys/create-challenge': CreateChallengeDefinition,
@@ -211,7 +211,6 @@ export type ApiEndpoints = {
     'delete': {
         '/api/admin/content/categories/:id': ContentCategoriesEndpoints['delete'],
         '/api/admin/content/:id': ContentEndpoints['delete'],
-        '/api/admin/displays/:id': DisplaysEndpoints['delete'],
         '/api/admin/event/deadlines/:id': EventDeadlinesEndpoints['delete'],
         '/api/admin/event/schedule/history/:id': EventScheduleHistoryEndpoints['delete'],
         '/api/admin/event/schedule/:event/:team/:id': DeleteScheduleEntryDefinition,
@@ -221,6 +220,7 @@ export type ApiEndpoints = {
         '/api/admin/hotels/assignments/:id': HotelsAssignmentsEndpoints['delete'],
         '/api/admin/hotels/:id': HotelsEndpoints['delete'],
         '/api/admin/logs/:id': LogsEndpoints['delete'],
+        '/api/admin/organisation/displays/:id': DisplaysEndpoints['delete'],
         '/api/admin/program/activities/:id': ProgramActivitiesEndpoints['delete'],
         '/api/admin/program/areas/:id': ProgramAreasEndpoints['delete'],
         '/api/admin/program/locations/:id': ProgramLocationsEndpoints['delete'],
@@ -233,7 +233,6 @@ export type ApiEndpoints = {
     'put': {
         '/api/admin/content/categories/:id': ContentCategoriesEndpoints['update'],
         '/api/admin/content/:id': ContentEndpoints['update'],
-        '/api/admin/displays/:id': DisplaysEndpoints['update'],
         '/api/admin/event/deadlines/:id': EventDeadlinesEndpoints['update'],
         '/api/admin/event/finance/:id': EventFinanceEndpoints['update'],
         '/api/admin/event/schedule/:event/:team/:id': UpdateScheduleEntryDefinition,
@@ -242,11 +241,13 @@ export type ApiEndpoints = {
         '/api/admin/event/teams/:id': EventTeamEndpoints['update'],
         '/api/admin/hotels/assignments/:id': HotelsAssignmentsEndpoints['update'],
         '/api/admin/hotels/:id': HotelsEndpoints['update'],
-        '/api/admin/refunds/:id': RefundRequestEndpoints['update'],
+        '/api/admin/organisation/displays/:id': DisplaysEndpoints['update'],
+        '/api/admin/organisation/roles/:id': RolesEndpoints['update'],
         '/api/admin/program/activities/:id': ProgramActivitiesEndpoints['list'],
         '/api/admin/program/areas/:id': ProgramAreasEndpoints['update'],
         '/api/admin/program/locations/:id': ProgramLocationsEndpoints['update'],
         '/api/admin/program/requests/:id': ProgramRequestEndpoints['update'],
+        '/api/admin/refunds/:id': RefundRequestEndpoints['update'],
         '/api/admin/retention/:id': RetentionEndpoints['update'],
         '/api/admin/subscriptions/:id': SubscriptionsEndpoints['update'],
         '/api/admin/trainings/:id': TrainingsEndpoints['update'],
@@ -254,7 +255,6 @@ export type ApiEndpoints = {
         '/api/admin/trainings/extra/:id': TrainingsExtraEndpoints['update'],
         '/api/admin/vendors/schedule': UpdateVendorScheduleDefinition,
         '/api/admin/vendors/:id': VendorEndpoints['update'],
-        '/api/admin/volunteers/roles/:id': RolesEndpoints['update'],
         '/api/ai/settings': UpdateAiSettingsDefinition,
         '/api/application/:event/:team/:userId': UpdateApplicationDefinition,
         '/api/event/schedule/favourite': UpdateFavouriteDefinition,

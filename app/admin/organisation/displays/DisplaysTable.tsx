@@ -11,7 +11,7 @@ import LockOpenIcon from '@mui/icons-material/LockOpen';
 import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
 
-import type { DisplaysRowModel } from '@app/api/admin/displays/[[...id]]/route';
+import type { DisplaysRowModel } from '@app/api/admin/organisation/displays/[[...id]]/route';
 import { RemoteDataTable, type RemoteDataTableColumn } from '@app/admin/components/RemoteDataTable';
 import { Temporal, formatDuration } from '@lib/Temporal';
 
@@ -269,7 +269,7 @@ export function DisplaysTable(props: DisplaysTableProps) {
     ];
 
     return (
-        <RemoteDataTable columns={columns} endpoint="/api/admin/displays"
+        <RemoteDataTable columns={columns} endpoint="/api/admin/organisation/displays"
                          defaultSort={{ field: 'id', sort: 'asc' }} subject="display" pageSize={25}
                          enableUpdate enableDelete />
     );

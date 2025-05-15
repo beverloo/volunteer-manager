@@ -7,7 +7,7 @@ import Link from 'next/link';
 
 import { default as MuiLink } from '@mui/material/Link';
 
-import type { FeedbackRowModel } from '@app/api/admin/feedback/route';
+import type { FeedbackRowModel } from '@app/api/admin/organisation/feedback/route';
 import { RemoteDataTable, type RemoteDataTableColumn } from '@app/admin/components/RemoteDataTable';
 import { Temporal, formatDate } from '@lib/Temporal';
 
@@ -60,6 +60,7 @@ export function FeedbackDataTable() {
         }
     ];
 
-    return <RemoteDataTable columns={columns} endpoint="/api/admin/feedback" enableQueryParams
-                            defaultSort={{ field: 'date', sort: 'desc' }} pageSize={50} />;
+    return <RemoteDataTable columns={columns} endpoint="/api/admin/organisation/feedback"
+                            enableQueryParams defaultSort={{ field: 'date', sort: 'desc' }}
+                            pageSize={50} />;
 }

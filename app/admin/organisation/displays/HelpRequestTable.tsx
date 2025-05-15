@@ -13,7 +13,7 @@ import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
 import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
 
-import type { DisplayRequestRowModel } from '@app/api/admin/displays/requests/route';
+import type { DisplayRequestRowModel } from '@app/api/admin/organisation/displays/requests/route';
 import { RemoteDataTable, type RemoteDataTableColumn } from '@app/admin/components/RemoteDataTable';
 import { Temporal, formatDate } from '@lib/Temporal';
 
@@ -161,7 +161,7 @@ export function HelpRequestTable() {
     ];
 
     return (
-        <RemoteDataTable columns={columns} endpoint="/api/admin/displays/requests"
+        <RemoteDataTable columns={columns} endpoint="/api/admin/organisation/displays/requests"
                          defaultSort={{ field: 'date', sort: 'desc' }} pageSize={25} />
     );
 }

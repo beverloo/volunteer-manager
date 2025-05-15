@@ -17,7 +17,7 @@ import db, { tRoles, tTeams, tTeamsRoles } from '@lib/database';
  * should be fairly rare. Creating and removing teams is restricted to the database.
  */
 export default async function VolunteersTeamsPage() {
-    const { access } = await requireAuthenticationContext({
+    await requireAuthenticationContext({
         check: 'admin',
         permission: 'organisation.teams',
     });
@@ -52,8 +52,6 @@ export default async function VolunteersTeamsPage() {
         .groupBy(tTeams.teamId)
         .orderBy(tTeams.teamName, 'asc')
         .executeSelectMany();
-
-    const enableCreate = access.can('root');  // only root can create new roles
 
     return (
         <>
