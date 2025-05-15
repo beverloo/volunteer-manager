@@ -4,7 +4,7 @@
 import type { Metadata } from 'next';
 
 import type { NextPageParams } from '@lib/NextRouterParams';
-import db, { tTeams, tUsers } from '@lib/database';
+import db, { tEnvironments, tTeams, tUsers } from '@lib/database';
 
 /**
  * Type that defines the fetcher for a special value, orthogonal to its data source.
@@ -14,7 +14,7 @@ type SpecialValueFetcher = (value: string) => Promise<string | undefined>;
 /**
  * Type that defines the sort of special values that are known to this sytem.
  */
-type SpecialValues = 'team' | 'user';
+type SpecialValues = 'environment' | 'team' | 'user';
 
 /**
  * Name of the product. Will be the last component in every page's title.
@@ -25,6 +25,7 @@ const kProductName = 'AnimeCon Volunteer Manager';
  * Cache of the values that can be loaded from the database during metadata generation.
  */
 const kSpecialValueCache: { [key in SpecialValues]: Map<any, string> } = {
+    environment: new Map<string, string>(),
     team: new Map<string, string>(),
     user: new Map<number, string>(),
 };
@@ -33,6 +34,13 @@ const kSpecialValueCache: { [key in SpecialValues]: Map<any, string> } = {
  * Fetchers that can obtain a special from the database when required.
  */
 const kSpecialValueFetcher: { [key in SpecialValues]: SpecialValueFetcher } = {
+    environment: async (value: string) => {
+        return await db.selectFrom(tEnvironments)
+            .where(tEnvironments.environmentDomain.equals(value))
+            .selectOneColumn(tEnvironments.environmentTitle)
+            .executeSelectNoneOrOne() ?? undefined;
+    },
+
     team: async (value: string) => {
         return await db.selectFrom(tTeams)
             .where(tTeams.teamSlug.equals(value))
@@ -55,10 +63,11 @@ const kSpecialValueFetcher: { [key in SpecialValues]: SpecialValueFetcher } = {
  *
  * Special value types are:
  *
+ *   { environment } - the parameter must include the environment's domain
  *   { team } - the parameter must include the team's URL-safe slug
  *   { user } - the parameter must include the user ID
  */
-type PathValue = string | { team: string } | { user: string };
+type PathValue = string | { environment: string } | { team: string } | { user: string };
 
 /**
  * Creates a generateMetadata() function compatible with Next.js based on the given `path`. The path

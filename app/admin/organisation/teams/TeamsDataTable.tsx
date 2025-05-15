@@ -1,4 +1,4 @@
-// Copyright 2023 Peter Beverloo & AnimeCon. All rights reserved.
+// Copyright 2025 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
 'use client';
@@ -41,13 +41,12 @@ interface TeamsDataTableProps {
         /**
          * RGB colour that indicates this team. Will be used on their badge.
          */
-        colour: string;
+        color: string;
 
         /**
          * Domain name through which this team's schedules are served.
          */
         domain: string;
-
     }[];
 }
 
@@ -86,7 +85,7 @@ export function TeamsDataTable(props: TeamsDataTableProps) {
             flex: 1,
 
             renderCell: params =>
-                <Chip color={params.row.colour} label={params.value} />,
+                <Chip color={params.row.color} label={params.value} />,
         },
     ];
 

@@ -29,8 +29,8 @@ export function Chip(props: ChipProps) {
         <MuiChip size="small" color="primary" variant="outlined" {...chipProps}
                  sx={{
                      borderWidth: 0,
-                     backgroundColor: props.color,
-                     color: props.textColor ?? '#ffffff',
+                     backgroundColor: color,
+                     color: textColor ?? '#ffffff',
                  }} />
     );
 }

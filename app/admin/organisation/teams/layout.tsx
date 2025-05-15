@@ -40,6 +40,7 @@ export default async function OrganisationEntitiesLayout(props: React.PropsWithC
             icon: <PublicIcon />,
             label: 'Environments',
             url: '/admin/organisation/teams/environments',
+            urlMatchMode: 'prefix',
         });
     }
 

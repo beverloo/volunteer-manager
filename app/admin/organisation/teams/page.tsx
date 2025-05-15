@@ -35,10 +35,11 @@ export default async function TeamsPage() {
             title: tTeams.teamTitle,
 
             name: tTeams.teamName,
-            colour: tTeams.teamColourLightTheme,
+            color: tTeams.teamColourLightTheme,
 
             domain: tEnvironments.environmentDomain,
         })
+        .orderBy('title', 'asc')
         .executeSelectMany();
 
     // TODO: Interface that allows new teams to be created?
