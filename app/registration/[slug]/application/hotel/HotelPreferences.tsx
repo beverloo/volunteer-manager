@@ -157,7 +157,7 @@ export function HotelPreferences(props: HotelPreferencesProps) {
             <Typography variant="h5" sx={ readOnly ? {} : { mb: 1 } }>
                 Your hotel room preferences
             </Typography>
-            { readOnly && <Markdown sx={{ mt: -1, mb: 1 }}>{kPreferencesLockedMarkdown}</Markdown> }
+            { readOnly && <Markdown sx={{ mt: 1, mb: 1 }}>{kPreferencesLockedMarkdown}</Markdown> }
             <FormContainer formContext={form} onSuccess={maybeHandleSubmit}>
                 <HotelPreferencesForm eventDate={props.eventDate} form={form as any}
                                       hotelOptions={hotelOptions} readOnly={readOnly} />
