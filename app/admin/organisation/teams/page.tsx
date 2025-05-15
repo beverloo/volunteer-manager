@@ -3,10 +3,10 @@
 
 import { forbidden, redirect } from 'next/navigation';
 
-import Typography from '@mui/material/Typography';
-
+import { TeamsDataTable } from './TeamsDataTable';
 import { createGenerateMetadataFn } from '@app/admin/lib/generatePageMetadata';
 import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
+import db, { tEnvironments, tTeams } from '@lib/database';
 
 /**
  * The <TeamsPage> component enables the volunteer to list and alter the teams that exist on the
@@ -25,11 +25,24 @@ export default async function TeamsPage() {
         forbidden();
     }
 
-    return (
-        <Typography>
-            TODO (Teams)
-        </Typography>
-    );
+    const teams = await db.selectFrom(tTeams)
+        .innerJoin(tEnvironments)
+            .on(tEnvironments.environmentId.equals(tTeams.teamEnvironmentId))
+        .select({
+            id: tTeams.teamId,
+            slug: tTeams.teamSlug,
+
+            title: tTeams.teamTitle,
+
+            name: tTeams.teamName,
+            colour: tTeams.teamColourLightTheme,
+
+            domain: tEnvironments.environmentDomain,
+        })
+        .executeSelectMany();
+
+    // TODO: Interface that allows new teams to be created?
+    return <TeamsDataTable teams={teams} />;
 }
 
 export const generateMetadata = createGenerateMetadataFn('Teams', 'Organisation');

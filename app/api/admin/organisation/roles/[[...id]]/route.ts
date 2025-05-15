@@ -81,15 +81,15 @@ export type RoleContext = z.infer<typeof kRoleContext>;
  * This is implemented as a regular DataTable API. The following endpoints are provided by this
  * implementation:
  *
- *     GET  /api/admin/volunteers/roles
- *     POST /api/admin/volunteers/roles
- *     PUT  /api/admin/volunteers/roles/:id
+ *     GET  /api/admin/organisation/roles
+ *     POST /api/admin/organisation/roles
+ *     PUT  /api/admin/organisation/roles/:id
  */
 export const { GET, POST, PUT } = createDataTableApi(kRoleRowModel, kRoleContext, {
     async accessCheck(request, action, props) {
         executeAccessCheck(props.authenticationContext, {
             check: 'admin',
-            permission: 'organisation.teams',
+            permission: 'organisation.roles',
         });
 
         switch (action) {
