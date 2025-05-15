@@ -94,7 +94,7 @@ async function hotels(request: Request, props: ActionProps): Promise<Response> {
 
     const hotels = new Map<string, Response['hotels'][number]>();
     for (const row of configuration) {
-        if (!row.published && props.access.can('event.hotels', { event: request.event }))
+        if (!row.published && !props.access.can('event.hotels', { event: request.event }))
             continue;  // this `row` has not yet been published
 
         if (!hotels.has(row.hotelName)) {
