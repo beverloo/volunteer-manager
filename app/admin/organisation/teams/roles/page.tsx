@@ -1,8 +1,7 @@
 // Copyright 2025 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
-import Typography from '@mui/material/Typography';
-
+import { RolesDataTable } from './RolesDataTable';
 import { createGenerateMetadataFn } from '@app/admin/lib/generatePageMetadata';
 import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
 
@@ -11,16 +10,13 @@ import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
  * Volunteer Manager. Roles define what function people exercise within our organisation.
  */
 export default async function RolesPage() {
-    await requireAuthenticationContext({
+    const { access } = await requireAuthenticationContext({
         check: 'admin',
         permission: 'organisation.roles',
     });
 
-    return (
-        <Typography>
-            TODO (Roles)
-        </Typography>
-    );
+    // Note that only root can create new roles:
+    return <RolesDataTable enableCreate={ access.can('root') } />;
 }
 
 export const generateMetadata = createGenerateMetadataFn('Roles', 'Organisation');

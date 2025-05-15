@@ -7,7 +7,6 @@ import Alert from '@mui/material/Alert';
 import Paper from '@mui/material/Paper';
 import Typography from '@mui/material/Typography';
 
-import { Roles } from './Roles';
 import { Team } from './Team';
 import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
 import db, { tRoles, tTeams, tTeamsRoles } from '@lib/database';
@@ -68,7 +67,6 @@ export default async function VolunteersTeamsPage() {
                     infrequent operation and carries a high risk of breaking the Volunteer Manager.
                 </Alert>
             </Paper>
-            <Roles enableCreate={enableCreate} />
             { teams.map(team => <Team key={team.id} roles={roles} team={team} />) }
         </>
     );

@@ -3,6 +3,7 @@
 
 import { forbidden } from 'next/navigation';
 
+import Box from '@mui/material/Box';
 import Divider from '@mui/material/Divider';
 import GroupsIcon from '@mui/icons-material/Groups';
 import Paper from '@mui/material/Paper';
@@ -76,7 +77,9 @@ export default async function OrganisationEntitiesLayout(props: React.PropsWithC
             <Paper>
                 <NavigationTabs tabs={tabs} />
                 <Divider />
-                {props.children}
+                <Box sx={{ p: 2 }}>
+                    {props.children}
+                </Box>
             </Paper>
         </>
     );

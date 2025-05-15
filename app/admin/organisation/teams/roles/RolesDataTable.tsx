@@ -3,11 +3,8 @@
 
 'use client';
 
-import Alert from '@mui/material/Alert';
 import CancelIcon from '@mui/icons-material/Cancel';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
-import Paper from '@mui/material/Paper';
-import Typography from '@mui/material/Typography';
 
 import type { RoleRowModel } from '@app/api/admin/volunteers/roles/[[...id]]/route';
 import { RemoteDataTable, type RemoteDataTableColumn } from '@app/admin/components/RemoteDataTable';
@@ -16,9 +13,9 @@ import { VolunteerBadge } from '@components/VolunteerBadge';
 import { kRoleBadge } from '@lib/database/Types';
 
 /**
- * Props accepted by the <Roles> component.
+ * Props accepted by the <RolesDataTable> component.
  */
-interface RolesProps {
+interface RolesDataTableProps {
     /**
      * Whether the ability to create new roles should be enabled.
      */
@@ -26,10 +23,10 @@ interface RolesProps {
 }
 
 /**
- * The <Roles> component represents the roles that exist in the Volunteer Manager. Each role has a
- * few basic settings that can be manipulated as a Data Table.
+ * The <RolesDataTable> component represents the roles that exist in the Volunteer Manager. Each
+ * role has a few basic settings that can be manipulated as a Data Table.
  */
-export function Roles(props: RolesProps) {
+export function RolesDataTable(props: RolesDataTableProps) {
     const columns: RemoteDataTableColumn<RoleRowModel>[] = [
         {
             field: 'roleName',
@@ -107,16 +104,8 @@ export function Roles(props: RolesProps) {
     ];
 
     return (
-        <Paper sx={{ p: 2 }}>
-            <Typography variant="h5" sx={{ mb: 1 }}>
-                Roles
-            </Typography>
-            <Alert severity="info" sx={{ mb: 2 }}>
-                This table is editable, and can be used to update the settings for each role.
-            </Alert>
-            <RemoteDataTable columns={columns} endpoint="/api/admin/volunteers/roles" enableReorder
-                             enableCreate={props.enableCreate} enableUpdate disableFooter
-                             defaultSort={{ field: 'roleOrder', sort: 'asc' }} pageSize={25} />
-        </Paper>
+        <RemoteDataTable columns={columns} endpoint="/api/admin/volunteers/roles" enableReorder
+                         enableCreate={props.enableCreate} enableUpdate disableFooter
+                         defaultSort={{ field: 'roleOrder', sort: 'asc' }} pageSize={25} />
     );
 }
