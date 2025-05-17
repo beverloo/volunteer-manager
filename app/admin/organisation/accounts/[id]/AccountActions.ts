@@ -148,6 +148,64 @@ export async function createAccessCode(userId: number, formData: unknown) {
 }
 
 /**
+ * Zod type that describes the data required when creating an account.
+ */
+const kCreateAccountData = z.object({
+    username: z.string().email(),
+    gender: z.string().nonempty(),
+    firstName: z.string().nonempty(),
+    lastName: z.string().nonempty(),
+});
+
+/**
+ * Server action that creates an account with the given `formData`.
+ */
+export async function createAccount(formData: unknown) {
+    'use server';
+    return executeServerAction(formData, kCreateAccountData, async (data, props) => {
+        await requireAuthenticationContext({
+            check: 'admin',
+            permission: {
+                permission: 'organisation.accounts',
+                operation: 'create',
+            },
+        });
+
+        if (!isUsernameAvailable(data.username))
+            return { success: false, error: 'This e-mail address already has an account…' };
+
+        const userId = await db.insertInto(tUsers)
+            .set({
+                username: data.username,
+                gender: data.gender,
+                firstName: data.firstName,
+                lastName: data.lastName,
+                activated: /* true= */ 1,
+            })
+            .returningLastInsertedId()
+            .executeInsert();
+
+        if (!userId)
+            return { success: false, error: 'Unable to store the new account in the database…' };
+
+        // Note that we deliberately do not publish creation of this account, as this is considered
+        // an override action by an administrator. For similar reasons we don't send them an e-mail
+        // that their account has been created either.
+
+        RecordLog({
+            type: kLogType.AccountRegister,
+            sourceUser: props.user,
+            targetUser: userId,
+        });
+
+        return {
+            success: true,
+            redirect: `/admin/organisation/accounts/${userId}`,
+        };
+    });
+}
+
+/**
  * Server action that deactivates the account identified by the given `userId`
  */
 export async function deactivateAccount(userId: number, formData: unknown) {

@@ -1,9 +1,15 @@
 // Copyright 2025 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
+import { SelectElement, TextFieldElement } from '@components/proxy/react-hook-form-mui';
+
+import Divider from '@mui/material/Divider';
+import Grid from '@mui/material/Grid';
 import PersonIcon from '@mui/icons-material/Person';
+import Typography from '@mui/material/Typography';
 
 import { AccountDataTable } from './AccountDataTable';
+import { FormGrid } from '@app/admin/components/FormGrid';
 import { Section } from '../../components/Section';
 import { SectionIntroduction } from '../../components/SectionIntroduction';
 import { createGenerateMetadataFn } from '@app/admin/lib/generatePageMetadata';
@@ -11,6 +17,8 @@ import { readUserSettings } from '@lib/UserSettings';
 import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
 import db, { tTeams, tUsers, tUsersEvents } from '@lib/database';
 
+import * as actions from './[id]/AccountActions';
+import { kGenderOptions } from '@app/registration/authentication/RegisterForm';
 import { kRegistrationStatus } from '@lib/database/Types';
 
 /**
@@ -18,13 +26,15 @@ import { kRegistrationStatus } from '@lib/database/Types';
  * be viewed and adjusted providing the right permissions are available to the signed in user.
  */
 export default async function AccountsPage() {
-    const { user } = await requireAuthenticationContext({
+    const { access, user } = await requireAuthenticationContext({
         check: 'admin',
         permission: {
             permission: 'organisation.accounts',
             operation: 'read',
         },
     });
+
+    const canCreateAccounts = access.can('organisation.accounts', 'create');
 
     const dbInstance = db;
 
@@ -95,6 +105,35 @@ export default async function AccountsPage() {
             <AccountDataTable initialFilterModel={filterModel}
                               initialHiddenFields={hiddenFields} teamColours={teamColours}
                               volunteers={volunteers} />
+            { canCreateAccounts &&
+                <>
+                    <Divider />
+                    <FormGrid action={actions.createAccount} callToAction="Create">
+                        <Grid size={{ xs: 12 }} sx={{ my: -1 }}>
+                            <Typography variant="h6">
+                                Create a new account
+                            </Typography>
+                        </Grid>
+
+                        <Grid size={{ xs: 12, md: 6 }}>
+                            <TextFieldElement name="username" label="E-mail address" size="small"
+                                              fullWidth required type="email" />
+                        </Grid>
+                        <Grid size={{ xs: 12, md: 6 }}>
+                            <SelectElement name="gender" label="Gender" size="small" fullWidth
+                                           options={kGenderOptions} />
+                        </Grid>
+
+                        <Grid size={{ xs: 12, md: 6 }}>
+                            <TextFieldElement name="firstName" label="First name" size="small"
+                                              fullWidth required />
+                        </Grid>
+                        <Grid size={{ xs: 12, md: 6 }}>
+                            <TextFieldElement name="lastName" label="Last name" size="small"
+                                              fullWidth required />
+                        </Grid>
+                    </FormGrid>
+                </> }
         </Section>
     );
 }
