@@ -5,6 +5,7 @@
 
 import Link from 'next/link';
 
+import { default as MuiChip } from '@mui/material/Chip';
 import { default as MuiLink } from '@mui/material/Link';
 
 import { Chip } from '../../components/Chip';
@@ -44,9 +45,10 @@ interface TeamsDataTableProps {
         color: string;
 
         /**
-         * Domain name through which this team's schedules are served.
+         * Domain name through which this team's schedules are served. The team has been orphaned
+         * when no domain name is given, which can happen when an environment was removed.
          */
-        domain: string;
+        domain?: string;
     }[];
 }
 
@@ -73,10 +75,17 @@ export function TeamsDataTable(props: TeamsDataTableProps) {
             sortable: true,
             flex: 1,
 
-            renderCell: params =>
-                <MuiLink component={Link} href={`https://${params.value}`} target="_blank">
-                    {params.value}
-                </MuiLink>
+            renderCell: params => {
+                if (!params.value) {
+                    return <MuiChip color="error" size="small" label="no domain" />;
+                }
+
+                return (
+                    <MuiLink component={Link} href={`https://${params.value}`} target="_blank">
+                        {params.value}
+                    </MuiLink>
+                );
+            },
         },
         {
             field: 'name',

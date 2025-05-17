@@ -51,10 +51,11 @@ export default async function TeamsPage() {
             .executeSelectMany();
     }
 
+    const environmentsJoin = tEnvironments.forUseInLeftJoin();
     const teams = await db.selectFrom(tTeams)
-        .innerJoin(tEnvironments)
-            .on(tEnvironments.environmentId.equals(tTeams.teamEnvironmentId))
-                .and(tEnvironments.environmentDeleted.isNull())
+        .leftJoin(environmentsJoin)
+            .on(environmentsJoin.environmentId.equals(tTeams.teamEnvironmentId))
+                .and(environmentsJoin.environmentDeleted.isNull())
         .select({
             id: tTeams.teamId,
             slug: tTeams.teamSlug,
@@ -64,7 +65,7 @@ export default async function TeamsPage() {
             name: tTeams.teamName,
             color: tTeams.teamColourLightTheme,
 
-            domain: tEnvironments.environmentDomain,
+            domain: environmentsJoin.environmentDomain,
         })
         .orderBy('title', 'asc')
         .executeSelectMany();
