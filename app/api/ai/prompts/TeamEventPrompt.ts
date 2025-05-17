@@ -68,12 +68,14 @@ export abstract class TeamEventPrompt
         const numberOfTeamsForEnvironment = this.db.subSelectUsing(tTeams)
             .from(tEnvironments)
                 .where(tEnvironments.environmentId.equals(tTeams.teamEnvironmentId))
+                    .and(tEnvironments.environmentDeleted.isNull())
             .selectCountAll()
             .forUseAsInlineQueryValue();
 
         const team = await this.db.selectFrom(tTeams)
             .innerJoin(tEnvironments)
                 .on(tEnvironments.environmentId.equals(tTeams.teamEnvironmentId))
+                    .and(tEnvironments.environmentDeleted.isNull())
             .leftJoin(eventsTeamsJoin)
                 .on(eventsTeamsJoin.eventId.equals(context.event.id))
                     .and(eventsTeamsJoin.teamId.equals(tTeams.teamId))

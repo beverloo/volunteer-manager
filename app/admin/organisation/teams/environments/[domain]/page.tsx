@@ -42,6 +42,7 @@ export default async function EnvironmentPage(props: NextPageParams<'domain'>) {
     const params = await props.params;
     const environment = await db.selectFrom(tEnvironments)
         .where(tEnvironments.environmentDomain.equals(params.domain))
+            .and(tEnvironments.environmentDeleted.isNull())
         .select({
             id: tEnvironments.environmentId,
             colorDarkMode: tEnvironments.environmentColourDarkMode,

@@ -37,6 +37,7 @@ const kSpecialValueFetcher: { [key in SpecialValues]: SpecialValueFetcher } = {
     environment: async (value: string) => {
         return await db.selectFrom(tEnvironments)
             .where(tEnvironments.environmentDomain.equals(value))
+                .and(tEnvironments.environmentDeleted.isNull())
             .selectOneColumn(tEnvironments.environmentTitle)
             .executeSelectNoneOrOne() ?? undefined;
     },

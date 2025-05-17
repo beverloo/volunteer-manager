@@ -17,6 +17,7 @@ import { DataTable, type DataTableColumn } from '@app/admin/components/DataTable
  */
 const kPurposeDescription: { [key in EnvironmentPurpose]: string } = {
     LandingPage: 'Landing page',
+    Placeholder: 'Placeholder',
 };
 
 /**

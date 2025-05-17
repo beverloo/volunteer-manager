@@ -37,6 +37,7 @@ export async function createEnvironment(formData: unknown) {
 
         const existingEnvironment = await db.selectFrom(tEnvironments)
             .where(tEnvironments.environmentDomain.equals(data.domain))
+                .and(tEnvironments.environmentDeleted.isNull())
             .selectCountAll()
             .executeSelectNoneOrOne();
 
@@ -100,6 +101,7 @@ export async function createTeam(formData: unknown) {
 
         const existingEnvironment = await db.selectFrom(tEnvironments)
             .where(tEnvironments.environmentId.equals(data.environment))
+                .and(tEnvironments.environmentDeleted.isNull())
             .selectOneColumn(tEnvironments.environmentDomain)
             .executeSelectNoneOrOne();
 
@@ -162,9 +164,54 @@ export async function deleteEnvironment(environmentId: number, formData: unknown
             permission: 'root',  // only root can delete environments
         });
 
-        // TODO: Implement the ability to delete an environment.
+        const existingEnvironment = await db.selectFrom(tEnvironments)
+            .where(tEnvironments.environmentId.equals(environmentId))
+                .and(tEnvironments.environmentDeleted.isNull())
+            .selectOneColumn(tEnvironments.environmentDomain)
+            .executeSelectNoneOrOne();
 
-        return { success: false, error: 'Not yet implemented' };
+        if (!existingEnvironment)
+            return { success: false, error: 'The given environment could not be found…' };
+
+        const dbInstance = db;
+        const affectedRows = await dbInstance.transaction(async () => {
+            const affectedRows = await dbInstance.update(tEnvironments)
+                .set({
+                    environmentDeleted: dbInstance.currentZonedDateTime()
+                })
+                .where(tEnvironments.environmentId.equals(environmentId))
+                    .and(tEnvironments.environmentDeleted.isNull())
+                .executeUpdate();
+
+            await dbInstance.update(tTeams)
+                .set({
+                    teamEnvironmentId: null
+                })
+                .where(tTeams.teamEnvironmentId.equals(environmentId))
+                .executeUpdate();
+
+            return affectedRows;
+        });
+
+        if (!affectedRows)
+            return { success: false, error: 'Unable to remove the environment from the database…' };
+
+        RecordLog({
+            type: kLogType.AdminEnvironmentDelete,
+            sourceUser: props.user,
+            data: {
+                environmentId,
+                domain: existingEnvironment,
+            },
+        });
+
+        clearEnvironmentCache();
+        clearPageMetadataCache('environment');
+
+        return {
+            success: true,
+            redirect: '/admin/organisation/teams/environments',
+        };
     });
 }
 
@@ -200,6 +247,7 @@ export async function updateEnvironment(environmentId: number, formData: unknown
                 environmentTitle: data.title,
             })
             .where(tEnvironments.environmentId.equals(environmentId))
+                .and(tEnvironments.environmentDeleted.isNull())
             .executeUpdate();
 
         if (!affectedRows)

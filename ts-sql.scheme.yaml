@@ -7,10 +7,6 @@ tables:
     type: int(8) unsigned
     nullable: false
     extraDef: auto_increment
-  - name: environment_admin_area
-    type: tinyint(1) unsigned
-    nullable: false
-    default: "0"
   - name: environment_colour_dark_mode
     type: varchar(16)
     nullable: false
@@ -24,12 +20,16 @@ tables:
     type: varchar(64)
     nullable: false
   - name: environment_purpose
-    type: enum('LandingPage')
+    type: enum('LandingPage','Placeholder')
     nullable: false
     default: "'LandingPage'"
   - name: environment_title
     type: text
     nullable: false
+  - name: environment_deleted
+    type: datetime
+    nullable: true
+    default: "NULL"
   indexes:
   - name: PRIMARY
     def: PRIMARY KEY (environment_id) USING BTREE
@@ -46,13 +46,13 @@ tables:
   def: |-
     CREATE TABLE `environments` (
       `environment_id` int(8) unsigned NOT NULL AUTO_INCREMENT,
-      `environment_admin_area` tinyint(1) unsigned NOT NULL DEFAULT 0,
       `environment_colour_dark_mode` varchar(16) NOT NULL,
       `environment_colour_light_mode` varchar(16) NOT NULL,
       `environment_description` text NOT NULL,
       `environment_domain` varchar(64) NOT NULL,
-      `environment_purpose` enum('LandingPage') NOT NULL DEFAULT 'LandingPage',
+      `environment_purpose` enum('LandingPage','Placeholder') NOT NULL DEFAULT 'LandingPage',
       `environment_title` text NOT NULL,
+      `environment_deleted` datetime DEFAULT NULL,
       PRIMARY KEY (`environment_id`)
     ) ENGINE=InnoDB AUTO_INCREMENT=[Redacted by tbls] DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 - name: events_teams
@@ -1841,7 +1841,8 @@ tables:
     nullable: false
   - name: team_environment_id
     type: int(8) unsigned
-    nullable: false
+    nullable: true
+    default: "NULL"
   - name: team_request_confirmation
     type: tinyint(1) unsigned
     nullable: false
@@ -1891,7 +1892,7 @@ tables:
       `team_title` varchar(128) NOT NULL,
       `team_description` text NOT NULL,
       `team_environment` varchar(32) NOT NULL,
-      `team_environment_id` int(8) unsigned NOT NULL,
+      `team_environment_id` int(8) unsigned DEFAULT NULL,
       `team_request_confirmation` tinyint(1) unsigned NOT NULL DEFAULT 0,
       `team_manages_faq` tinyint(1) unsigned NOT NULL DEFAULT 0,
       `team_manages_first_aid` tinyint(1) unsigned NOT NULL DEFAULT 0,

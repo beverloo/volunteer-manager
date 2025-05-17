@@ -39,6 +39,7 @@ export default async function TeamsPage() {
     const canCreateTeams = access.can('root');  // only root can create new teams
     if (canCreateTeams) {
         environments = await db.selectFrom(tEnvironments)
+            .where(tEnvironments.environmentDeleted.isNull())
             .select({
                 id: tEnvironments.environmentId,
                 label: tEnvironments.environmentTitle
@@ -53,6 +54,7 @@ export default async function TeamsPage() {
     const teams = await db.selectFrom(tTeams)
         .innerJoin(tEnvironments)
             .on(tEnvironments.environmentId.equals(tTeams.teamEnvironmentId))
+                .and(tEnvironments.environmentDeleted.isNull())
         .select({
             id: tTeams.teamId,
             slug: tTeams.teamSlug,

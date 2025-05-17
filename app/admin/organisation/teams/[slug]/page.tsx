@@ -54,6 +54,8 @@ export default async function TeamPage(props: NextPageParams<'slug'>) {
         notFound();
 
     const environments = await db.selectFrom(tEnvironments)
+        .where(tEnvironments.environmentDeleted.isNull())
+            .and(tEnvironments.environmentDeleted.isNull())
         .select({
             id: tEnvironments.environmentId,
             label: tEnvironments.environmentTitle

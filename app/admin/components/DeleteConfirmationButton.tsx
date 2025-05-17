@@ -36,13 +36,14 @@ interface DeleteConfirmationButtonProps {
 export function DeleteConfirmationButton(
     props: React.PropsWithChildren<DeleteConfirmationButtonProps>)
 {
+    const action = props.action;
     const router = useRouter();
 
     const [ open, setOpen ] = useState<boolean>(false);
 
     const handleRequestDelete = useCallback(() => setOpen(true), [ /* no dependencies */ ]);
     const handleDelete = useCallback(async () => {
-        const result = await props.action(new FormData);
+        const result = await action(new FormData);
         if (!result.success)
             return { error: result.error };
 
@@ -52,7 +53,7 @@ export function DeleteConfirmationButton(
         router.push(result.redirect);
         return true;
 
-    }, [ props.action, router ]);
+    }, [ action, router ]);
 
     return (
         <>
