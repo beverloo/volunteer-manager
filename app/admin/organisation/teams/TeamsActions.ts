@@ -13,6 +13,79 @@ import db, { tEnvironments, tTeams } from '@lib/database';
 import { kEnvironmentPurpose } from '@lib/database/Types';
 
 /**
+ * Zod type that describes information required in order to create a new team.
+ */
+const kCreateTeamData = z.object({
+    environment: z.number(),
+    name: z.string().nonempty(),
+    plural: z.string().nonempty(),
+    slug: z.string().nonempty(),
+    title: z.string().nonempty(),
+});
+
+/**
+ * Server action that creates a new team in the Volunteer Manager.
+ */
+export async function createTeam(formData: unknown) {
+    'use server';
+    return executeServerAction(formData, kCreateTeamData, async (data, props) => {
+        await requireAuthenticationContext({
+            check: 'admin',
+            permission: 'root',
+        });
+
+        const existingEnvironment = await db.selectFrom(tEnvironments)
+            .where(tEnvironments.environmentId.equals(data.environment))
+            .selectOneColumn(tEnvironments.environmentDomain)
+            .executeSelectNoneOrOne();
+
+        if (!existingEnvironment)
+            return { success: false, error: 'The given environment could not be found…' };
+
+        const existingTeam = await db.selectFrom(tTeams)
+            .where(tTeams.teamSlug.equals(data.slug))
+            .selectCountAll()
+            .executeSelectNoneOrOne();
+
+        if (!!existingTeam)
+            return { success: false, error: 'A team with that slug already exists…' };
+
+        const teamId = await db.insertInto(tTeams)
+            .set({
+                teamSlug: data.slug,
+                teamName: data.name,
+                teamPlural: data.plural,
+                teamTitle: data.title,
+                teamDescription: data.title,
+                teamEnvironment: existingEnvironment,
+                teamEnvironmentId: data.environment,
+                teamColourDarkTheme: '#ff0000',
+                teamColourLightTheme: '#ff0000',
+            })
+            .returningLastInsertedId()
+            .executeInsert();
+
+        if (!teamId)
+            return { success: false, error: 'Unable to store the new team in the database…' };
+
+        RecordLog({
+            type: kLogType.AdminTeamCreate,
+            sourceUser: props.user,
+            data: {
+                id: teamId,
+                slug: data.slug,
+                title: data.title,
+            },
+        });
+
+        return {
+            success: true,
+            redirect: `/admin/organisation/teams/${data.slug}`,
+        };
+    });
+}
+
+/**
  * Zod type that describes information required in order to update an environment.
  */
 const kUpdateEnvironmentData = z.object({

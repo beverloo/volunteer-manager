@@ -210,6 +210,9 @@ const kLogMessageFormatter: {
     [kLogType.AdminSubscriptionUpdate]: (source, target) => {
         return `Updated the subscriptions for ${target?.name}`;
     },
+    [kLogType.AdminTeamCreate]: (source, target, { title }) => {
+        return `Created the ${title} team`;
+    },
     [kLogType.AdminUpdateActivation]: (source, target, data) => {
         return data.activated ? `Activated the account of ${target?.name}`
                               : `Deactivated their account of ${target?.name}`;

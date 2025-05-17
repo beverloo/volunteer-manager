@@ -74,6 +74,7 @@ export const kLogType = {
     AdminResetAccessCode: 'admin-reset-access-code',
     AdminResetPasswordLink: 'admin-reset-password-link',
     AdminSubscriptionUpdate: 'admin-subscription-update',
+    AdminTeamCreate: 'admin-team-create',
     AdminUpdateActivation: 'admin-update-activation',
     AdminUpdateAiSetting: 'admin-update-ai-settings',
     AdminUpdateAvailabilityPreferences: 'admin-update-availability-preferences',
