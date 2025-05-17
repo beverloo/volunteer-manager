@@ -17,6 +17,7 @@ import type { NextPageParams } from '@lib/NextRouterParams';
 import type { Registration } from '@lib/Registration';
 import { AdditionalEventCard } from './welcome/AdditionalEventCard';
 import { AdministrationCard } from './welcome/AdministrationCard';
+import { PlaceholderPage } from './welcome/PlaceholderPage';
 import { RegistrationContentContainer } from '@app/registration/RegistrationContentContainer';
 import { RegistrationLayout } from './registration/RegistrationLayout';
 import { StatisticsCard } from './welcome/StatisticsCard';
@@ -29,7 +30,7 @@ import { getEventsForUser } from './lib/EventLoader';
 import { getRegistration } from './lib/RegistrationLoader';
 import { kAnyEvent, kAnyTeam } from '@lib/auth/AccessList';
 
-import { kRegistrationStatus } from '@lib/database/Types';
+import { kEnvironmentPurpose, kRegistrationStatus } from '@lib/database/Types';
 
 /**
  * Styles that apply to the photo card, displaying the environment's impression image.
@@ -51,6 +52,11 @@ export default async function RootPage(props: NextPageParams<'ignored'>) {
     const environment = await determineEnvironment();
     if (!environment)
         notFound();
+
+    switch (environment.purpose) {
+        case kEnvironmentPurpose.Placeholder:
+            return <PlaceholderPage />;
+    }
 
     const authenticationContext = await getAuthenticationContext();
     const { access, user } = authenticationContext;
