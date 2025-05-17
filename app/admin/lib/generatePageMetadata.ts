@@ -44,7 +44,7 @@ const kSpecialValueFetcher: { [key in SpecialValues]: SpecialValueFetcher } = {
     team: async (value: string) => {
         return await db.selectFrom(tTeams)
             .where(tTeams.teamSlug.equals(value))
-            .selectOneColumn(tTeams.teamName)
+            .selectOneColumn(tTeams.teamTitle)
             .executeSelectNoneOrOne() ?? undefined;
     },
 

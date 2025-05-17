@@ -10,7 +10,6 @@ import Paper from '@mui/material/Paper';
 import PublicIcon from '@mui/icons-material/Public';
 import WorkOutlineIcon from '@mui/icons-material/WorkOutline';
 
-import { DocumentationButton } from '@app/admin/components/DocumentationButton';
 import { NavigationTabs, type NavigationTabsProps } from '@app/admin/components/NavigationTabs';
 import { Section } from '@app/admin/components/Section';
 import { SectionIntroduction } from '@app/admin/components/SectionIntroduction';
