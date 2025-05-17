@@ -1,6 +1,8 @@
 // Copyright 2025 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
+import PersonIcon from '@mui/icons-material/Person';
+
 import { AccountDataTable } from './AccountDataTable';
 import { Section } from '../../components/Section';
 import { SectionIntroduction } from '../../components/SectionIntroduction';
@@ -84,7 +86,7 @@ export default async function AccountsPage() {
             || 'firstName,lastName,displayName,phoneNumber,gender,birthdate,discordHandle';
 
     return (
-        <Section title="Volunteers">
+        <Section icon={ <PersonIcon color="primary" /> } title="Accounts">
             <SectionIntroduction>
                 This table lists all volunteers who helped us out since 2010—not all information
                 is complete, and these accounts are separate from the information stored in AnPlan.

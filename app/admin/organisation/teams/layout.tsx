@@ -69,7 +69,7 @@ export default async function OrganisationEntitiesLayout(props: React.PropsWithC
 
     return (
         <>
-            <Section title="Teams" subtitle="entities"
+            <Section icon={ <GroupsIcon color="primary" /> } title="Teams" subtitle="entities"
                      headerAction={
                          <DocumentationButton color="info" size="small" topic="teams" />
                      }>

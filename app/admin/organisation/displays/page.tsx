@@ -1,6 +1,8 @@
 // Copyright 2024 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
+import TabletIcon from '@mui/icons-material/Tablet';
+
 import type { DisplayTableEventOption, DisplayTableLocationOption } from './DisplaysTable';
 import { DisplaysTable } from './DisplaysTable';
 import { HelpRequestTable } from './HelpRequestTable';
@@ -46,7 +48,7 @@ export default async function DisplaysPage() {
 
     return (
         <>
-            <Section title="Display configuration">
+            <Section icon={ <TabletIcon color="primary" /> } title="Display configuration">
                 <SectionIntroduction>
                     We distribute <strong>physical displays</strong> during the festival to help
                     busy areas self-manage their volunteers. They automatically register with the

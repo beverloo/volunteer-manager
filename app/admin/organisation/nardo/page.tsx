@@ -1,6 +1,8 @@
 // Copyright 2023 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
+import TipsAndUpdatesIcon from '@mui/icons-material/TipsAndUpdates';
+
 import { NardoDataTable } from './NardoDataTable';
 import { NardoPersonalisedDataTable } from './NardoPersonalisedDataTable';
 import { Section } from '../../components/Section';
@@ -20,7 +22,7 @@ export default async function DelARieAdviesPage() {
 
     return (
         <>
-            <Section title="Del a Rie Advies">
+            <Section icon={ <TipsAndUpdatesIcon color="primary" /> } title="Del a Rie Advies">
                 <SectionIntroduction>
                     This is the exclusive repertoire demonstrating the best of what <strong>Del a
                     Rie Advies</strong> has to offer. As all advice will be published immediately,

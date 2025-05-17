@@ -1,6 +1,8 @@
 // Copyright 2024 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
+import FeedbackOutlinedIcon from '@mui/icons-material/FeedbackOutlined';
+
 import { Section } from '../../components/Section';
 import { SectionIntroduction } from '../../components/SectionIntroduction';
 import { createGenerateMetadataFn } from '../../lib/generatePageMetadata';
@@ -18,7 +20,7 @@ export default async function FeedbackPage() {
     });
 
     return (
-        <Section title="Feedback">
+        <Section icon={ <FeedbackOutlinedIcon color="primary" /> } title="Feedback">
             <SectionIntroduction>
                 This page lists feedback received from volunteers via the Volunteer Portal. Entries
                 are attributed to the volunteer, and cannot be updated or removed.
