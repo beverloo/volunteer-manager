@@ -73,6 +73,7 @@ export const kDisplayHelpRequestTarget = {
 export type EnvironmentPurpose = Values<typeof kEnvironmentPurpose>;
 export const kEnvironmentPurpose = {
     LandingPage: 'LandingPage',
+    Placeholder: 'Placeholder',
 } as const;
 
 /**

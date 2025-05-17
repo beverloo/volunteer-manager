@@ -13,6 +13,65 @@ import db, { tEnvironments, tTeams } from '@lib/database';
 import { kEnvironmentPurpose } from '@lib/database/Types';
 
 /**
+ * Zod type that describes information required in order to create a new environment.
+ */
+const kCreateEnvironmentData = z.object({
+    domain: z.string().nonempty(),
+});
+
+/**
+ * Server action that creates a new environment in the Volunteer Manager.
+ */
+export async function createEnvironment(formData: unknown) {
+    'use server';
+    return executeServerAction(formData, kCreateEnvironmentData, async (data, props) => {
+        await requireAuthenticationContext({
+            check: 'admin',
+            permission: 'root',
+        });
+
+        const existingEnvironment = await db.selectFrom(tEnvironments)
+            .where(tEnvironments.environmentDomain.equals(data.domain))
+            .selectCountAll()
+            .executeSelectNoneOrOne();
+
+        if (!!existingEnvironment)
+            return { success: false, error: 'An environment with that domain already exists…' };
+
+        const environmentId = await db.insertInto(tEnvironments)
+            .set({
+                environmentColourDarkMode: '#ff0000',
+                environmentColourLightMode: '#ff0000',
+                environmentDescription: data.domain,
+                environmentDomain: data.domain,
+                environmentPurpose: kEnvironmentPurpose.Placeholder,
+                environmentTitle: data.domain,
+            })
+            .returningLastInsertedId()
+            .executeInsert();
+
+        if (!environmentId)
+            return { success: false, error: 'Unable to store the environment in the database…' };
+
+        RecordLog({
+            type: kLogType.AdminEnvironmentCreate,
+            sourceUser: props.user,
+            data: {
+                id: environmentId,
+                domain: data.domain,
+            },
+        });
+
+        clearEnvironmentCache();
+
+        return {
+            success: true,
+            redirect: `/admin/organisation/teams/environments/${data.domain}`,
+        };
+    });
+}
+
+/**
  * Zod type that describes information required in order to create a new team.
  */
 const kCreateTeamData = z.object({
@@ -77,6 +136,8 @@ export async function createTeam(formData: unknown) {
                 title: data.title,
             },
         });
+
+        clearEnvironmentCache();
 
         return {
             success: true,
