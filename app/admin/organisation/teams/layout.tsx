@@ -10,6 +10,7 @@ import Paper from '@mui/material/Paper';
 import PublicIcon from '@mui/icons-material/Public';
 import WorkOutlineIcon from '@mui/icons-material/WorkOutline';
 
+import { DocumentationButton } from '@app/admin/components/DocumentationButton';
 import { NavigationTabs, type NavigationTabsProps } from '@app/admin/components/NavigationTabs';
 import { Section } from '@app/admin/components/Section';
 import { SectionIntroduction } from '@app/admin/components/SectionIntroduction';
@@ -68,7 +69,10 @@ export default async function OrganisationEntitiesLayout(props: React.PropsWithC
 
     return (
         <>
-            <Section title="Teams" subtitle="entities">
+            <Section title="Teams" subtitle="entities"
+                     headerAction={
+                         <DocumentationButton color="info" size="small" topic="teams" />
+                     }>
                 <SectionIntroduction>
                     Our organisation consists of <strong>environments</strong>,{' '}
                     <strong>roles</strong> and <strong>teams</strong>. This page allows you to
