@@ -13,6 +13,11 @@ import db, { tEnvironments, tTeams } from '@lib/database';
 import { kEnvironmentPurpose } from '@lib/database/Types';
 
 /**
+ * Zod type that describes that no data is expected.
+ */
+const kNoDataRequired = z.object({ /* no parameters */ });
+
+/**
  * Zod type that describes information required in order to create a new environment.
  */
 const kCreateEnvironmentData = z.object({
@@ -143,6 +148,23 @@ export async function createTeam(formData: unknown) {
             success: true,
             redirect: `/admin/organisation/teams/${data.slug}`,
         };
+    });
+}
+
+/**
+ * Server action that deletes the environment identified by the given `environmentId`.
+ */
+export async function deleteEnvironment(environmentId: number, formData: unknown) {
+    'use server';
+    return executeServerAction(formData, kNoDataRequired, async (data, props) => {
+        await requireAuthenticationContext({
+            check: 'admin',
+            permission: 'root',  // only root can delete environments
+        });
+
+        // TODO: Implement the ability to delete an environment.
+
+        return { success: false, error: 'Not yet implemented' };
     });
 }
 

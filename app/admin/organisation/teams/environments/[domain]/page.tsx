@@ -11,6 +11,7 @@ import type { EnvironmentPurpose } from '@lib/database/Types';
 import type { NextPageParams } from '@lib/NextRouterParams';
 import { BackButtonGrid } from '@app/admin/components/BackButtonGrid';
 import { ColorInput } from '@app/admin/components/ColorInput';
+import { DeleteConfirmationButton } from '@app/admin/components/DeleteConfirmationButton';
 import { FormGrid } from '@app/admin/components/FormGrid';
 import { createGenerateMetadataFn } from '@app/admin/lib/generatePageMetadata';
 import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
@@ -23,6 +24,7 @@ import * as actions from '../../TeamsActions';
  */
 const kEnvironmentPurposeOptions: { [key in EnvironmentPurpose]: string } = {
     LandingPage: 'Landing page',
+    Placeholder: 'Placeholder',
 };
 
 /**
@@ -30,10 +32,12 @@ const kEnvironmentPurposeOptions: { [key in EnvironmentPurpose]: string } = {
  * they would like to inspect or update.
  */
 export default async function EnvironmentPage(props: NextPageParams<'domain'>) {
-    await requireAuthenticationContext({
+    const { access } = await requireAuthenticationContext({
         check: 'admin',
         permission: 'organisation.environments',
     });
+
+    const canDeleteEnvironment = access.can('root');  // only root can delete environments
 
     const params = await props.params;
     const environment = await db.selectFrom(tEnvironments)
@@ -52,20 +56,32 @@ export default async function EnvironmentPage(props: NextPageParams<'domain'>) {
     if (!environment)
         notFound();
 
+    const backButtonSize = canDeleteEnvironment ? 6 : 12;
     const purposeOptions = Object.entries(kEnvironmentPurposeOptions).map(([ k, v ]) => ({
         id: k,
         label: v,
     }));
 
     const readOnly = false;  // should we support this?
+
+    const deleteEnvironmentFn = actions.deleteEnvironment.bind(null, environment.id);
     const updateEnvironmentFn = actions.updateEnvironment.bind(null, environment.id);
 
     return (
         <FormGrid action={updateEnvironmentFn} defaultValues={environment}>
 
-            <BackButtonGrid href="/admin/organisation/teams/environments">
+            <BackButtonGrid href="/admin/organisation/teams/environments" size={backButtonSize}>
                 Back to environments
             </BackButtonGrid>
+            { canDeleteEnvironment &&
+                <Grid size={{ xs: 6 }}>
+                    <DeleteConfirmationButton action={deleteEnvironmentFn}
+                                              label="Delete this environment…">
+                        Are you sure you want to delete <strong>{environment.domain}</strong>? This
+                        action is permanent and cannot be undone. All teams currently linked to this
+                        environment will need to be reassigned to a different one.
+                    </DeleteConfirmationButton>
+                </Grid> }
 
             <Grid size={{ xs: 12, md: 6 }}>
                 <TextFieldElement name="domain" label="Domain" fullWidth size="small" required

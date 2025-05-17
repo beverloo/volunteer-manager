@@ -15,6 +15,11 @@ interface BackButtonGridProps {
      * URL that the user should navigate to when activating this entity.
      */
     href: string;
+
+    /**
+     * Size of the grid. Defaults to full width, i.e. 12.
+     */
+    size?: number;
 }
 
 /**
@@ -24,7 +29,7 @@ interface BackButtonGridProps {
  */
 export function BackButtonGrid(props: React.PropsWithChildren<BackButtonGridProps>) {
     return (
-        <Grid size={{ xs: 12 }}>
+        <Grid size={{ xs: props.size ?? 12 }}>
             <Button size="small" variant="text" LinkComponent={Link} href={props.href}
                     startIcon={ <ArrowBackIcon /> } sx={{ ml: -0.5, mb: 0.75 }}>
                 { props.children || 'Back' }

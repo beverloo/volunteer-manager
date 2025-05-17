@@ -18,7 +18,6 @@ import db, { tUsers, tUsersAuth } from '@lib/database';
 import { kAuthType } from '@lib/database/Types';
 import { kTemporalPlainDate } from '@app/api/Types';
 
-
 /**
  * Zod type that describes that no data is expected.
  */
