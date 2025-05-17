@@ -1,14 +1,22 @@
 // Copyright 2024 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
-import type { BooleanPermission, CRUDPermission } from '@lib/auth/Access';
+import Box from '@mui/material/Box';
 import Stack from '@mui/material/Stack';
 import Typography, { type TypographyProps } from '@mui/material/Typography';
+
+import type { BooleanPermission, CRUDPermission } from '@lib/auth/Access';
+import { DocumentationButton } from './DocumentationButton';
 
 /**
  * Props accepted by the <SectionHeader> component.
  */
 export interface SectionHeaderProps {
+    /**
+     * Topic for which a documentation action should be shown.
+     */
+    documentation?: string;
+
     /**
      * Action that should be shown on the end side of the header.
      */
@@ -63,6 +71,10 @@ export function SectionHeader(props: SectionHeaderProps) {
                 </Typography>
             </Stack>
             {props.headerAction}
+            { !!props.documentation &&
+                <Box sx={{ my: -0.5 }}>
+                    <DocumentationButton color="info" size="medium" topic={props.documentation} />
+                </Box> }
         </Stack>
     );
 }
