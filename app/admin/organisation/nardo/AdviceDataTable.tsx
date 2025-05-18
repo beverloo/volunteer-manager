@@ -12,10 +12,10 @@ import { type RemoteDataTableColumn, RemoteDataTable } from '../../components/Re
 import { Temporal, formatDate } from '@lib/Temporal';
 
 /**
- * The <NardoDataTable> component displays the pieces of advice that Del a Rie Advies is able to
+ * The <AdviceDataTable> component displays the pieces of advice that Del a Rie Advies is able to
  * issue to volunteers. Pieces can be added, updated and deleted.
  */
-export function NardoDataTable() {
+export function AdviceDataTable() {
     const localTz = Temporal.Now.timeZoneId();
 
     const columns: RemoteDataTableColumn<NardoRowModel>[] = [

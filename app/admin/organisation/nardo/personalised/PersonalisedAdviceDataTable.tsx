@@ -8,14 +8,14 @@ import Link from 'next/link';
 import { default as MuiLink } from '@mui/material/Link';
 
 import type { NardoPersonalisedRowModel } from '@app/api/nardo/personalised/[[...id]]/route';
-import { type RemoteDataTableColumn, RemoteDataTable } from '../../components/RemoteDataTable';
+import { type RemoteDataTableColumn, RemoteDataTable } from '../../../components/RemoteDataTable';
 import { Temporal, formatDate } from '@lib/Temporal';
 
 /**
- * The <NardoPersonalisedDataTable> component displays the generated, personalised pieces of advice
+ * The <PersonalisedAdviceDataTable> component displays the generated, personalised pieces of advice
  * that Del a Rie Advies has generated for our volunteers.
  */
-export function NardoPersonalisedDataTable() {
+export function PersonalisedAdviceDataTable() {
     const localTz = Temporal.Now.timeZoneId();
 
     const columns: RemoteDataTableColumn<NardoPersonalisedRowModel>[] = [
@@ -26,7 +26,7 @@ export function NardoPersonalisedDataTable() {
             flex: 1,
 
             renderCell: params => {
-                const link = `/admin/organisation/nardo/${params.row.id}`;
+                const link = `/admin/organisation/nardo/personalised/${params.row.id}`;
                 const date = formatDate(
                     Temporal.ZonedDateTime.from(params.value).withTimeZone(localTz),
                     'YYYY-MM-DD HH:mm:ss');
