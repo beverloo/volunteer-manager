@@ -70,7 +70,7 @@ export default async function OrganisationEntitiesLayout(props: React.PropsWithC
     return (
         <>
             <Section icon={ <AccountBalanceIcon color="primary" /> } title="Structure"
-                     documentation="teams">
+                     documentation="organisation/structure">
                 <SectionIntroduction>
                     Our organisation consists of <strong>environments</strong>,{' '}
                     <strong>roles</strong> and <strong>teams</strong>. This page allows you to
