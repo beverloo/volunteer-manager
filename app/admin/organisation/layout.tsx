@@ -1,10 +1,10 @@
 // Copyright 2025 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
+import AccountBalanceIcon from '@mui/icons-material/AccountBalance';
 import CategoryIcon from '@mui/icons-material/Category';
 import FeedbackOutlinedIcon from '@mui/icons-material/FeedbackOutlined';
 import GridViewIcon from '@mui/icons-material/GridView';
-import GroupsIcon from '@mui/icons-material/Groups';
 import PersonIcon from '@mui/icons-material/Person';
 import TabletIcon from '@mui/icons-material/Tablet';
 import TipsAndUpdatesIcon from '@mui/icons-material/TipsAndUpdates';
@@ -74,14 +74,14 @@ export default async function OrganisationLayout(props: React.PropsWithChildren)
             url: '/admin/organisation/permissions',
         },
         {
-            icon: <GroupsIcon />,
-            label: 'Teams',
+            icon: <AccountBalanceIcon />,
+            label: 'Structure',
             permission: [
                 'organisation.environments',
                 'organisation.roles',
                 'organisation.teams',
             ],
-            url: '/admin/organisation/teams',
+            url: '/admin/organisation/structure',
         },
     ];
 

@@ -3,6 +3,7 @@
 
 import { forbidden } from 'next/navigation';
 
+import AccountBalanceIcon from '@mui/icons-material/AccountBalance';
 import Box from '@mui/material/Box';
 import Divider from '@mui/material/Divider';
 import GroupsIcon from '@mui/icons-material/Groups';
@@ -39,7 +40,7 @@ export default async function OrganisationEntitiesLayout(props: React.PropsWithC
         tabs.push({
             icon: <PublicIcon />,
             label: 'Environments',
-            url: '/admin/organisation/teams/environments',
+            url: '/admin/organisation/structure/environments',
             urlMatchMode: 'prefix',
         });
     }
@@ -48,7 +49,7 @@ export default async function OrganisationEntitiesLayout(props: React.PropsWithC
         tabs.push({
             icon: <WorkOutlineIcon />,
             label: 'Roles',
-            url: '/admin/organisation/teams/roles',
+            url: '/admin/organisation/structure/roles',
         });
     }
 
@@ -56,7 +57,7 @@ export default async function OrganisationEntitiesLayout(props: React.PropsWithC
         tabs.push({
             icon: <GroupsIcon />,
             label: 'Teams',
-            url: '/admin/organisation/teams',
+            url: '/admin/organisation/structure',
             urlMatchMode: 'prefix',
         });
     }
@@ -68,7 +69,7 @@ export default async function OrganisationEntitiesLayout(props: React.PropsWithC
 
     return (
         <>
-            <Section icon={ <GroupsIcon color="primary" /> } title="Teams" subtitle="entities"
+            <Section icon={ <AccountBalanceIcon color="primary" /> } title="Structure"
                      documentation="teams">
                 <SectionIntroduction>
                     Our organisation consists of <strong>environments</strong>,{' '}

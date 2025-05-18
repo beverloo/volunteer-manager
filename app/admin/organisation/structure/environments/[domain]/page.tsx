@@ -71,7 +71,7 @@ export default async function EnvironmentPage(props: NextPageParams<'domain'>) {
     return (
         <FormGrid action={updateEnvironmentFn} defaultValues={environment}>
 
-            <BackButtonGrid href="/admin/organisation/teams/environments" size={backButtonSize}>
+            <BackButtonGrid href="/admin/organisation/structure/environments" size={backButtonSize}>
                 Back to environments
             </BackButtonGrid>
             { canDeleteEnvironment &&

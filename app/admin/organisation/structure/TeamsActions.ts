@@ -72,7 +72,7 @@ export async function createEnvironment(formData: unknown) {
 
         return {
             success: true,
-            redirect: `/admin/organisation/teams/environments/${data.domain}`,
+            redirect: `/admin/organisation/structure/environments/${data.domain}`,
         };
     });
 }
@@ -148,7 +148,7 @@ export async function createTeam(formData: unknown) {
 
         return {
             success: true,
-            redirect: `/admin/organisation/teams/${data.slug}`,
+            redirect: `/admin/organisation/structure/${data.slug}`,
         };
     });
 }
@@ -210,7 +210,7 @@ export async function deleteEnvironment(environmentId: number, formData: unknown
 
         return {
             success: true,
-            redirect: '/admin/organisation/teams/environments',
+            redirect: '/admin/organisation/structure/environments',
         };
     });
 }

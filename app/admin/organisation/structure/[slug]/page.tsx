@@ -72,7 +72,7 @@ export default async function TeamPage(props: NextPageParams<'slug'>) {
     return (
         <FormGrid action={updateTeamFn} defaultValues={team}>
 
-            <BackButtonGrid href="/admin/organisation/teams">
+            <BackButtonGrid href="/admin/organisation/structure">
                 Back to teams
             </BackButtonGrid>
 

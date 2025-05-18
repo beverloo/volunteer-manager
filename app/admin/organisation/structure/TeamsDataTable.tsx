@@ -65,7 +65,7 @@ export function TeamsDataTable(props: TeamsDataTableProps) {
             flex: 1,
 
             renderCell: params =>
-                <MuiLink component={Link} href={`/admin/organisation/teams/${params.row.slug}`}>
+                <MuiLink component={Link} href={`/admin/organisation/structure/${params.row.slug}`}>
                     {params.value}
                 </MuiLink>,
         },

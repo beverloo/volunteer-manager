@@ -80,7 +80,7 @@ export function EnvironmentsDataTable(props: EnvironmentsDataTableProps) {
 
             renderCell: params =>
                 <MuiLink component={Link}
-                         href={`/admin/organisation/teams/environments/${params.value}`}>
+                         href={`/admin/organisation/structure/environments/${params.value}`}>
                     {params.value}
                 </MuiLink>,
         },

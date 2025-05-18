@@ -26,10 +26,10 @@ export default async function TeamsPage() {
     const { access } = await requireAuthenticationContext({ check: 'admin' });
     if (!access.can('organisation.teams')) {
         if (access.can('organisation.environments'))
-            redirect('/admin/organisation/teams/environments');
+            redirect('/admin/organisation/structure/environments');
 
         if (access.can('organisation.roles'))
-            redirect('/admin/organisation/teams/roles');
+            redirect('/admin/organisation/structure/roles');
 
         forbidden();
     }
