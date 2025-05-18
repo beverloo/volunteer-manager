@@ -6,9 +6,7 @@ import type { EnvironmentDomain } from './Environment';
 import type { User } from './auth/User';
 import { Event } from './Event';
 import { isAvailabilityWindowOpen } from './isAvailabilityWindowOpen';
-import db, { tEvents, tEventsTeams, tRoles, tTeams, tUsersEvents } from './database';
-
-import { kRegistrationStatus } from './database/Types';
+import db, { tEvents, tEventsTeams, tTeams } from './database';
 
 /**
  * Returns a single event identified by the given |slug|, or undefined when it does not exist.
@@ -93,20 +91,12 @@ export async function getEventsForUser(
     environment: EnvironmentDomain, access: AccessControl, user?: User): Promise<Event[]>
 {
     const eventsTeamsJoin = tEventsTeams.forUseInLeftJoin();
-    const rolesJoin = tRoles.forUseInLeftJoin();
     const teamsJoin = tTeams.forUseInLeftJoin();
-    const usersEventsJoin = tUsersEvents.forUseInLeftJoin();
 
     const eventInfos = await db.selectFrom(tEvents)
         .leftJoin(eventsTeamsJoin)
             .on(eventsTeamsJoin.eventId.equals(tEvents.eventId))
             .and(eventsTeamsJoin.enableTeam.equals(/* true= */ 1))
-        .leftJoin(usersEventsJoin)
-            .on(usersEventsJoin.eventId.equals(tEvents.eventId))
-            .and(usersEventsJoin.userId.equals(user?.userId ?? -1))
-            .and(usersEventsJoin.registrationStatus.equals(kRegistrationStatus.Accepted))
-        .leftJoin(rolesJoin)
-            .on(rolesJoin.roleId.equals(usersEventsJoin.roleId))
         .leftJoin(teamsJoin)
             .on(teamsJoin.teamId.equals(eventsTeamsJoin.teamId))
         .where(tEvents.eventHidden.equals(0))
