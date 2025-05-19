@@ -8,6 +8,7 @@ import Typography from '@mui/material/Typography';
 
 import type { NextPageParams } from '@lib/NextRouterParams';
 import type { PartialServerAction, ServerAction } from '@lib/serverAction';
+import { Application } from './Application';
 import { ApplicationForm } from './ApplicationForm';
 import { CollapsableSection } from '@app/admin/components/CollapsableSection';
 import { FormGridSection } from '@app/admin/components/FormGridSection';
@@ -90,6 +91,7 @@ export default async function ApplicationsPage(props: NextPageParams<'event' | '
             fullyAvailable: tUsersEvents.fullyAvailable.is(/* true= */ 1),
             date: dbInstance.dateTimeAsString(tUsersEvents.registrationDate),
             name: tUsers.name,
+            firstName: tUsers.firstName,
             avatar: storageJoin.fileHash,
             status: tUsersEvents.registrationStatus,
             preferences: tUsersEvents.preferences,
@@ -124,9 +126,9 @@ export default async function ApplicationsPage(props: NextPageParams<'event' | '
     let rejectApplicationFn: PartialServerAction<number> | undefined;
 
     if (access.can('event.applications', 'update', accessScope)) {
-        approveApplicationFn = actions.approveApplication.bind(null, event.slug, team.slug);
+        approveApplicationFn = actions.decideApplication.bind(null, event.slug, team.slug, true);
         moveApplicationFn = actions.moveApplication.bind(null, event.slug, team.slug);
-        rejectApplicationFn = actions.rejectApplication.bind(null, event.slug, team.slug);
+        rejectApplicationFn = actions.decideApplication.bind(null, event.slug, team.slug, false);
     }
 
     let createApplicationFn: ServerAction | undefined;
@@ -163,8 +165,23 @@ export default async function ApplicationsPage(props: NextPageParams<'event' | '
 
             { applications.length === 0 && <NoPendingApplications /> }
             { applications.length > 0 &&
-                <Grid container>
-                    { /* TODO: Display the application */ }
+                <Grid container alignItems="stretch" spacing={2}>
+                    { applications.map(application => {
+                        const approveFn = approveApplicationFn?.bind(null, application.userId);
+                        const moveFn = moveApplicationFn?.bind(null, application.userId);
+                        const rejectFn = rejectApplicationFn?.bind(null, application.userId);
+
+                        return (
+                            <Grid key={application.userId} size={{ xs: 12, md: 6 }}>
+                                <Application application={application}
+                                             canAccessAccounts={canAccessAccounts}
+                                             canRespondSilently={canRespondSilently}
+                                             event={event.slug} team={team.slug}
+                                             approveFn={approveFn} moveFn={moveFn}
+                                             rejectFn={rejectFn} />
+                            </Grid>
+                        );
+                    }) }
                 </Grid> }
 
             { !!createApplicationFn &&
@@ -192,7 +209,7 @@ export default async function ApplicationsPage(props: NextPageParams<'event' | '
                                              reconsiderFn={
                                                  !!reconsiderApplicationFn
                                                      ? reconsiderApplicationFn.bind(
-                                                           null, application.userId)
+                                                         null, application.userId)
                                                      : undefined
                                              } /> )}
                 </Stack>

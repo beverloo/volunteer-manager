@@ -1,16 +1,17 @@
 // Copyright 2025 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
-import { notFound } from 'next/navigation';
+import { forbidden, notFound, unauthorized } from 'next/navigation';
 import { z } from 'zod';
 
 import { RecordLog, kLogSeverity, kLogType } from '@lib/Log';
 import { executeServerAction } from '@lib/serverAction';
 import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
-import db, { tEvents, tTeams, tTeamsRoles, tUsersEvents } from '@lib/database';
+import db, { tEvents, tTeams, tTeamsRoles, tUsers, tUsersEvents } from '@lib/database';
 
 import { kRegistrationStatus, kShirtFit, kShirtSize } from '@lib/database/Types';
 import { kServiceHoursProperty, kServiceTimingProperty } from '@app/api/event/application';
+import { SendEmailTask } from '@lib/scheduler/tasks/SendEmailTask';
 
 /**
  * Fetches the unique ID of the event identified by the given `event` slug.
@@ -38,14 +39,23 @@ async function getTeamId(team: string): Promise<number | undefined> {
 const kNoDataRequired = z.object({ /* no parameters */ });
 
 /**
- * Server action that should be called when an application should be approved.
+ * Zod type that describes that an application decision has been made.
  */
-export async function approveApplication(
-    event: string, team: string, userId: number, formData: unknown)
+const kApplicationDecisionData = z.object({
+    subject: z.string().optional(),
+    message: z.string().optional(),
+});
+
+/**
+ * Server action that should be called when a decision regarding an application has been made. The
+ * `approved` boolean indicates whether the application was approved or not.
+ */
+export async function decideApplication(
+    event: string, team: string, approved: boolean, userId: number, formData: unknown)
 {
     'use server';
-    return executeServerAction(formData, kNoDataRequired, async (data, props) => {
-        await requireAuthenticationContext({
+    return executeServerAction(formData, kApplicationDecisionData, async (data, props) => {
+        const { access } = await requireAuthenticationContext({
             check: 'admin',
             permission: {
                 permission: 'event.applications',
@@ -54,7 +64,67 @@ export async function approveApplication(
             },
         });
 
-        return { success: false, error: 'Not yet implemented' };
+        if (!props.user)
+            unauthorized();
+
+        const eventId = await getEventId(event);
+        const teamId = await getTeamId(team);
+
+        if (!eventId || !teamId)
+            notFound();
+
+        if (!data.subject || !data.message) {
+            if (!access.can('volunteer.silent'))
+                forbidden();
+        } else {
+            const username = await db.selectFrom(tUsers)
+                .where(tUsers.userId.equals(userId))
+                .selectOneColumn(tUsers.username)
+                .executeSelectNoneOrOne();
+
+            if (!username)
+                forbidden();
+
+            await SendEmailTask.Schedule({
+                sender: `${props.user.firstName} ${props.user.lastName} (AnimeCon)`,
+                message: {
+                    to: username,
+                    subject: data.subject,
+                    markdown: data.message,
+                },
+                attribution: {
+                    sourceUserId: props.user.userId,
+                    targetUserId: userId,
+                },
+            });
+        }
+
+        const affectedRows = await db.update(tUsersEvents)
+            .set({
+                registrationStatus:
+                    approved ? kRegistrationStatus.Accepted
+                             : kRegistrationStatus.Rejected
+            })
+            .where(tUsersEvents.userId.equals(userId))
+                .and(tUsersEvents.eventId.equals(eventId))
+                .and(tUsersEvents.teamId.equals(teamId))
+            .executeUpdate();
+
+        if (!affectedRows)
+            return { success: false, error: 'Unable to store the update in the database…' };
+
+        RecordLog({
+            type: kLogType.AdminUpdateTeamVolunteerStatus,
+            severity: kLogSeverity.Warning,
+            sourceUser: props.user,
+            targetUser: userId,
+            data: {
+                action: approved ? 'Approved' : 'Rejected',
+                event, eventId, teamId,
+            },
+        });
+
+        return { success: true };
     });
 }
 
@@ -225,26 +295,5 @@ export async function reconsiderApplication(
         });
 
         return { success: true };
-    });
-}
-
-/**
- * Server action that should be called when an application should be rejected.
- */
-export async function rejectApplication(
-    event: string, team: string, userId: number, formData: unknown)
-{
-    'use server';
-    return executeServerAction(formData, kNoDataRequired, async (data, props) => {
-        await requireAuthenticationContext({
-            check: 'admin',
-            permission: {
-                permission: 'event.applications',
-                operation: 'update',
-                scope: { event, team },
-            },
-        });
-
-        return { success: false, error: 'Not yet implemented' };
     });
 }

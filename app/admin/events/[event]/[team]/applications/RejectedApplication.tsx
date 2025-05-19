@@ -55,7 +55,7 @@ interface RejectedApplicationProps {
  * reconsider the application is available, the relevant button will be shown.
  */
 export function RejectedApplication(props: RejectedApplicationProps) {
-    const { application } = props;
+    const { application, reconsiderFn } = props;
 
     const router = useRouter();
 
@@ -67,7 +67,7 @@ export function RejectedApplication(props: RejectedApplicationProps) {
     const handleReconsider = useCallback(async () => {
         setLoading(true);
         try {
-            const result = await props.reconsiderFn?.(new FormData);
+            const result = await reconsiderFn?.(new FormData);
             if (!result || !result.success)
                 throw new Error(result?.error || 'Unable to process the reconsideration…');
 
@@ -79,7 +79,7 @@ export function RejectedApplication(props: RejectedApplicationProps) {
         } finally {
             setLoading(false);
         }
-    }, [ props.reconsiderFn, router ]);
+    }, [ reconsiderFn, router ]);
 
     return (
         <Stack component={ContrastBox} direction="row" alignItems="center"
