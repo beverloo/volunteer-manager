@@ -52,7 +52,6 @@ import type { UpdateSettingsDefinition } from '@app/api/admin/updateSettings';
 import type { UpdateVendorScheduleDefinition } from '@app/api/admin/vendors/updateVendorSchedule';
 import type { VertexAiDefinition } from '@app/api/admin/vertexAi';
 import type { VolunteerContactInfoDefinition } from '@app/api/admin/volunteerContactInfo';
-import type { VolunteerListDefinition } from '@app/api/admin/volunteerList';
 import type { VolunteerRolesDefinition } from '@app/api/admin/volunteerRoles';
 import type { VolunteerTeamsDefinition } from '@app/api/admin/volunteerTeams';
 
@@ -174,7 +173,6 @@ export type ApiEndpoints = {
         '/api/admin/vendors': VendorEndpoints['create'],
         '/api/admin/vertex-ai': VertexAiDefinition,
         '/api/admin/volunteer-contact-info': VolunteerContactInfoDefinition,
-        '/api/admin/volunteer-list': VolunteerListDefinition,
         '/api/admin/volunteer-roles': VolunteerRolesDefinition,
         '/api/admin/volunteer-teams': VolunteerTeamsDefinition,
         '/api/ai/generate/:type': GeneratePromptDefinition,
