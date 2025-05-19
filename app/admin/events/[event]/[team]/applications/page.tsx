@@ -1,14 +1,15 @@
-// Copyright 2023 Peter Beverloo & AnimeCon. All rights reserved.
+// Copyright 2025 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
 import type { NextPageParams } from '@lib/NextRouterParams';
 import type { PartialServerAction, ServerAction } from '@lib/serverAction';
+import { ApplicationForm } from './ApplicationForm';
+import { FormGridSection } from '@app/admin/components/FormGridSection';
+import { Section } from '@app/admin/components/Section';
+import { SectionIntroduction } from '@app/admin/components/SectionIntroduction';
 import { verifyAccessAndFetchPageInfo } from '@app/admin/events/verifyAccessAndFetchPageInfo';
 
 import * as actions from './ApplicationActions';
-import { Section } from '@app/admin/components/Section';
-import { SectionIntroduction } from '@app/admin/components/SectionIntroduction';
-import { FormGridSection } from '@app/admin/components/FormGridSection';
 
 /**
  * The <ApplicationsPage> allows team leads to see individuals who have applied to participate in
@@ -53,6 +54,12 @@ export default async function ApplicationsPage(props: NextPageParams<'event' | '
 
     // ---------------------------------------------------------------------------------------------
 
+    // Values that should be prepopulated in the "Create an Application" form.
+    const createValues = {
+        serviceHours: '20',
+        serviceTiming: '10-0',
+    };
+
     // Whether the signed in user has the ability to link through to their volunteering account.
     const canAccessAccounts = access.can('organisation.accounts', 'read');
 
@@ -70,14 +77,15 @@ export default async function ApplicationsPage(props: NextPageParams<'event' | '
             </Section>
             { /* TODO: Applications */ }
             { !!createApplicationFn &&
-                <FormGridSection action={createApplicationFn} title="Create an application">
+                <FormGridSection action={createApplicationFn} title="Create an application"
+                                 callToAction="Create the application" defaultValues={createValues}>
                     <SectionIntroduction important>
                         This feature lets you quickly create an application on behalf of any
                         registered volunteer. Please make sure all information is accurate, as you
                         are responsible for its correctness. The application will still need to be
                         approved, at which point the volunteer will be notified.
                     </SectionIntroduction>
-                    { /* TODO: Account selection autofill */ }
+                    <ApplicationForm eventId={event.id} />
                 </FormGridSection> }
             { /* TODO: Rejected applications */ }
         </>
