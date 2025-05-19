@@ -1,25 +1,21 @@
 // Copyright 2023 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
-import Collapse from '@mui/material/Collapse';
-
 import type { NextPageParams } from '@lib/NextRouterParams';
-import { Applications } from './Applications';
-import { CreateApplication } from './CreateApplication';
-import { Header } from './Header';
-import { RejectedApplications } from './RejectedApplications';
-import { generateEventMetadataFn } from '../../generateEventMetadataFn';
+import type { PartialServerAction, ServerAction } from '@lib/serverAction';
 import { verifyAccessAndFetchPageInfo } from '@app/admin/events/verifyAccessAndFetchPageInfo';
-import db, { tEvents, tStorage, tUsers, tUsersEvents } from '@lib/database';
 
-import { kRegistrationStatus } from '@lib/database/Types';
+import * as actions from './ApplicationActions';
+import { Section } from '@app/admin/components/Section';
+import { SectionIntroduction } from '@app/admin/components/SectionIntroduction';
+import { FormGridSection } from '@app/admin/components/FormGridSection';
 
 /**
- * The Applications page allows senior volunteers to see, and sometimes modify the incoming requests
- * for people who want to participate in this event. Event administrators can also directly create
- * new applications on this page themselves.
+ * The <ApplicationsPage> allows team leads to see individuals who have applied to participate in
+ * their teams, and, when sufficient permission has been granted, to approve or reject such
+ * applications.
  */
-export default async function EventApplicationsPage(props: NextPageParams<'event' | 'team'>) {
+export default async function ApplicationsPage(props: NextPageParams<'event' | 'team'>) {
     const params = await props.params;
     const accessScope = {
         event: params.event,
@@ -32,83 +28,58 @@ export default async function EventApplicationsPage(props: NextPageParams<'event
         scope: accessScope,
     });
 
-    const dbInstance = db;
+    // ---------------------------------------------------------------------------------------------
+    // Actions available to the user depend on the permissions they have been granted, and is
+    // conveyed through the existence of Server Action references shared with the client.
+    // ---------------------------------------------------------------------------------------------
 
-    const storageJoin = tStorage.forUseInLeftJoin();
-    const usersEventsJoin = tUsersEvents.forUseInLeftJoinAs('previous_events');
+    let approveApplicationFn: PartialServerAction<number> | undefined;
+    let moveApplicationFn: PartialServerAction<number> | undefined;
+    let rejectApplicationFn: PartialServerAction<number> | undefined;
 
-    const unfilteredApplications = await dbInstance.selectFrom(tUsersEvents)
-        .innerJoin(tEvents)
-            .on(tEvents.eventId.equals(tUsersEvents.eventId))
-        .innerJoin(tUsers)
-            .on(tUsers.userId.equals(tUsersEvents.userId))
-        .leftJoin(storageJoin)
-            .on(storageJoin.fileId.equals(tUsers.avatarId))
-        .leftJoin(usersEventsJoin)
-            .on(usersEventsJoin.userId.equals(tUsersEvents.userId))
-            .and(usersEventsJoin.eventId.notEquals(tUsersEvents.eventId))
-        .where(tUsersEvents.eventId.equals(event.id))
-            .and(tUsersEvents.teamId.equals(team.id))
-            .and(tUsersEvents.registrationStatus.in(
-                [ kRegistrationStatus.Registered, kRegistrationStatus.Rejected ]))
-        .select({
-            userId: tUsers.userId,
-            age: dbInstance.fragmentWithType('int', 'required')
-                .sql`TIMESTAMPDIFF(YEAR,
-                    IFNULL(${tUsers.birthdate}, ${dbInstance.currentDate()}),
-                    ${tEvents.eventStartTime})`,
-            fullyAvailable: tUsersEvents.fullyAvailable.is(/* true= */ 1),
-            date: dbInstance.dateTimeAsString(tUsersEvents.registrationDate),
-            firstName: tUsers.firstName,
-            lastName: tUsers.lastName,
-            avatar: storageJoin.fileHash,
-            status: tUsersEvents.registrationStatus,
-            preferences: tUsersEvents.preferences,
-            preferenceHours: tUsersEvents.preferenceHours,
-            preferenceTimingStart: tUsersEvents.preferenceTimingStart,
-            preferenceTimingEnd: tUsersEvents.preferenceTimingEnd,
-            history: dbInstance.count(usersEventsJoin.eventId),
-            suspended: tUsers.participationSuspended,
-        })
-        .groupBy(tUsersEvents.userId)
-        .orderBy(tUsers.firstName, 'asc')
-        .orderBy(tUsers.lastName, 'asc')
-        .executeSelectMany();
-
-    const applications: typeof unfilteredApplications = [];
-    const rejections: typeof unfilteredApplications = [];
-
-    for (const application of unfilteredApplications) {
-        if (application.status === kRegistrationStatus.Registered)
-            applications.push(application);
-        else
-            rejections.push(application);
+    if (access.can('event.applications', 'update', accessScope)) {
+        approveApplicationFn = actions.approveApplication.bind(null, event.slug, team.slug);
+        moveApplicationFn = actions.moveApplication.bind(null, event.slug, team.slug);
+        rejectApplicationFn = actions.rejectApplication.bind(null, event.slug, team.slug);
     }
 
-    // Whether the volunteer can respond to applications without sending communication to the
-    // affected volunteer. This is guarded behind a separate permission.
-    const allowSilent = access.can('volunteer.silent');
+    let createApplicationFn: ServerAction | undefined;
+    let reconsiderApplicationFn: PartialServerAction<number> | undefined;
 
-    const canAccessAccounts = access.can('volunteer.account.information', 'read');
+    if (access.can('event.applications', 'create', accessScope)) {
+        createApplicationFn = actions.createApplication.bind(null, event.slug, team.slug);
+        reconsiderApplicationFn = actions.reconsiderApplication.bind(null, event.slug, team.slug);
+    }
 
-    // Whether the volunteer can respond to applications depends on their permissions.
-    const canCreateApplications = access.can('event.applications', 'create', accessScope);
-    const canUpdateApplications = access.can('event.applications', 'update', accessScope);
+    // ---------------------------------------------------------------------------------------------
+
+    // Whether the signed in user has the ability to link through to their volunteering account.
+    const canAccessAccounts = access.can('organisation.accounts', 'read');
+
+    // Whether the signed in user has the ability to commit actions without communication.
+    const canRespondSilently = access.can('volunteer.silent');
 
     return (
         <>
-            <Header event={event} team={team} user={user} />
-            <Applications event={event.slug} team={team.slug} applications={applications}
-                          canAccessAccounts={canAccessAccounts}
-                          canManageApplications={canUpdateApplications} allowSilent={allowSilent} />
-            { canCreateApplications &&
-                <CreateApplication event={event} team={team} user={user} /> }
-            <Collapse in={!!rejections.length}>
-                <RejectedApplications applications={rejections} event={event.slug}
-                                      team={team.slug} editable={canCreateApplications} />
-            </Collapse>
+            <Section title="Applications" subtitle={team.name}>
+                <SectionIntroduction>
+                    This page displays all volunteer applications submitted for this team. Please
+                    aim to review and respond to each application within a week to ensure timely
+                    communication with the applicants. Discuss criteria with your Staff member.
+                </SectionIntroduction>
+            </Section>
+            { /* TODO: Applications */ }
+            { !!createApplicationFn &&
+                <FormGridSection action={createApplicationFn} title="Create an application">
+                    <SectionIntroduction important>
+                        This feature lets you quickly create an application on behalf of any
+                        registered volunteer. Please make sure all information is accurate, as you
+                        are responsible for its correctness. The application will still need to be
+                        approved, at which point the volunteer will be notified.
+                    </SectionIntroduction>
+                    { /* TODO: Account selection autofill */ }
+                </FormGridSection> }
+            { /* TODO: Rejected applications */ }
         </>
     );
 }
-
-export const generateMetadata = generateEventMetadataFn('Applications');

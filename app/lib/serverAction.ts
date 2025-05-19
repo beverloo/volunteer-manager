@@ -92,6 +92,12 @@ export type ServerActionResult = {
 export type ServerAction = (formData: unknown) => Promise<ServerActionResult>;
 
 /**
+ * Type definition that represents a partial ServerAction, i.e. one to which other parameters still
+ * have to be bound.
+ */
+export type PartialServerAction<T> = (param: T, formData: unknown) => Promise<ServerActionResult>;
+
+/**
  * Type definition that represents a React server action. When the action does not return any value
  * success will be assumed, whereas exceptions will be represented as a failure.
  */
