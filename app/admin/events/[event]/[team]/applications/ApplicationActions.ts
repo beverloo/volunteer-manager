@@ -1,6 +1,7 @@
 // Copyright 2025 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
+import { notFound } from 'next/navigation';
 import { z } from 'zod';
 
 import { RecordLog, kLogSeverity, kLogType } from '@lib/Log';
@@ -18,6 +19,16 @@ async function getEventId(event: string): Promise<number | undefined> {
     return await db.selectFrom(tEvents)
         .where(tEvents.eventSlug.equals(event))
         .selectOneColumn(tEvents.eventId)
+        .executeSelectNoneOrOne() ?? undefined;
+}
+
+/**
+ * Fetches the unique ID of the team identified by the given `team` slug.
+ */
+async function getTeamId(team: string): Promise<number | undefined> {
+    return await db.selectFrom(tTeams)
+        .where(tTeams.teamSlug.equals(team))
+        .selectOneColumn(tTeams.teamId)
         .executeSelectNoneOrOne() ?? undefined;
 }
 
@@ -184,7 +195,36 @@ export async function reconsiderApplication(
             },
         });
 
-        return { success: false, error: 'Not yet implemented' };
+        const eventId = await getEventId(event);
+        const teamId = await getTeamId(team);
+
+        if (!eventId || !teamId)
+            notFound();
+
+        const affectedRows = await db.update(tUsersEvents)
+            .set({
+                registrationStatus: kRegistrationStatus.Registered
+            })
+            .where(tUsersEvents.userId.equals(userId))
+                .and(tUsersEvents.eventId.equals(eventId))
+                .and(tUsersEvents.teamId.equals(teamId))
+            .executeUpdate();
+
+        if (!affectedRows)
+            return { success: false, error: 'Unable to store the update in the database…' };
+
+        RecordLog({
+            type: kLogType.AdminUpdateTeamVolunteerStatus,
+            severity: kLogSeverity.Warning,
+            sourceUser: props.user,
+            targetUser: userId,
+            data: {
+                action: 'Reset',
+                event, eventId, teamId,
+            },
+        });
+
+        return { success: true };
     });
 }
 
