@@ -64,7 +64,7 @@ export function EventParticipatingTeams(props: EventParticipatingTeamsProps) {
                                     sx={{ textDecoration: 'line-through', pt: 0.25 }}>
                             {params.value}
                         </Typography>
-                         <Tooltip title="This team has been disabled">
+                        <Tooltip title="This team has been disabled">
                             <RemoveCircleOutlineIcon color="error" fontSize="small"
                                                      sx={{ ml: 1 }} />
                         </Tooltip>

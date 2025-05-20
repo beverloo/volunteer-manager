@@ -17,6 +17,7 @@ import type { NextPageParams } from '@lib/NextRouterParams';
 import type { Registration } from '@lib/Registration';
 import { AdditionalEventCard } from './welcome/AdditionalEventCard';
 import { AdministrationCard } from './welcome/AdministrationCard';
+//import { LandingPage } from './welcome/LandingPage';
 import { PlaceholderPage } from './welcome/PlaceholderPage';
 import { RegistrationContentContainer } from '@app/registration/RegistrationContentContainer';
 import { RegistrationLayout } from './registration/RegistrationLayout';
@@ -31,6 +32,7 @@ import { getRegistration } from './lib/RegistrationLoader';
 import { kAnyEvent, kAnyTeam } from '@lib/auth/AccessList';
 
 import { kEnvironmentPurpose, kRegistrationStatus } from '@lib/database/Types';
+
 
 /**
  * Styles that apply to the photo card, displaying the environment's impression image.
@@ -54,6 +56,8 @@ export default async function RootPage(props: NextPageParams<'ignored'>) {
         notFound();
 
     switch (environment.purpose) {
+        //case kEnvironmentPurpose.LandingPage:
+        //    return <LandingPage environment={environment} />;
         case kEnvironmentPurpose.Placeholder:
             return <PlaceholderPage />;
     }
