@@ -46,6 +46,10 @@ const kEventTeamRowModel = z.object({
      */
     whatsappLink: z.string().optional(),
 
+    /**
+     * Whether the team has been deleted. Only used for visual purposes.
+     */
+    hasTeamBeenDeleted: z.boolean().optional(),
 });
 
 /**
@@ -107,7 +111,7 @@ export const { GET, PUT } = createDataTableApi(kEventTeamRowModel, kEventTeamCon
         const teams = await db.selectFrom(tTeams)
             .leftJoin(eventsTeamsJoin)
                 .on(eventsTeamsJoin.eventId.equals(event.id))
-                .and(eventsTeamsJoin.teamId.equals(tTeams.teamId))
+                    .and(eventsTeamsJoin.teamId.equals(tTeams.teamId))
             .select({
                 id: tTeams.teamId,
                 name: tTeams.teamName,
@@ -115,14 +119,20 @@ export const { GET, PUT } = createDataTableApi(kEventTeamRowModel, kEventTeamCon
                 maximumSize: eventsTeamsJoin.teamMaximumSize,
                 enableTeam: eventsTeamsJoin.enableTeam.equals(/* true= */ 1),
                 whatsappLink: eventsTeamsJoin.whatsappLink,
+                hasTeamBeenDeleted: tTeams.teamDeleted.isNotNull(),
             })
-            .orderBy(tTeams.teamName, 'asc')
+            .orderBy('hasTeamBeenDeleted', 'asc')
+                .orderBy(tTeams.teamName, 'asc')
             .executeSelectMany();
+
+        // Filter the |teams| to remove teams that have been deleted, and have not been explicitly
+        // enabled for this event.
+        const filteredTeams = teams.filter(team => team.enableTeam || !team.hasTeamBeenDeleted);
 
         return {
             success: true,
-            rowCount: teams.length,
-            rows: teams,
+            rowCount: filteredTeams.length,
+            rows: filteredTeams,
         };
     },
 

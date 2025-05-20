@@ -5,6 +5,9 @@
 
 import CancelIcon from '@mui/icons-material/Cancel';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import RemoveCircleOutlineIcon from '@mui/icons-material/RemoveCircleOutline';
+import Tooltip from '@mui/material/Tooltip';
+import Typography from '@mui/material/Typography';
 
 import type { EventTeamRowModel } from '@app/api/admin/event/teams/[[...id]]/route';
 import type { PageInfo } from '@app/admin/events/verifyAccessAndFetchPageInfo';
@@ -44,11 +47,30 @@ export function EventParticipatingTeams(props: EventParticipatingTeamsProps) {
             },
         },
         {
+            display: 'flex',
             field: 'name',
             headerName: 'Team',
             editable: false,
             sortable: false,
             flex: 2,
+
+            renderCell: params => {
+                if (!params.row.hasTeamBeenDeleted)
+                    return params.value;
+
+                return (
+                    <>
+                        <Typography variant="body2"
+                                    sx={{ textDecoration: 'line-through', pt: 0.25 }}>
+                            {params.value}
+                        </Typography>
+                         <Tooltip title="This team has been disabled">
+                            <RemoveCircleOutlineIcon color="error" fontSize="small"
+                                                     sx={{ ml: 1 }} />
+                        </Tooltip>
+                    </>
+                );
+            },
         },
         {
             field: 'targetSize',

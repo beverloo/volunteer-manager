@@ -35,6 +35,7 @@ export default async function EnvironmentsPage() {
     const environments = await db.selectFrom(tEnvironments)
         .leftJoin(teamsJoin)
             .on(teamsJoin.teamEnvironmentId.equals(tEnvironments.environmentId))
+                .and(teamsJoin.teamDeleted.isNull())
         .where(tEnvironments.environmentDeleted.isNull())
         .select({
             id: tEnvironments.environmentId,

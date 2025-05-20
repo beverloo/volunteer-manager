@@ -251,7 +251,14 @@ export async function toggleTeamEnabled(teamId: number, enabled: boolean, formDa
         if (!affectedRows)
             return { success: false, error: 'Unable to update the team state in the database…' };
 
-        // TODO: Log
+        RecordLog({
+            type: kLogType.AdminTeamEnable,
+            sourceUser: props.user,
+            data: {
+                action: enabled ? 'Enabled' : 'Disabled',
+                team: existingTeam.title,
+            },
+        });
 
         return {
             success: true,
