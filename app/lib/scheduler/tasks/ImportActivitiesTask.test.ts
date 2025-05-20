@@ -860,7 +860,7 @@ describe('ImportActivitiesTask', () => {
                 }
             ]);
 
-            expect(lowSeverityUpdates.fields).toContainAllValues([ 'first' ]);
+            expect(lowSeverityUpdates.fields).toIncludeAllMembers([ 'first' ]);
             expect(lowSeverityUpdates.severity).toBe('Low');
         }
 
@@ -889,7 +889,7 @@ describe('ImportActivitiesTask', () => {
                 }
             ]);
 
-            expect(moderateSeverityUpdates.fields).toContainAllValues([ 'first', 'second' ]);
+            expect(moderateSeverityUpdates.fields).toIncludeAllMembers([ 'first', 'second' ]);
             expect(moderateSeverityUpdates.severity).toBe('Moderate');
         }
 
@@ -918,7 +918,7 @@ describe('ImportActivitiesTask', () => {
                 }
             ]);
 
-            expect(importantSeverifyUpdates.fields).toContainAllValues([ 'third' ]);
+            expect(importantSeverifyUpdates.fields).toIncludeAllMembers([ 'third' ]);
             expect(importantSeverifyUpdates.severity).toBe('Important');
         }
 
