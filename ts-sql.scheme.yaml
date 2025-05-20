@@ -1865,6 +1865,10 @@ tables:
   - name: team_colour_light_theme
     type: varchar(16)
     nullable: false
+  - name: team_deleted
+    type: datetime
+    nullable: true
+    default: "NULL"
   indexes:
   - name: team_slug
     def: KEY team_slug (team_slug) USING BTREE
@@ -1899,6 +1903,7 @@ tables:
       `team_manages_security` tinyint(1) unsigned NOT NULL DEFAULT 0,
       `team_colour_dark_theme` varchar(16) NOT NULL,
       `team_colour_light_theme` varchar(16) NOT NULL,
+      `team_deleted` datetime DEFAULT NULL,
       PRIMARY KEY (`team_id`),
       KEY `team_slug` (`team_slug`)
     ) ENGINE=InnoDB AUTO_INCREMENT=[Redacted by tbls] DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci

@@ -6,12 +6,15 @@ import { notFound } from 'next/navigation';
 import { CheckboxElement, SelectElement, TextareaAutosizeElement, TextFieldElement }
     from '@components/proxy/react-hook-form-mui';
 
+import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import Divider from '@mui/material/Divider';
 import Grid from '@mui/material/Grid';
+import RemoveCircleOutlineIcon from '@mui/icons-material/RemoveCircleOutline';
 
 import type { NextPageParams } from '@lib/NextRouterParams';
 import { BackButtonGrid } from '@app/admin/components/BackButtonGrid';
 import { ColorInput } from '@app/admin/components/ColorInput';
+import { ConfirmationButton } from '@app/admin/components/ConfirmationButton';
 import { FormGrid } from '@app/admin/components/FormGrid';
 import { createGenerateMetadataFn } from '@app/admin/lib/generatePageMetadata';
 import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
@@ -24,10 +27,12 @@ import * as actions from '../TeamsActions';
  * been indicated in the URL's parameters. The team's settings can be updated from here too.
  */
 export default async function TeamPage(props: NextPageParams<'slug'>) {
-    await requireAuthenticationContext({
+    const { access } = await requireAuthenticationContext({
         check: 'admin',
         permission: 'organisation.teams',
     });
+
+    const canDisableTeam = access.can('root');  // only root can disabl teams
 
     const params = await props.params;
     const team = await db.selectFrom(tTeams)
@@ -47,6 +52,8 @@ export default async function TeamPage(props: NextPageParams<'slug'>) {
             managesFirstAid: tTeams.teamManagesFirstAid.equals(/* true= */ 1),
             managesSecurity: tTeams.teamManagesSecurity.equals(/* true= */ 1),
             requestConfirmation: tTeams.teamRequestConfirmation.equals(/* true= */ 1),
+
+            enabled: tTeams.teamDeleted.isNull(),
         })
         .executeSelectNoneOrOne();
 
@@ -67,14 +74,38 @@ export default async function TeamPage(props: NextPageParams<'slug'>) {
         .executeSelectMany();
 
     const readOnly = false;  // should we support this?
+
+    const backButtonSize = canDisableTeam ? 6 : 12;
+
+    const disableTeamFn = actions.toggleTeamEnabled.bind(null, team.id, /* enabled= */ false);
+    const enableTeamFn = actions.toggleTeamEnabled.bind(null, team.id, /* enabled= */ true);
     const updateTeamFn = actions.updateTeam.bind(null, team.id);
 
     return (
         <FormGrid action={updateTeamFn} defaultValues={team}>
 
-            <BackButtonGrid href="/admin/organisation/structure">
+            <BackButtonGrid href="/admin/organisation/structure" size={backButtonSize}>
                 Back to teams
             </BackButtonGrid>
+            { (canDisableTeam && !!team.enabled) &&
+                <Grid size={{ xs: 6 }}>
+                    <ConfirmationButton callToAction="Disable" action={disableTeamFn}
+                                        icon={ <RemoveCircleOutlineIcon /> }
+                                        label="Disable this team…">
+                        Are you sure you want to disable the <strong>{team.name}</strong> team? This
+                        will stop the team from being considered for any future events, but won't
+                        remove any data.
+                    </ConfirmationButton>
+                </Grid> }
+            { (canDisableTeam && !team.enabled) &&
+                <Grid size={{ xs: 6 }}>
+                    <ConfirmationButton callToAction="Enable" action={enableTeamFn} color="success"
+                                        icon={ <AddCircleOutlineIcon /> }
+                                        label="Enable this team…">
+                        Are you sure you want to enable the <strong>{team.name}</strong> team? This
+                        means that they can be considered for future events again.
+                    </ConfirmationButton>
+                </Grid> }
 
             <Grid size={{ xs: 12, md: 6 }}>
                 <TextFieldElement name="slug" label="Slug" fullWidth size="small" required

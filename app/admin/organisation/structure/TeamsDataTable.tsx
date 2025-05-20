@@ -7,6 +7,8 @@ import Link from 'next/link';
 
 import { default as MuiChip } from '@mui/material/Chip';
 import { default as MuiLink } from '@mui/material/Link';
+import RemoveCircleOutlineIcon from '@mui/icons-material/RemoveCircleOutline';
+import Tooltip from '@mui/material/Tooltip';
 
 import { Chip } from '../../components/Chip';
 import { DataTable, type DataTableColumn } from '@app/admin/components/DataTable';
@@ -49,6 +51,12 @@ interface TeamsDataTableProps {
          * when no domain name is given, which can happen when an environment was removed.
          */
         domain?: string;
+
+        /**
+         * Whether the team is enabled or not. Disabled teams will be presented at the bottom in
+         * a visually distinguished manner.
+         */
+        enabled: boolean;
     }[];
 }
 
@@ -59,15 +67,37 @@ interface TeamsDataTableProps {
 export function TeamsDataTable(props: TeamsDataTableProps) {
     const columns: DataTableColumn<TeamsDataTableProps['teams'][number]>[] = [
         {
+            display: 'flex',
             field: 'title',
             headerName: 'Team',
             sortable: true,
             flex: 1,
 
-            renderCell: params =>
-                <MuiLink component={Link} href={`/admin/organisation/structure/${params.row.slug}`}>
-                    {params.value}
-                </MuiLink>,
+            renderCell: params => {
+                const link = (
+                    <MuiLink component={Link}
+                             sx={{
+                                 textDecoration: !!params.row.enabled ? undefined : 'line-through',
+                                 pt: 0.25,
+                             }}
+                             href={`/admin/organisation/structure/${params.row.slug}`}>
+                        {params.value}
+                    </MuiLink>
+                );
+
+                if (!!params.row.enabled)
+                    return link;
+
+                return (
+                    <>
+                        <Tooltip title="This team has been disabled">
+                            <RemoveCircleOutlineIcon color="error" fontSize="small"
+                                                     sx={{ mr: 1 }} />
+                        </Tooltip>
+                        {link}
+                    </>
+                );
+            },
         },
         {
             field: 'domain',

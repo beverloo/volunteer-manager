@@ -66,8 +66,10 @@ export default async function TeamsPage() {
             color: tTeams.teamColourLightTheme,
 
             domain: environmentsJoin.environmentDomain,
+            enabled: tTeams.teamDeleted.isNull(),
         })
-        .orderBy('title', 'asc')
+        .orderBy('enabled', 'desc')
+            .orderBy('title', 'asc')
         .executeSelectMany();
 
     return (

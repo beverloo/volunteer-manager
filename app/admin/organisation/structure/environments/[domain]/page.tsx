@@ -11,7 +11,7 @@ import type { EnvironmentPurpose } from '@lib/database/Types';
 import type { NextPageParams } from '@lib/NextRouterParams';
 import { BackButtonGrid } from '@app/admin/components/BackButtonGrid';
 import { ColorInput } from '@app/admin/components/ColorInput';
-import { DeleteConfirmationButton } from '@app/admin/components/DeleteConfirmationButton';
+import { ConfirmationButton } from '@app/admin/components/ConfirmationButton';
 import { FormGrid } from '@app/admin/components/FormGrid';
 import { createGenerateMetadataFn } from '@app/admin/lib/generatePageMetadata';
 import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
@@ -76,12 +76,12 @@ export default async function EnvironmentPage(props: NextPageParams<'domain'>) {
             </BackButtonGrid>
             { canDeleteEnvironment &&
                 <Grid size={{ xs: 6 }}>
-                    <DeleteConfirmationButton action={deleteEnvironmentFn}
-                                              label="Delete this environment…">
+                    <ConfirmationButton action={deleteEnvironmentFn}
+                                        label="Delete this environment…">
                         Are you sure you want to delete <strong>{environment.domain}</strong>? This
                         action is permanent and cannot be undone. All teams currently linked to this
                         environment will need to be reassigned to a different one.
-                    </DeleteConfirmationButton>
+                    </ConfirmationButton>
                 </Grid> }
 
             <Grid size={{ xs: 12, md: 6 }}>

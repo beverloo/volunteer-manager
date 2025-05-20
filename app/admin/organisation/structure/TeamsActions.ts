@@ -216,6 +216,51 @@ export async function deleteEnvironment(environmentId: number, formData: unknown
 }
 
 /**
+ * Server action that either disables or enables the team identified by the given `teamId`.
+ */
+export async function toggleTeamEnabled(teamId: number, enabled: boolean, formData: unknown) {
+    'use server';
+    return executeServerAction(formData, kNoDataRequired, async (data, props) => {
+        await requireAuthenticationContext({
+            check: 'admin',
+            permission: 'root',  // only root can disable environments
+        });
+
+        const dbInstance = db;
+        const existingTeam = await dbInstance.selectFrom(tTeams)
+            .where(tTeams.teamId.equals(teamId))
+            .select({
+                enabled: tTeams.teamDeleted.isNull(),
+                title: tTeams.teamTitle,
+            })
+            .executeSelectNoneOrOne();
+
+        if (!existingTeam)
+            return { success: false, error: 'The given team could not be found…' };
+
+        if (existingTeam.enabled === enabled)
+            return { success: true, refresh: true };  // status quo is maintained
+
+        const affectedRows = await db.update(tTeams)
+            .set({
+                teamDeleted: enabled ? null : dbInstance.currentZonedDateTime(),
+            })
+            .where(tTeams.teamId.equals(teamId))
+            .executeUpdate();
+
+        if (!affectedRows)
+            return { success: false, error: 'Unable to update the team state in the database…' };
+
+        // TODO: Log
+
+        return {
+            success: true,
+            refresh: true,
+        };
+    });
+}
+
+/**
  * Zod type that describes information required in order to update an environment.
  */
 const kUpdateEnvironmentData = z.object({
