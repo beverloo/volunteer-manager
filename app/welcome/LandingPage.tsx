@@ -4,6 +4,7 @@
 import Grid from '@mui/material/Grid';
 
 import type { Environment } from '@lib/Environment';
+import { AdditionalEventCard } from './landing/AdditionalEventCard';
 import { AdministrationCard } from './landing/AdministrationCard';
 import { EventsContent } from './landing/EventsContent';
 import { NoEventsContent } from './landing/NoEventsContent';
@@ -34,7 +35,6 @@ export async function LandingPage(props: LandingPageProps) {
 
     // TODO: Contextualise <RegistrationContentContainer> to the event and the user
     // TODO: Contextualise <RegistrationContainerContent> with the active registration
-    // TODO: Populate additional events in an overflow card
 
     // ---------------------------------------------------------------------------------------------
 
@@ -72,7 +72,10 @@ export async function LandingPage(props: LandingPageProps) {
                             <StatisticsCard />
                         </Grid> }
 
-                    { /* TODO: Display a card for |secondaryEvents| */ }
+                    { secondaryEvents.map((event, index) =>
+                        <Grid key={event.slug} size={{ xs: 12, md: 4 }}>
+                            <AdditionalEventCard event={event} />
+                        </Grid> )}
 
                 </Grid>
             </RegistrationLayout>
