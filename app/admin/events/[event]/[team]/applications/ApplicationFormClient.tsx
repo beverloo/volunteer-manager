@@ -14,10 +14,20 @@ import { ApplicationAvailabilityForm, ApplicationParticipationForm }
     from '@app/registration/[slug]/application/ApplicationParticipation';
 
 /**
+ * Type definition indicating props for the <AutocompleteElement> used by the form. This propagates
+ * the (potentially inferred) type and disables the multiple, clearable and FreeSolo options.
+ */
+type AutocompleteElementPropsType<TValue> =
+    AutocompleteElementProps<TValue,
+                             /* Multiple= */ false,
+                             /* DisableClearable= */ false,
+                             /* FreeSolo= */ false>;
+
+/**
  * The <ApplicationFormClient> component wraps the application form on the client side to provide
  * the necessary interaction for this component to provide a good user experience.
  */
-export function ApplicationFormClient(props: AutocompleteElementProps) {
+export function ApplicationFormClient<TValue>(props: AutocompleteElementPropsType<TValue>) {
     const { autocompleteProps, name, ...restProps } = props;
 
     const { watch } = useFormContext();
