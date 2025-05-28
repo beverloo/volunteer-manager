@@ -4,11 +4,12 @@
 import Grid from '@mui/material/Grid';
 
 import type { Environment } from '@lib/Environment';
-import { AdministrationCard } from './AdministrationCard';
+import { AdministrationCard } from './landing/AdministrationCard';
+import { NoEventsContent } from './landing/NoEventsContent';
 import { RegistrationContentContainer } from '@app/registration/RegistrationContentContainer';
 import { RegistrationLayout } from '@app/registration/RegistrationLayout';
-import { StatisticsCard } from './StatisticsCard';
-import { getAuthenticationContext } from '@lib/auth/AuthenticationContext';
+import { StatisticsCard } from './landing/StatisticsCard';
+import { getEnvironmentContext } from '@lib/EnvironmentContext';
 
 import { kAnyEvent, kAnyTeam } from '@lib/auth/AccessList';
 
@@ -28,9 +29,9 @@ interface LandingPageProps {
  * Volunteer Portal when they have and are participating.
  */
 export async function LandingPage(props: LandingPageProps) {
-    const { environment } = props;
+    const context = await getEnvironmentContext(props.environment);
 
-    const { access, user } = await getAuthenticationContext();
+    const { access, user } = context;
 
     // TODO: Contextualise <RegistrationContentContainer> to the event and the user
     // TODO: Contextualise <RegistrationContainerContent> with the active registration
@@ -48,9 +49,14 @@ export async function LandingPage(props: LandingPageProps) {
 
     return (
         <>
-            <RegistrationLayout environment={environment}>
+            <RegistrationLayout environment={props.environment}>
                 <RegistrationContentContainer user={user}>
+
+                    { !context.events.length &&
+                        <NoEventsContent environment={props.environment} /> }
+
                     { /* TODO */ }
+
                 </RegistrationContentContainer>
                 <Grid container spacing={2} sx={{ mt: 2 }}>
 

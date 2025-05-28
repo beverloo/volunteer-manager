@@ -16,12 +16,12 @@ import type { Event } from '@lib/Event';
 import type { NextPageParams } from '@lib/NextRouterParams';
 import type { Registration } from '@lib/Registration';
 import { AdditionalEventCard } from './welcome/AdditionalEventCard';
-import { AdministrationCard } from './welcome/AdministrationCard';
-//import { LandingPage } from './welcome/LandingPage';
+import { AdministrationCard } from './welcome/landing/AdministrationCard';
+import { LandingPage } from './welcome/LandingPage';
 import { PlaceholderPage } from './welcome/PlaceholderPage';
 import { RegistrationContentContainer } from '@app/registration/RegistrationContentContainer';
 import { RegistrationLayout } from './registration/RegistrationLayout';
-import { StatisticsCard } from './welcome/StatisticsCard';
+import { StatisticsCard } from './welcome/landing/StatisticsCard';
 import { Temporal, isBefore } from '@lib/Temporal';
 import { WelcomeCard } from './welcome/WelcomeCard';
 import { determineEnvironment } from '@lib/Environment';
@@ -56,8 +56,8 @@ export default async function RootPage(props: NextPageParams<'ignored'>) {
         notFound();
 
     switch (environment.purpose) {
-        //case kEnvironmentPurpose.LandingPage:
-        //    return <LandingPage environment={environment} />;
+        case kEnvironmentPurpose.LandingPage:
+            return <LandingPage environment={environment} />;
         case kEnvironmentPurpose.Placeholder:
             return <PlaceholderPage />;
     }
