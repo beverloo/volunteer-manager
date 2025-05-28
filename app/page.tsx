@@ -17,7 +17,7 @@ import type { NextPageParams } from '@lib/NextRouterParams';
 import type { Registration } from '@lib/Registration';
 import { AdditionalEventCard } from './welcome/AdditionalEventCard';
 import { AdministrationCard } from './welcome/landing/AdministrationCard';
-import { LandingPage } from './welcome/LandingPage';
+//import { LandingPage } from './welcome/LandingPage';
 import { PlaceholderPage } from './welcome/PlaceholderPage';
 import { RegistrationContentContainer } from '@app/registration/RegistrationContentContainer';
 import { RegistrationLayout } from './registration/RegistrationLayout';
@@ -56,8 +56,8 @@ export default async function RootPage(props: NextPageParams<'ignored'>) {
         notFound();
 
     switch (environment.purpose) {
-        case kEnvironmentPurpose.LandingPage:
-            return <LandingPage environment={environment} />;
+        //case kEnvironmentPurpose.LandingPage:
+        //    return <LandingPage environment={environment} />;
         case kEnvironmentPurpose.Placeholder:
             return <PlaceholderPage />;
     }
