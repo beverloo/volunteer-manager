@@ -5,6 +5,7 @@ import Grid from '@mui/material/Grid';
 
 import type { Environment } from '@lib/Environment';
 import { AdministrationCard } from './landing/AdministrationCard';
+import { EventsContent } from './landing/EventsContent';
 import { NoEventsContent } from './landing/NoEventsContent';
 import { RegistrationContentContainer } from '@app/registration/RegistrationContentContainer';
 import { RegistrationLayout } from '@app/registration/RegistrationLayout';
@@ -31,31 +32,32 @@ interface LandingPageProps {
 export async function LandingPage(props: LandingPageProps) {
     const context = await getEnvironmentContext(props.environment);
 
-    const { access, user } = context;
-
     // TODO: Contextualise <RegistrationContentContainer> to the event and the user
     // TODO: Contextualise <RegistrationContainerContent> with the active registration
-    // TODO: Populate the <WelcomeCard> in the view
     // TODO: Populate additional events in an overflow card
 
     // ---------------------------------------------------------------------------------------------
 
-    const enableAdminAccess = access.can('event.visible', {
+    const enableAdminAccess = context.access.can('event.visible', {
         event: kAnyEvent,
         team: kAnyTeam,
     });
 
-    const enableStatistics = access.can('statistics.basic');
+    const enableStatistics = context.access.can('statistics.basic');
+
+    const primaryEvents = context.events.splice(0, 2);
+    const secondaryEvents = context.events;
 
     return (
         <>
             <RegistrationLayout environment={props.environment}>
-                <RegistrationContentContainer user={user}>
+                <RegistrationContentContainer user={context.user}>
 
                     { !context.events.length &&
                         <NoEventsContent environment={props.environment} /> }
 
-                    { /* TODO */ }
+                    { !!context.events.length &&
+                        <EventsContent environment={props.environment} events={primaryEvents} /> }
 
                 </RegistrationContentContainer>
                 <Grid container spacing={2} sx={{ mt: 2 }}>
@@ -69,6 +71,8 @@ export async function LandingPage(props: LandingPageProps) {
                         <Grid size={{ xs: 12, md: 4 }}>
                             <StatisticsCard />
                         </Grid> }
+
+                    { /* TODO: Display a card for |secondaryEvents| */ }
 
                 </Grid>
             </RegistrationLayout>
