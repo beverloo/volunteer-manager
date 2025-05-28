@@ -9,7 +9,7 @@ import db, { tEvents, tEventsTeams, tTeams } from '@lib/database';
 /**
  * Status of an availability window within an event context.
  */
-type EnvironmentContextEventAvailabilityStatus =
+export type EnvironmentContextEventAvailabilityStatus =
     'future' |   // the window will open in the future
     'active' |   // the window is currently open
     'past' |     // the window has closed already
@@ -34,6 +34,16 @@ export interface EnvironmentContextEventAccess {
      * Short name of the event, as it should be presented in prose.
      */
     shortName: string;
+
+    /**
+     * Date and time at which the event will begin.
+     */
+    startTime: Temporal.ZonedDateTime;
+
+    /**
+     * Date and time at which the event will finish.
+     */
+    endTime: Temporal.ZonedDateTime;
 
     /**
      * Teams that are participating in this event for the current environment. At least one.
@@ -166,6 +176,8 @@ async function determineEventAccess(
 
             name: tEvents.eventName,
             shortName: tEvents.eventShortName,
+            startTime: tEvents.eventStartTime,
+            endTime: tEvents.eventEndTime,
 
             teams: dbInstance.aggregateAsArray({
                 slug: tTeams.teamSlug,

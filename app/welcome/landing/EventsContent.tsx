@@ -1,14 +1,19 @@
 // Copyright 2025 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
+import type React from 'react';
+import Link from 'next/link';
+
 import type { SxProps } from '@mui/system';
 import type { Theme } from '@mui/material/styles';
+import Button from '@mui/material/Button';
 import Grid from '@mui/material/Grid';
 import Stack from '@mui/material/Stack';
 import { deepmerge } from '@mui/utils';
 
 import type { Environment } from '@lib/Environment';
-import type { EnvironmentContextEventAccess } from '@lib/EnvironmentContext';
+import type { EnvironmentContextEventAccess, EnvironmentContextEventAvailabilityStatus } from '@lib/EnvironmentContext';
+import { Temporal, isBefore } from '@lib/Temporal';
 import { Markdown } from '@components/Markdown';
 
 /**
@@ -53,12 +58,62 @@ interface EventsContentProps {
  * events, which should show clear call-to-actions for the visitor to access or participate in.
  */
 export function EventsContent(props: EventsContentProps) {
+    const currentTime = Temporal.Now.zonedDateTimeISO('utc');
+
     const photoStyle = deepmerge(kStyles.photoInline, {
         // TODO: Support multiple photos per environment, and rotate them periodically
         backgroundImage: `url('/images/${props.environment.domain}/landing.jpg')`,
     });
 
-    // TODO: CTA buttons
+    // ---------------------------------------------------------------------------------------------
+
+    const buttons: React.ReactNode[] = [ /* no buttons yet */ ];
+    for (const event of props.events) {
+        let registrationStatus: EnvironmentContextEventAvailabilityStatus | undefined;
+        let scheduleStatus: EnvironmentContextEventAvailabilityStatus | undefined;
+
+        // Escalate the |registrationStatus| and |scheduleStatus| values to "active" when feasible,
+        // "override" when possible otherwise, or leave them untouched.
+        for (const team of event.teams) {
+            if (team.registration === 'active' || team.registration === 'override') {
+                if (registrationStatus !== 'active')
+                    registrationStatus = team.registration;
+            }
+
+            if (team.schedule === 'active' || team.schedule === 'override') {
+                if (scheduleStatus !== 'active')
+                    scheduleStatus = team.schedule;
+            }
+        }
+
+        if (!!scheduleStatus) {
+            const scheduleHighlight =
+                scheduleStatus === 'active' && isBefore(currentTime, event.endTime);
+
+            buttons.push(
+                <Button key={`${event.slug}-schedule`} component={Link}
+                        href={`/schedule/${event.slug}`}
+                        color={ scheduleStatus === 'active' ? 'primary' : 'hidden' }
+                        variant={ scheduleHighlight ? 'contained' : 'outlined' }>
+                    {event.shortName} Volunteer Portal
+                </Button>
+            );
+        }
+
+        if (!!registrationStatus) {
+            const registrationHighlight =
+                registrationStatus === 'active' && isBefore(currentTime, event.endTime);
+
+            buttons.push(
+                <Button key={`${event.slug}-registration`} component={Link}
+                        href={`/registration/${event.slug}`}
+                        color={ registrationStatus === 'active' ? 'primary' : 'hidden' }
+                        variant={ registrationHighlight ? 'contained' : 'outlined' }>
+                    Join the {event.shortName} team!
+                </Button>
+            );
+        }
+    }
 
     return (
         <Grid container spacing={2} alignItems="center" sx={kStyles.landingPage}>
@@ -67,7 +122,7 @@ export function EventsContent(props: EventsContentProps) {
                     {props.environment.description}
                 </Markdown>
                 <Stack direction="column" spacing={2} sx={{ p: 2, mt: 1 }}>
-                    { /* TODO: Determine the buttons */ }
+                    {buttons}
                 </Stack>
             </Grid>
             <Grid size={{ xs: 0, md: 7 }} sx={photoStyle} />
