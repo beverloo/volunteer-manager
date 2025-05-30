@@ -6,6 +6,7 @@ import Grid from '@mui/material/Grid';
 import type { Environment } from '@lib/Environment';
 import { AdditionalEventCard } from './landing/AdditionalEventCard';
 import { AdministrationCard } from './landing/AdministrationCard';
+import { ApplicationProgressHeader } from './ApplicationProgressHeader';
 import { EventsContent } from './landing/EventsContent';
 import { NoEventsContent } from './landing/NoEventsContent';
 import { RegistrationContentContainer } from '@app/registration/RegistrationContentContainer';
@@ -33,52 +34,45 @@ interface LandingPageProps {
 export async function LandingPage(props: LandingPageProps) {
     const context = await getEnvironmentContext(props.environment);
 
-    // TODO: Contextualise <RegistrationContentContainer> to the event and the user
-    // TODO: Contextualise <RegistrationContainerContent> with the active registration
-
-    // ---------------------------------------------------------------------------------------------
+    const primaryEvents = context.events.slice(0, 2);
+    const secondaryEvents = context.events.slice(2);
 
     const enableAdminAccess = context.access.can('event.visible', {
         event: kAnyEvent,
         team: kAnyTeam,
     });
 
-    const enableStatistics = context.access.can('statistics.basic');
-
-    const primaryEvents = context.events.splice(0, 2);
-    const secondaryEvents = context.events;
-
     return (
-        <>
-            <RegistrationLayout environment={props.environment}>
-                <RegistrationContentContainer user={context.user}>
+        <RegistrationLayout environment={props.environment}>
+            <RegistrationContentContainer title={props.environment.title} user={context.user}>
 
-                    { !context.events.length &&
-                        <NoEventsContent environment={props.environment} /> }
+                <ApplicationProgressHeader context={context} />
 
-                    { !!context.events.length &&
-                        <EventsContent environment={props.environment} events={primaryEvents} /> }
+                { !context.events.length &&
+                    <NoEventsContent environment={props.environment} /> }
 
-                </RegistrationContentContainer>
-                <Grid container spacing={2} sx={{ mt: 2 }}>
+                { !!context.events.length &&
+                    <EventsContent environment={props.environment} events={primaryEvents} /> }
 
-                    { enableAdminAccess &&
-                        <Grid size={{ xs: 12, md: 4 }}>
-                            <AdministrationCard />
-                        </Grid> }
+            </RegistrationContentContainer>
+            <Grid container spacing={2} sx={{ mt: 2 }}>
 
-                    { enableStatistics &&
-                        <Grid size={{ xs: 12, md: 4 }}>
-                            <StatisticsCard />
-                        </Grid> }
+                { enableAdminAccess &&
+                    <Grid size={{ xs: 12, md: 4 }}>
+                        <AdministrationCard />
+                    </Grid> }
 
-                    { secondaryEvents.map((event, index) =>
-                        <Grid key={event.slug} size={{ xs: 12, md: 4 }}>
-                            <AdditionalEventCard event={event} />
-                        </Grid> )}
+                { context.access.can('statistics.basic') &&
+                    <Grid size={{ xs: 12, md: 4 }}>
+                        <StatisticsCard />
+                    </Grid> }
 
-                </Grid>
-            </RegistrationLayout>
-        </>
+                { secondaryEvents.map(event =>
+                    <Grid key={event.slug} size={{ xs: 12, md: 4 }}>
+                        <AdditionalEventCard event={event} />
+                    </Grid> )}
+
+            </Grid>
+        </RegistrationLayout>
     );
 }

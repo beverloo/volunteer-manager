@@ -2,9 +2,10 @@
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
 import type { Environment } from './Environment';
+import type { RegistrationStatus } from './database/Types';
 import { Temporal, isBefore } from '@lib/Temporal';
 import { getAuthenticationContext, type AuthenticationContext } from './auth/AuthenticationContext';
-import db, { tEvents, tEventsTeams, tTeams } from '@lib/database';
+import db, { tEvents, tEventsTeams, tTeams, tUsersEvents } from '@lib/database';
 
 /**
  * Status of an availability window within an event context.
@@ -14,6 +15,21 @@ export type EnvironmentContextEventAvailabilityStatus =
     'active' |   // the window is currently open
     'past' |     // the window has closed already
     'override';  // the window is open due to an override
+
+/**
+ * Information associated with an application the visitor may have made for a particular event.
+ */
+export interface EnvironmentContextApplication {
+    /**
+     * Team that the volunteer has applied to.
+     */
+    team: string;
+
+    /**
+     * Status of the volunteer's application.
+     */
+    status: RegistrationStatus;
+}
 
 /**
  * Information associated with each event that is accessible in this environment. Personalised when
@@ -46,6 +62,12 @@ export interface EnvironmentContextEventAccess {
     endTime: Temporal.ZonedDateTime;
 
     /**
+     * Set of applications that exist for the user. There may be zero or more, with no upper limit
+     * as environments can have any number of teams associated with them.
+     */
+    applications: EnvironmentContextApplication[];
+
+    /**
      * Teams that are participating in this event for the current environment. At least one.
      */
     teams: {
@@ -75,7 +97,7 @@ export interface EnvironmentContextEventAccess {
 /**
  * The context associated with an environment, personalised to the signed in user, if any.
  */
-type EnvironmentContext = Omit<AuthenticationContext, 'events'> & {
+export type EnvironmentContext = Omit<AuthenticationContext, 'events'> & {
     /**
      * Array of events that are accessible within this environment. An environment may have zero or
      * more accessible events.
@@ -162,13 +184,26 @@ async function determineEventAccess(
         return events;
 
     const dbInstance = db;
+    const applicationsJoin = dbInstance.subSelectUsing(tEvents)
+        .from(tUsersEvents)
+        .innerJoin(tTeams)
+            .on(tTeams.teamId.equals(tUsersEvents.teamId))
+                .and(tTeams.teamSlug.in(environment.teams))
+        .where(tUsersEvents.eventId.equals(tEvents.eventId))
+            .and(tUsersEvents.userId.equals(authenticationContext.user?.userId || -1))
+        .select({
+            team: tTeams.teamName,
+            status: tUsersEvents.registrationStatus,
+        })
+        .forUseAsInlineAggregatedArrayValue();
+
     const unfilteredEvents = await dbInstance.selectFrom(tEvents)
         .innerJoin(tEventsTeams)
             .on(tEventsTeams.eventId.equals(tEvents.eventId))
                 .and(tEventsTeams.enableTeam.equals(/* true= */ 1))
         .innerJoin(tTeams)
             .on(tTeams.teamId.equals(tEventsTeams.teamId))
-                .and(tTeams.teamSlug.in([ 'crew', 'hosts' ]))
+                .and(tTeams.teamSlug.in(environment.teams))
                 .and(tTeams.teamDeleted.isNull())
         .where(tEvents.eventHidden.equals(/* false= */ 0))
         .select({
@@ -178,6 +213,8 @@ async function determineEventAccess(
             shortName: tEvents.eventShortName,
             startTime: tEvents.eventStartTime,
             endTime: tEvents.eventEndTime,
+
+            applications: applicationsJoin,
 
             teams: dbInstance.aggregateAsArray({
                 slug: tTeams.teamSlug,
