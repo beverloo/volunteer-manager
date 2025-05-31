@@ -544,7 +544,7 @@ async function populateVolunteers(
 
                 role: {
                     name: tRoles.roleName,
-                    isLeader: tRoles.roleAdminAccess.equals(/* true= */ 1),
+                    isLeader: tRoles.rolePermissionGrant.isNotNull(),
                 },
                 team: {
                     id: tTeams.teamId,

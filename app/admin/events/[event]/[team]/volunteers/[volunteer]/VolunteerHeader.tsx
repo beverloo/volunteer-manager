@@ -116,11 +116,11 @@ function ChangeRoleDialog(props: ChangeRoleDialogProps) {
     }, [ open, setSelectedRole, volunteer.roleId ]);
 
     useEffect(() => {
-        for (const { roleId, roleAdminAccess } of roles ?? []) {
+        for (const { roleId, rolePrivilegeWarning } of roles ?? []) {
             if (roleId !== selectedRole)
                 continue;
 
-            setWarning(roleAdminAccess);
+            setWarning(rolePrivilegeWarning);
             return;
         }
         setWarning(false);

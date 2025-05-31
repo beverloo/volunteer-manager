@@ -55,9 +55,10 @@ export const kVolunteerRolesDefinition = z.object({
             roleName: z.string(),
 
             /**
-             * Whether this role grants administrator access.
+             * Whether a warning should be shown that this roles comes with certain privileges in
+             * the Volunteer Manager. This may be a great mechanism for people to self-promote.
              */
-            roleAdminAccess: z.boolean(),
+            rolePrivilegeWarning: z.boolean(),
 
         })).optional(),
 
@@ -96,7 +97,7 @@ export async function volunteerRoles(request: Request, props: ActionProps): Prom
         .select({
             roleId: tRoles.roleId,
             roleName: tRoles.roleName,
-            roleAdminAccess: tRoles.roleAdminAccess.equals(/* true= */ 1),
+            rolePrivilegeWarning: tRoles.rolePermissionGrant.isNotNull(),
         })
         .orderBy(tRoles.roleOrder, 'desc')
         .executeSelectMany();

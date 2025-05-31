@@ -4,10 +4,10 @@
 import type { NextPageParams } from '@lib/NextRouterParams';
 import { RequestDataTable } from './RequestDataTable';
 import { generateEventMetadataFn } from '../../generateEventMetadataFn';
+import { getLeadersForEvent } from '@app/admin/lib/getLeadersForEvent';
 import { verifyAccessAndFetchPageInfo } from '@app/admin/events/verifyAccessAndFetchPageInfo';
-import db, { tEventsTeams, tRoles, tTeams, tUsersEvents, tUsers } from '@lib/database';
+import db, { tEventsTeams, tTeams } from '@lib/database';
 
-import { kRegistrationStatus } from '@lib/database/Types';
 
 /**
  * The <ProgramRequestsPage> component lists the program entries where the organiser has requested
@@ -16,18 +16,8 @@ import { kRegistrationStatus } from '@lib/database/Types';
 export default async function ProgramRequestsPage(props: NextPageParams<'event'>) {
     const { access, event } = await verifyAccessAndFetchPageInfo(props.params);
 
-    const leaders = await db.selectFrom(tUsersEvents)
-        .innerJoin(tRoles)
-            .on(tRoles.roleId.equals(tUsersEvents.roleId))
-        .innerJoin(tUsers)
-            .on(tUsers.userId.equals(tUsersEvents.userId))
-        .where(tUsersEvents.eventId.equals(event.id))
-            .and(tUsersEvents.registrationStatus.equals(kRegistrationStatus.Accepted))
-            .and(tRoles.roleAdminAccess.equals(/* true= */ 1))
-        .selectOneColumn(tUsers.name)
-        .orderBy(tUsers.firstName, 'asc')
-            .orderBy(tUsers.lastName, 'asc')
-        .executeSelectMany();
+    const comprehensiveLeaders = await getLeadersForEvent(event.id);
+    const leaders = comprehensiveLeaders.map(leader => leader.label);
 
     const readOnly = !access.can('event.requests', { event: event.slug });
 

@@ -10,11 +10,12 @@ import type { NextPageParams } from '@lib/NextRouterParams';
 import { RetentionDataTable } from './RetentionDataTable';
 import { RetentionOutreachList } from './RetentionOutreachList';
 import { generateEventMetadataFn } from '../../generateEventMetadataFn';
+import { getLeadersForEvent } from '@app/admin/lib/getLeadersForEvent';
 import { readSetting } from '@lib/Settings';
 import { verifyAccessAndFetchPageInfo } from '@app/admin/events/verifyAccessAndFetchPageInfo';
-import db, { tRetention, tRoles, tUsersEvents, tUsers } from '@lib/database';
+import db, { tRetention, tUsersEvents, tUsers } from '@lib/database';
 
-import { kRegistrationStatus, kRetentionStatus } from '@lib/database/Types';
+import { kRetentionStatus } from '@lib/database/Types';
 
 /**
  * The retention page displays a recruiting tool to understand how participants from the past two
@@ -53,18 +54,8 @@ export default async function EventTeamRetentionPage(props: NextPageParams<'even
         })
         .executeSelectMany();
 
-    const leaders = await db.selectFrom(tUsersEvents)
-        .innerJoin(tRoles)
-            .on(tRoles.roleId.equals(tUsersEvents.roleId))
-        .innerJoin(tUsers)
-            .on(tUsers.userId.equals(tUsersEvents.userId))
-        .where(tUsersEvents.eventId.equals(event.id))
-            .and(tUsersEvents.registrationStatus.equals(kRegistrationStatus.Accepted))
-            .and(tRoles.roleAdminAccess.equals(/* true= */ 1))
-        .selectOneColumn(tUsers.name)
-        .orderBy(tUsers.firstName, 'asc')
-        .orderBy(tUsers.lastName, 'asc')
-        .executeSelectMany();
+    const comprehensiveLeaders = await getLeadersForEvent(event.id);
+    const leaders = comprehensiveLeaders.map(leader => leader.label);
 
     const readOnly = !access.can('event.retention', 'update', {
         event: event.slug,
