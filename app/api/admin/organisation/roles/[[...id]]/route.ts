@@ -40,9 +40,9 @@ const kRoleRowModel = z.object({
     availabilityEventLimit: z.number(),
 
     /**
-     * Whether this role grants administrative access to a particular event.
+     * Whether the role should be restricted from being assigned as a default role.
      */
-    adminAccess: z.boolean(),
+    flagDefaultRestricted: z.boolean(),
 
     /**
      * Whether volunteers in this role are eligible to book a hotel room.
@@ -115,7 +115,7 @@ export const { GET, POST, PUT } = createDataTableApi(kRoleRowModel, kRoleContext
                 roleName: kDefaultRoleName,
                 roleOrder: /* first= */ 0,
                 roleAvailabilityEventLimit: kDefaultAvailabilityEventLimit,
-                roleAdminAccess: /* false= */ 0,
+                roleFlagDefaultRestricted: /* false= */ 0,
                 roleHotelEligible: /* false= */ 0,
                 roleTrainingEligible: /* false= */ 0,
             })
@@ -132,7 +132,7 @@ export const { GET, POST, PUT } = createDataTableApi(kRoleRowModel, kRoleContext
                 roleName: kDefaultRoleName,
                 roleOrder: /* first= */ 0,
                 availabilityEventLimit: kDefaultAvailabilityEventLimit,
-                adminAccess: false,
+                flagDefaultRestricted: false,
                 hotelEligible: false,
                 trainingEligible: false,
             },
@@ -147,7 +147,7 @@ export const { GET, POST, PUT } = createDataTableApi(kRoleRowModel, kRoleContext
                 roleBadge: tRoles.roleBadge,
                 roleOrder: tRoles.roleOrder,
                 availabilityEventLimit: tRoles.roleAvailabilityEventLimit,
-                adminAccess: tRoles.roleAdminAccess.equals(/* true= */ 1),
+                flagDefaultRestricted: tRoles.roleFlagDefaultRestricted.equals(/* true= */ 1),
                 hotelEligible: tRoles.roleHotelEligible.equals(/* true= */ 1),
                 trainingEligible: tRoles.roleTrainingEligible.equals(/* true= */ 1),
             })
@@ -184,7 +184,7 @@ export const { GET, POST, PUT } = createDataTableApi(kRoleRowModel, kRoleContext
                 roleBadge: row.roleBadge,
                 roleOrder: row.roleOrder,
                 roleAvailabilityEventLimit: row.availabilityEventLimit,
-                roleAdminAccess: row.adminAccess ? 1 : 0,
+                roleFlagDefaultRestricted: row.flagDefaultRestricted ? 1 : 0,
                 roleHotelEligible: row.hotelEligible ? 1 : 0,
                 roleTrainingEligible: row.trainingEligible ? 1 : 0,
             })

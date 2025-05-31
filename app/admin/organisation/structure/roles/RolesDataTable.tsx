@@ -61,9 +61,9 @@ export function RolesDataTable(props: RolesDataTableProps) {
             flex: 1,
         },
         {
-            field: 'adminAccess',
-            headerName: 'Admin',
-            description: 'Whether this role grants admin access to an event',
+            field: 'flagDefaultRestricted',
+            headerName: 'Restricted',
+            description: 'Whether this role is restricted from being a team\'s default role',
             editable: true,
             sortable: false,
             type: 'boolean',
