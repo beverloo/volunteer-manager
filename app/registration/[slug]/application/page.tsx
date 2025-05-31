@@ -43,7 +43,7 @@ export default async function EventApplicationPage(props: NextPageParams<'slug'>
         const environmentData = event.getEnvironmentData(environment.domain);
         if (environmentData?.enableApplications ||
                 access.can('event.applications', 'create', teamAccessScope)) {
-            content = await getContent(environment.domain, event, [ 'application' ]);
+            content = await getContent(environment.domain, event.id, [ 'application' ]);
             state = 'application';
         } else {
             content = await getStaticContent([ 'registration', 'application', 'unavailable' ]);

@@ -37,6 +37,11 @@ export interface EnvironmentContextApplication {
  */
 export interface EnvironmentContextEventAccess {
     /**
+     * Unique ID representing this event.
+     */
+    id: number;
+
+    /**
      * URL-safe slug representing this event.
      */
     slug: string;
@@ -207,6 +212,7 @@ async function determineEventAccess(
                 .and(tTeams.teamDeleted.isNull())
         .where(tEvents.eventHidden.equals(/* false= */ 0))
         .select({
+            id: tEvents.eventId,
             slug: tEvents.eventSlug,
 
             name: tEvents.eventName,

@@ -4,8 +4,7 @@
 import { notFound, redirect } from 'next/navigation';
 
 import { determineEnvironment } from '@lib/Environment';
-import { getAuthenticationContext } from '@lib/auth/AuthenticationContext';
-import { getEventsForUser } from '@lib/EventLoader';
+import { getEnvironmentContext } from '@lib/EnvironmentContext';
 
 /**
  * The <RegistrationPage> component does not own content, but will redirect the user to the earliest
@@ -16,15 +15,14 @@ export default async function RegistrationPage() {
     if (!environment)
         notFound();
 
-    const { access, user } = await getAuthenticationContext();
+    const context = await getEnvironmentContext(environment);
+    for (const event of context.events) {
+        for (const team of event.teams) {
+            if (team.registration !== 'active' && team.registration !== 'override')
+                continue;  // the registration page is not accessible
 
-    const events = await getEventsForUser(environment.domain, access, user);
-    for (const potentialEvent of events) {
-        const potentialEventEnvironmentData =
-            potentialEvent.getEnvironmentData(environment.domain);
-
-        if (potentialEventEnvironmentData && potentialEventEnvironmentData.enableRegistration)
-            redirect(`/registration/${potentialEvent.slug}/`);
+            redirect(`/registration/${event.slug}`);
+        }
     }
 
     redirect('/');

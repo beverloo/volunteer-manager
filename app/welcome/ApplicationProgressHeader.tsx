@@ -12,6 +12,11 @@ interface ApplicationProgressHeaderProps {
      * Full context of the environment for which this page is being displayed.
      */
     context: EnvironmentContext;
+
+    /**
+     * When set, only applications for the given `event` will be considered.
+     */
+    event?: string;
 }
 
 /**
@@ -24,6 +29,9 @@ export function ApplicationProgressHeader(props: ApplicationProgressHeaderProps)
     let applications: EnvironmentContextApplication[] = [ /* none yet */ ];
 
     for (const event of props.context.events) {
+        if (!!props.event && props.event !== event.slug)
+            continue;  // this |event| does not match the one we want to filter for
+
         if (!event.applications.length)
             continue;  // the visitor has not applied for this event (yet)
 

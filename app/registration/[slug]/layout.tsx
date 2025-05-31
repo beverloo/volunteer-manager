@@ -1,12 +1,14 @@
 // Copyright 2023 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
-import { notFound } from 'next/navigation';
+import { notFound, unauthorized } from 'next/navigation';
 
 import type { NextLayoutParams } from '@lib/NextRouterParams';
+import { ApplicationProgressHeader } from '@app/welcome/ApplicationProgressHeader';
 import { RegistrationContentContainer } from '../RegistrationContentContainer';
 import { RegistrationLayout } from '../RegistrationLayout';
-import { contextForRegistrationPage } from './contextForRegistrationPage';
+import { determineEnvironment } from '@lib/Environment';
+import { getEnvironmentContext, type EnvironmentContextEventAccess } from '@lib/EnvironmentContext';
 
 type RegistrationEventLayoutProps = React.PropsWithChildren<NextLayoutParams<'slug'>>;
 
@@ -14,20 +16,44 @@ type RegistrationEventLayoutProps = React.PropsWithChildren<NextLayoutParams<'sl
  * Root layout for the registration page belonging to a particular event.
  */
 export default async function RegistrationEventLayout(props: RegistrationEventLayoutProps) {
-    const context = await contextForRegistrationPage(props.params);
-    if (!context)
+    const environment = await determineEnvironment();
+    if (!environment)
         notFound();
 
-    const { environment, event, registration, slug, user } = context;
+    const context = await getEnvironmentContext(environment);
+    const params = await props.params;
+
+    let event: EnvironmentContextEventAccess | undefined;
+    for (const eventCandidate of context.events) {
+        if (eventCandidate.slug !== params.slug)
+            continue;
+
+        let access: boolean = false;
+        for (const team of eventCandidate.teams) {
+            if (team.registration === 'active' || team.registration === 'override')
+                access = true;
+        }
+
+        if (!access)
+            unauthorized();
+
+        event = eventCandidate;
+        break;
+    }
+
+    if (!event)
+        notFound();
 
     return (
         <RegistrationLayout environment={environment}>
-            <RegistrationContentContainer event={event.toEventData(environment.domain)}
-                                          title={event.name}
-                                          redirectUrl={`/registration/${slug}/application`}
-                                          registration={registration?.toRegistrationData()}
-                                          user={user}>
+            <RegistrationContentContainer title={event.name}
+                                          redirectUrl={`/registration/${event.slug}/application`}
+                                          user={context.user}>
+
+                <ApplicationProgressHeader context={context} event={event.slug} />
+
                 {props.children}
+
             </RegistrationContentContainer>
         </RegistrationLayout>
     );

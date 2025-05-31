@@ -2,7 +2,6 @@
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
 import type { EnvironmentDomain } from './Environment';
-import type { Event } from './Event';
 import db, { tContent, tTeams } from './database';
 
 /**
@@ -33,25 +32,24 @@ type ContentSubstitutions = Record<string, string>;
  * be ignored as they are no longer deemed relevant.
  *
  * @param environmentName The environment for which to fetch the content.
- * @param event The event with which the content should be associated.
+ * @param eventId Unique ID of the event for which content should be obtained.
  * @param path The path towards the content, relative from the /registration/slug/ root.
  * @param substitutions Content substitutions that should be applied, if any.
  * @return Content object with the content when found, or undefined in all other cases.
  */
 export async function getContent(
-    environment: EnvironmentDomain, event: Event, path: string[],
+    environment: EnvironmentDomain, eventId: number, path: string[],
     substitutions?: ContentSubstitutions)
         : Promise<Content | undefined>
 {
-    const teamsJoin = tTeams.forUseInLeftJoin();
-
     const content = await db.selectFrom(tContent)
-        .leftJoin(teamsJoin)
-            .on(teamsJoin.teamId.equals(tContent.teamId))
-        .where(tContent.eventId.equals(event.eventId))
+        .innerJoin(tTeams)
+            .on(tTeams.teamId.equals(tContent.teamId))
+                .and(tTeams.teamEnvironment.equals(environment))
+                .and(tTeams.teamFlagManagesContent.equals(/* true= */ 1))
+        .where(tContent.eventId.equals(eventId))
             .and(tContent.contentPath.equals(path.join('/')))
             .and(tContent.revisionVisible.equals(/* true= */ 1))
-            .and(teamsJoin.teamEnvironment.equals(environment))
         .select({
             title: tContent.contentTitle,
             markdown: tContent.content,
@@ -87,7 +85,5 @@ export async function getContent(
 export async function getStaticContent(path: string[], substitutions?: ContentSubstitutions)
     : Promise<Content | undefined>
 {
-    return getContent(
-        /* environment= */ 'stewards.team', /* event= */ { eventId: 0 } as any, path,
-        substitutions);
+    return getContent(/* environment= */ 'stewards.team', /* eventId= */ 0, path, substitutions);
 }
