@@ -86,6 +86,7 @@ export function RolesDataTable(props: RolesDataTableProps) {
             editable: true,
             sortable: false,
             type: 'boolean',
+            flex: 1,
 
             renderCell: params => {
                 return !!params.value ? <CheckCircleIcon fontSize="small" color="success" />
