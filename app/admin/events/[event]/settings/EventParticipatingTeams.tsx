@@ -108,6 +108,6 @@ export function EventParticipatingTeams(props: EventParticipatingTeamsProps) {
     return (
         <RemoteDataTable columns={columns} endpoint="/api/admin/event/teams" context={context}
                          enableUpdate defaultSort={{ field: 'name', sort: 'asc' }}
-                         disableFooter />
+                         disableFooter refreshOnUpdate />
     );
 }
