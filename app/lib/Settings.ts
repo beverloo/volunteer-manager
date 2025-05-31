@@ -27,6 +27,9 @@ type SettingsMap = {
     // Event settings
     // ---------------------------------------------------------------------------------------------
 
+    // Applications:
+    'application-publish-on-move': boolean;
+
     // Availability:
     'availability-max-event-duration-minutes': number;
     'availability-time-step-minutes': number;

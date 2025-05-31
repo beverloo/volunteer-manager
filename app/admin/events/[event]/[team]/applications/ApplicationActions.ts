@@ -4,14 +4,17 @@
 import { forbidden, notFound, unauthorized } from 'next/navigation';
 import { z } from 'zod';
 
+import { Publish } from '@lib/subscriptions';
 import { RecordLog, kLogSeverity, kLogType } from '@lib/Log';
-import { executeServerAction } from '@lib/serverAction';
-import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
-import db, { tEvents, tTeams, tTeamsRoles, tUsers, tUsersEvents } from '@lib/database';
-
-import { kRegistrationStatus, kShirtFit, kShirtSize } from '@lib/database/Types';
-import { kServiceHoursProperty, kServiceTimingProperty } from '@app/api/event/application';
 import { SendEmailTask } from '@lib/scheduler/tasks/SendEmailTask';
+import { executeServerAction } from '@lib/serverAction';
+import { readSetting } from '@lib/Settings';
+import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
+import db, { tEnvironments, tEvents, tTeams, tTeamsRoles, tUsers, tUsersEvents } from '@lib/database';
+
+import { kRegistrationStatus, kShirtFit, kShirtSize, kSubscriptionType } from '@lib/database/Types';
+import { kServiceHoursProperty, kServiceTimingProperty } from '@app/api/event/application';
+
 
 /**
  * Fetches the unique ID of the event identified by the given `event` slug.
@@ -269,10 +272,20 @@ export async function moveApplication(
         if (!!existingApplication)
             return { success: false, error: 'They are already participating in that team…' };
 
-        const targetTeamName = await db.selectFrom(tTeams)
+        const targetTeam = await db.selectFrom(tTeams)
+            .innerJoin(tEnvironments)
+                .on(tEnvironments.environmentId.equals(tTeams.teamEnvironmentId))
             .where(tTeams.teamId.equals(targetTeamId))
-            .selectOneColumn(tTeams.teamName)
+            .select({
+                environment: tEnvironments.environmentDomain,
+                name: tTeams.teamName,
+                slug: tTeams.teamSlug,
+                title: tTeams.teamTitle,
+            })
             .executeSelectNoneOrOne();
+
+        if (!targetTeam)
+            notFound();
 
         const affectedRows = await db.update(tUsersEvents)
             .set({
@@ -286,7 +299,40 @@ export async function moveApplication(
         if (!affectedRows)
             return { success: false, error: 'Unable to move the application in the database…' };
 
-        // Publish?
+        const shouldPublish = await readSetting('application-publish-on-move');
+        if (!!shouldPublish) {
+            const targetEvent = await db.selectFrom(tEvents)
+                .where(tEvents.eventId.equals(eventId))
+                .select({
+                    shortName: tEvents.eventShortName,
+                    slug: tEvents.eventSlug,
+                })
+                .executeSelectNoneOrOne();
+
+            const targetUserName = await db.selectFrom(tUsers)
+                .where(tUsers.userId.equals(userId))
+                .selectOneColumn(tUsers.name)
+                .executeSelectNoneOrOne();
+
+            if (!targetEvent || !targetUserName)
+                notFound();
+
+            await Publish({
+                type: kSubscriptionType.Application,
+                typeId: targetTeamId,
+                sourceUserId: userId,
+                message: {
+                    userId: userId,
+                    name: targetUserName,
+                    event: targetEvent.shortName,
+                    eventSlug: targetEvent.slug,
+                    teamEnvironment: targetTeam.environment,
+                    teamName: targetTeam.name,
+                    teamSlug: targetTeam.slug,
+                    teamTitle: targetTeam.title,
+                },
+            });
+        }
 
         RecordLog({
             type: kLogType.AdminEventApplicationMove,
@@ -294,7 +340,7 @@ export async function moveApplication(
             sourceUser: props.user,
             targetUser: userId,
             data: {
-                team: targetTeamName,
+                team: targetTeam.name,
             },
         });
 

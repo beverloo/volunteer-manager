@@ -101,6 +101,16 @@ export default async function IntegrationsPage() {
         ],
         'Event settings': [
             {
+                setting: 'application-publish-on-move',
+                type: 'boolean',
+                defaultValue: false,
+
+                label: 'Applications - publish on move',
+                description:
+                    'Should an application be published when it has been moved from one team to ' +
+                    'another?',
+            },
+            {
                 setting: 'availability-max-event-duration-minutes',
                 type: 'number',
                 defaultValue: 180,
