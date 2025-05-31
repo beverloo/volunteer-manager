@@ -12,6 +12,11 @@ interface ApplicationFormProps {
      * Unique ID of the event for which applications could be considered.
      */
     eventId: number;
+
+    /**
+     * Unique ID of the team for which applications could be considered.
+     */
+    teamId: number;
 }
 
 /**
@@ -29,6 +34,7 @@ export async function ApplicationForm(props: ApplicationFormProps) {
         .leftJoin(usersEventsJoin)
             .on(usersEventsJoin.userId.equals(tUsers.userId))
                 .and(usersEventsJoin.eventId.equals(props.eventId))
+                .and(usersEventsJoin.teamId.equals(props.teamId))
         .select({
             id: tUsers.userId,
             label: tUsers.name,

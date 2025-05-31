@@ -180,6 +180,7 @@ export async function createApplication(event: string, team: string, formData: u
         const existingApplication = await dbInstance.selectFrom(tUsersEvents)
             .where(tUsersEvents.userId.equals(data.userId))
                 .and(tUsersEvents.eventId.equals(eventId))
+                .and(tUsersEvents.teamId.equals(teamInfo.id))
             .selectCountAll()
             .executeSelectNoneOrOne() ?? 0;
 

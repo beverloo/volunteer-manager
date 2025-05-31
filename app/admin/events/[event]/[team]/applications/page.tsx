@@ -224,7 +224,7 @@ export default async function ApplicationsPage(props: NextPageParams<'event' | '
                         are responsible for its correctness. The application will still need to be
                         approved, at which point the volunteer will be notified.
                     </SectionIntroduction>
-                    <ApplicationForm eventId={event.id} />
+                    <ApplicationForm eventId={event.id} teamId={team.id} />
                 </FormGridSection> }
 
             <CollapsableSection in={!!rejections.length} title="Rejected applications">
