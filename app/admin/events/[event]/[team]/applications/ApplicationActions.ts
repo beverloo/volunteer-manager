@@ -228,13 +228,20 @@ export async function createApplication(event: string, team: string, formData: u
 }
 
 /**
+ * Zod type that describes the data required to move an application.
+ */
+const kMoveApplicationData = z.object({
+    team: z.string(),
+});
+
+/**
  * Server action that should be called when an application should be moved to another team.
  */
 export async function moveApplication(
     event: string, team: string, userId: number, formData: unknown)
 {
     'use server';
-    return executeServerAction(formData, kNoDataRequired, async (data, props) => {
+    return executeServerAction(formData, kMoveApplicationData, async (data, props) => {
         await requireAuthenticationContext({
             check: 'admin',
             permission: {
@@ -244,7 +251,54 @@ export async function moveApplication(
             },
         });
 
-        return { success: false, error: 'Not yet implemented' };
+        const eventId = await getEventId(event);
+
+        const currentTeamId = await getTeamId(team);
+        const targetTeamId = await getTeamId(data.team);
+
+        if (!eventId || !currentTeamId || !targetTeamId)
+            notFound();
+
+        const existingApplication = await db.selectFrom(tUsersEvents)
+            .where(tUsersEvents.userId.equals(userId))
+                .and(tUsersEvents.eventId.equals(eventId))
+                .and(tUsersEvents.teamId.equals(targetTeamId))
+            .selectCountAll()
+            .executeSelectOne();
+
+        if (!!existingApplication)
+            return { success: false, error: 'They are already participating in that team…' };
+
+        const targetTeamName = await db.selectFrom(tTeams)
+            .where(tTeams.teamId.equals(targetTeamId))
+            .selectOneColumn(tTeams.teamName)
+            .executeSelectNoneOrOne();
+
+        const affectedRows = await db.update(tUsersEvents)
+            .set({
+                teamId: targetTeamId
+            })
+            .where(tUsersEvents.userId.equals(userId))
+                .and(tUsersEvents.eventId.equals(eventId))
+                .and(tUsersEvents.teamId.equals(currentTeamId))
+            .executeUpdate();
+
+        if (!affectedRows)
+            return { success: false, error: 'Unable to move the application in the database…' };
+
+        // Publish?
+
+        RecordLog({
+            type: kLogType.AdminEventApplicationMove,
+            severity: kLogSeverity.Warning,
+            sourceUser: props.user,
+            targetUser: userId,
+            data: {
+                team: targetTeamName,
+            },
+        });
+
+        return { success: true, refresh: true };
     });
 }
 

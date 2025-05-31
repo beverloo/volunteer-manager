@@ -17,7 +17,7 @@ import { RejectedApplication } from './RejectedApplication';
 import { Section } from '@app/admin/components/Section';
 import { SectionIntroduction } from '@app/admin/components/SectionIntroduction';
 import { verifyAccessAndFetchPageInfo } from '@app/admin/events/verifyAccessAndFetchPageInfo';
-import db, { tEvents, tStorage, tUsers, tUsersEvents } from '@lib/database';
+import db, { tEvents, tEventsTeams, tStorage, tTeams, tUsers, tUsersEvents } from '@lib/database';
 
 import { kRegistrationStatus } from '@lib/database/Types';
 
@@ -140,6 +140,36 @@ export default async function ApplicationsPage(props: NextPageParams<'event' | '
     }
 
     // ---------------------------------------------------------------------------------------------
+    // Determine the teams that a volunteer can be moved to, when the volunteer has the ability to
+    // both update applications and to see at least one other team.
+    // ---------------------------------------------------------------------------------------------
+
+    const availableTeams: { id: string; label: string }[] = [];
+    if (!!moveApplicationFn) {
+        const unfilteredAvailableTeams = await dbInstance.selectFrom(tEventsTeams)
+            .innerJoin(tTeams)
+                .on(tTeams.teamId.equals(tEventsTeams.teamId))
+            .where(tEventsTeams.eventId.equals(event.id))
+                .and(tEventsTeams.enableTeam.equals(/* true= */ 1))
+            .select({
+                id: tTeams.teamSlug,
+                label: tTeams.teamName,
+            })
+            .orderBy('label', 'asc')
+            .executeSelectMany();
+
+        for (const availableTeam of unfilteredAvailableTeams) {
+            if (availableTeam.id === team.slug)
+                continue;  // unable to move volunteers to their current team
+
+            if (!access.can('event.visible', { event: event.slug, team: availableTeam.id }))
+                continue;  // unable to see the |availableTeam|
+
+            availableTeams.push(availableTeam);
+        }
+    }
+
+    // ---------------------------------------------------------------------------------------------
 
     // Values that should be prepopulated in the "Create an Application" form.
     const createValues = {
@@ -174,6 +204,7 @@ export default async function ApplicationsPage(props: NextPageParams<'event' | '
                         return (
                             <Grid key={application.userId} size={{ xs: 12, md: 6 }}>
                                 <Application application={application}
+                                             availableTeams={availableTeams}
                                              canAccessAccounts={canAccessAccounts}
                                              canRespondSilently={canRespondSilently}
                                              event={event.slug} team={team.slug}

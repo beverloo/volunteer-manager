@@ -7,6 +7,8 @@ import Link from 'next/link';
 import { useCallback, useState } from 'react';
 import { useRouter } from 'next/navigation';
 
+import { SelectElement } from '@components/proxy/react-hook-form-mui';
+
 import Alert from '@mui/material/Alert';
 import Button from '@mui/material/Button';
 import CardActions from '@mui/material/CardActions';
@@ -28,12 +30,14 @@ import Stack from '@mui/material/Stack';
 import ThumbDownIcon from '@mui/icons-material/ThumbDown';
 import ThumbUpIcon from '@mui/icons-material/ThumbUp';
 import Tooltip from '@mui/material/Tooltip';
+import TransferWithinAStationIcon from '@mui/icons-material/TransferWithinAStation';
 import Typography from '@mui/material/Typography';
 
 import type { ServerAction } from '@lib/serverAction';
 import { Avatar } from '@components/Avatar';
-import { Temporal, formatDate } from '@lib/Temporal';
 import { CommunicationDialog } from '@app/admin/components/CommunicationDialog';
+import { ServerActionDialog } from '@app/admin/components/ServerActionDialog';
+import { Temporal, formatDate } from '@lib/Temporal';
 
 /**
  * Type definition for a bullet point of information associated with an application.
@@ -206,6 +210,11 @@ interface ApplicationProps {
     };
 
     /**
+     * Teams that are available for moving this volunteer's application to.
+     */
+    availableTeams: { id: string; label: string }[];
+
+    /**
      * Whether a link should be provided to go directly to the volunteer's user account.
      */
     canAccessAccounts?: boolean;
@@ -266,17 +275,49 @@ export function Application(props: ApplicationProps) {
 
     // ---------------------------------------------------------------------------------------------
 
+    const [ moveEverOpen, setMoveEverOpen ] = useState<boolean>(false);
+    const [ moveOpen, setMoveOpen ] = useState<boolean>(false);
+
     let accountAction: React.ReactNode;
     if (props.canAccessAccounts) {
         const href = `/admin/organisation/accounts/${application.userId}`;
 
         accountAction = (
-            <IconButton component={Link} href={href} sx={{ mt: 1, mr: 1 }}>
+            <IconButton component={Link} href={href} sx={{ mt: 1.5, mr: 1 }}>
                 <Tooltip title="Account information">
-                    <PersonSearchIcon />
+                    <PersonSearchIcon fontSize="small" />
                 </Tooltip>
             </IconButton>
         );
+    }
+
+    const handleCloseMove = useCallback(() => setMoveOpen(false), [ /* no dependencies */ ]);
+    const handleOpenMove = useCallback(() => {
+        setMoveEverOpen(true);
+        setMoveOpen(true);
+    }, [ /* no dependencies */ ]);
+
+    let moveAction: React.ReactNode;
+    if (!!props.moveFn && props.availableTeams.length > 0) {
+        moveAction = (
+            <IconButton onClick={handleOpenMove} sx={{ mt: 1.5, mr: 1 }}>
+                <Tooltip title="Move application">
+                    <TransferWithinAStationIcon fontSize="small" />
+                </Tooltip>
+            </IconButton>
+        );
+    }
+
+    let actions: React.ReactNode;
+    if (!!accountAction && !!moveAction) {
+        actions = (
+            <Stack direction="row">
+                {moveAction}
+                {accountAction}
+            </Stack>
+        );
+    } else if (!!accountAction || !!moveAction) {
+        actions = accountAction || moveAction;
     }
 
     // ---------------------------------------------------------------------------------------------
@@ -352,7 +393,7 @@ export function Application(props: ApplicationProps) {
     return (
         <>
             <Stack component={Paper} direction="column" sx={{ minHeight: '100%' }}>
-                <CardHeader action={accountAction}
+                <CardHeader action={actions}
                             avatar={
                                 <Avatar src={avatarUrl}>
                                     {application.name}
@@ -404,6 +445,18 @@ export function Application(props: ApplicationProps) {
                         {error}
                     </Alert>
                 </Snackbar> }
+
+            { (!!moveEverOpen && !!props.moveFn) &&
+                <ServerActionDialog action={props.moveFn} open={moveOpen} onClose={handleCloseMove}
+                                    title={`Move ${application.firstName}'s application`}
+                                    submitLabel="Move">
+                    <Typography sx={{ mb: 2 }}>
+                        You're about to move <strong>{application.firstName}</strong>'s application
+                        to be considered by another team. They will not be informed of this.
+                    </Typography>
+                    <SelectElement name="team" label="Destination" options={props.availableTeams}
+                                   size="small" fullWidth />
+                </ServerActionDialog> }
 
             { !!approveEverOpen &&
                 <CommunicationDialog title={`Approve ${application.firstName}'s application`}
