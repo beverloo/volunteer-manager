@@ -61,7 +61,6 @@ export default async function VolunteersPage(props: NextPageParams<'event' | 'te
             status: tUsersEvents.registrationStatus,
             name: tUsers.name,
             role: tRoles.roleName,
-            roleBadge: tRoles.roleBadge,
             shiftCount: dbInstance.count(scheduleJoin.scheduleId),
             shiftSeconds: dbInstance.sum(shiftSecondsFragment),
 

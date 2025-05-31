@@ -182,17 +182,6 @@ export const kRetentionStatus = {
 } as const;
 
 /**
- * The badges that can be assigned to individual roles.
- * @see Table `roles`
- */
-export type RoleBadge = Values<typeof kRoleBadge>;
-export const kRoleBadge = {
-    Staff: 'Staff',
-    Senior: 'Senior',
-    Host: 'Host',
-} as const;
-
-/**
  * Degree of expected overlap for the scheduled demand of a shift.
  * @see Table `shifts`
  */

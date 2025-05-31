@@ -8,9 +8,6 @@ import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 
 import type { RoleRowModel } from '@app/api/admin/organisation/roles/[[...id]]/route';
 import { RemoteDataTable, type RemoteDataTableColumn } from '@app/admin/components/RemoteDataTable';
-import { VolunteerBadge } from '@components/VolunteerBadge';
-
-import { kRoleBadge } from '@lib/database/Types';
 
 /**
  * Props accepted by the <RolesDataTable> component.
@@ -33,31 +30,25 @@ export function RolesDataTable(props: RolesDataTableProps) {
             headerName: 'Role',
             editable: true,
             sortable: true,
-            flex: 3,
-        },
-        {
-            field: 'roleBadge',
-            display: 'flex',
-            headerName: 'Badge',
-            editable: true,
-            sortable: false,
-            flex: 1,
-
-            renderCell: params => {
-                return params.value ? <VolunteerBadge variant={params.value}
-                                                      fontSize="small" color="primary" />
-                                 : undefined;
-            },
-
-            type: 'singleSelect',
-            valueOptions: [ '(none)', ...Object.keys(kRoleBadge) ],
+            flex: 2,
         },
         {
             field: 'availabilityEventLimit',
+            align: 'center',
             headerName: 'Event flag limit',
+            headerAlign: 'center',
             description: 'Number of events they can flag wanting to attend',
             editable: true,
             type: 'number',
+            flex: 1,
+        },
+        {
+            field: 'rolePermissionGrant',
+            align: 'center',
+            headerName: 'Permission',
+            headerAlign: 'center',
+            description: 'Permission (scoped) to assign to people holding this role',
+            editable: true,
             flex: 1,
         },
         {

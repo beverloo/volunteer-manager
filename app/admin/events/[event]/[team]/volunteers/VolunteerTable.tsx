@@ -22,9 +22,8 @@ import Stack from '@mui/material/Stack';
 import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
 
-import type { RegistrationStatus, RoleBadge } from '@lib/database/Types';
+import type { RegistrationStatus } from '@lib/database/Types';
 import { type DataTableColumn, DataTable } from '@app/admin/components/DataTable';
-import { VolunteerBadge } from '@components/VolunteerBadge';
 
 /**
  * Formats the given number of `seconds` to a HH:MM string.
@@ -46,7 +45,6 @@ export interface VolunteerInfo {
     status: RegistrationStatus;
     name: string;
     role: string;
-    roleBadge?: RoleBadge;
     shiftCount: number;
     shiftSeconds?: number;
 
@@ -127,9 +125,7 @@ export function VolunteerTable(props: VolunteerTableProps) {
                         <MuiLink component={Link} href={kVolunteerBase + params.row.id}>
                             {params.value}
                         </MuiLink>
-                        { !!params.row.roleBadge &&
-                            <VolunteerBadge variant={params.row.roleBadge} color="error"
-                                            fontSize="small" sx={{ pl: .5 }} /> }
+                        { /* TODO: Flag Senior & Staff volunteers */ }
                     </React.Fragment>
                 );
             },

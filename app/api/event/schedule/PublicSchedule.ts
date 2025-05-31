@@ -3,7 +3,7 @@
 
 import { z } from 'zod';
 
-import { kRoleBadge, kVendorTeam as kVendorTeamEnum } from '@lib/database/Types';
+import { kVendorTeam as kVendorTeamEnum } from '@lib/database/Types';
 
 /**
  * Represents the information shared for a particular vendor team. The actual information regarding
@@ -497,11 +497,6 @@ export const kPublicSchedule = z.strictObject({
          * Role that the volunteer has been assigned to during the event.
          */
         role: z.string(),
-
-        /**
-         * Badge that should be issued to the volunteer, if any.
-         */
-        roleBadge: z.nativeEnum(kRoleBadge).optional(),
 
         /**
          * Whether the role that they're assigned to implies a senior position.

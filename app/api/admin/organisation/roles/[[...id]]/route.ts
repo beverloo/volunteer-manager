@@ -8,8 +8,6 @@ import { RecordLog, kLogSeverity, kLogType } from '@lib/Log';
 import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
 import db, { tRoles } from '@lib/database';
 
-import { kRoleBadge } from '@lib/database/Types';
-
 /**
  * Row model for a volunteering role. Roles are editable, but cannot be created or removed.
  */
@@ -25,14 +23,15 @@ const kRoleRowModel = z.object({
     roleName: z.string(),
 
     /**
-     * Badge that should be applied to the role. Optional.
-     */
-    roleBadge: z.nativeEnum(kRoleBadge).optional(),
-
-    /**
      * Ordering rules of the order.
      */
     roleOrder: z.number(),
+
+    /**
+     * The permission grant that should be given to people having this role. The grant will be
+     * specific to the event and team that they are granted the role in.
+     */
+    rolePermissionGrant: z.string().nullish(),
 
     /**
      * The number of events the volunteer can indicate they really want to attend.
@@ -144,8 +143,8 @@ export const { GET, POST, PUT } = createDataTableApi(kRoleRowModel, kRoleContext
             .select({
                 id: tRoles.roleId,
                 roleName: tRoles.roleName,
-                roleBadge: tRoles.roleBadge,
                 roleOrder: tRoles.roleOrder,
+                rolePermissionGrant: tRoles.rolePermissionGrant,
                 availabilityEventLimit: tRoles.roleAvailabilityEventLimit,
                 flagDefaultRestricted: tRoles.roleFlagDefaultRestricted.equals(/* true= */ 1),
                 hotelEligible: tRoles.roleHotelEligible.equals(/* true= */ 1),
@@ -181,8 +180,8 @@ export const { GET, POST, PUT } = createDataTableApi(kRoleRowModel, kRoleContext
         const affectedRows = await db.update(tRoles)
             .set({
                 roleName: row.roleName,
-                roleBadge: row.roleBadge,
                 roleOrder: row.roleOrder,
+                rolePermissionGrant: row.rolePermissionGrant,
                 roleAvailabilityEventLimit: row.availabilityEventLimit,
                 roleFlagDefaultRestricted: row.flagDefaultRestricted ? 1 : 0,
                 roleHotelEligible: row.hotelEligible ? 1 : 0,

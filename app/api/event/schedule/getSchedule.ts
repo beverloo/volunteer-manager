@@ -544,7 +544,6 @@ async function populateVolunteers(
 
                 role: {
                     name: tRoles.roleName,
-                    badge: tRoles.roleBadge,
                     isLeader: tRoles.roleAdminAccess.equals(/* true= */ 1),
                 },
                 team: {
@@ -580,7 +579,6 @@ async function populateVolunteers(
             avatar: getBlobUrl(volunteer.user.avatar),
             name: volunteer.user.name,
             role: volunteer.user.role.name,
-            roleBadge: volunteer.user.role.badge,
             roleLeader: !!volunteer.user.role.isLeader ? true : undefined,
             team: `${volunteer.user.team.id}`,
             notes: notesAccess ? volunteer.user.notes : undefined,
