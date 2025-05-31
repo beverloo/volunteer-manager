@@ -12,13 +12,14 @@ import Grid from '@mui/material/Grid';
 import RemoveCircleOutlineIcon from '@mui/icons-material/RemoveCircleOutline';
 
 import type { NextPageParams } from '@lib/NextRouterParams';
+import { AutocompleteElementWithDisabledOptions } from '@app/admin/components/AutocompleteElementWithDisabledOptions';
 import { BackButtonGrid } from '@app/admin/components/BackButtonGrid';
 import { ColorInput } from '@app/admin/components/ColorInput';
 import { ConfirmationButton } from '@app/admin/components/ConfirmationButton';
 import { FormGrid } from '@app/admin/components/FormGrid';
 import { createGenerateMetadataFn } from '@app/admin/lib/generatePageMetadata';
 import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
-import db, { tEnvironments, tTeams } from '@lib/database';
+import db, { tEnvironments, tRoles, tTeams, tTeamsRoles } from '@lib/database';
 
 import * as actions from '../TeamsActions';
 
@@ -34,8 +35,16 @@ export default async function TeamPage(props: NextPageParams<'slug'>) {
 
     const canDisableTeam = access.can('root');  // only root can disabl teams
 
+    const teamsRolesDefaultJoin = tTeamsRoles.forUseInLeftJoinAs('trdj');
+    const teamsRolesJoin = tTeamsRoles.forUseInLeftJoinAs('trj');
+
     const params = await props.params;
     const team = await db.selectFrom(tTeams)
+        .leftJoin(teamsRolesJoin)
+            .on(teamsRolesJoin.teamId.equals(tTeams.teamId))
+        .leftJoin(teamsRolesDefaultJoin)
+            .on(teamsRolesDefaultJoin.teamId.equals(tTeams.teamId))
+                .and(teamsRolesDefaultJoin.roleDefault.equals(/* true= */ 1))
         .where(tTeams.teamSlug.equals(params.slug))
         .select({
             id: tTeams.teamId,
@@ -47,6 +56,9 @@ export default async function TeamPage(props: NextPageParams<'slug'>) {
             plural: tTeams.teamPlural,
             slug: tTeams.teamSlug,
             title: tTeams.teamTitle,
+
+            defaultRoleId: teamsRolesDefaultJoin.roleId,
+            availableRoleIds: db.aggregateAsArrayOfOneColumn(teamsRolesJoin.roleId),
 
             flagManagesContent: tTeams.teamFlagManagesContent.equals(/* true= */ 1),
             flagManagesFaq: tTeams.teamFlagManagesFaq.equals(/* true= */ 1),
@@ -60,6 +72,15 @@ export default async function TeamPage(props: NextPageParams<'slug'>) {
 
     if (!team)
         notFound();
+
+    const roles = await db.selectFrom(tRoles)
+        .select({
+            id: tRoles.roleId,
+            label: tRoles.roleName,
+            disabled: tRoles.roleFlagDefaultRestricted.equals(/* true= */ 1),
+        })
+        .orderBy('label', 'asc')
+        .executeSelectMany();
 
     const environments = await db.selectFrom(tEnvironments)
         .where(tEnvironments.environmentDeleted.isNull())
@@ -133,11 +154,11 @@ export default async function TeamPage(props: NextPageParams<'slug'>) {
 
             <Grid size={{ xs: 12, md: 6 }}>
                 <ColorInput name="colorDarkMode" label="Theme (Dark Mode)" fullWidth
-                            size="small" required />
+                            size="small" required disabled={!!readOnly} />
             </Grid>
             <Grid size={{ xs: 12, md: 6 }}>
                 <ColorInput name="colorLightMode" label="Theme (Light Mode)" fullWidth size="small"
-                            required />
+                            required disabled={!!readOnly} />
             </Grid>
 
             <Grid size={{ xs: 12 }}>
@@ -150,25 +171,40 @@ export default async function TeamPage(props: NextPageParams<'slug'>) {
                 <Divider />
             </Grid>
 
+            <Grid size={{ xs: 12 }}>
+                <AutocompleteElementWithDisabledOptions
+                    name="defaultRoleId" label="Default role" options={roles}
+                    matchId autocompleteProps={{ fullWidth: true, readOnly, size: 'small' }} />
+            </Grid>
+            <Grid size={{ xs: 12 }}>
+                <AutocompleteElementWithDisabledOptions
+                    name="availableRoleIds" label="Available roles" options={roles} multiple
+                    matchId autocompleteProps={{ fullWidth: true, readOnly, size: 'small' }} />
+            </Grid>
+
+            <Grid size={{ xs: 12 }}>
+                <Divider />
+            </Grid>
+
             <Grid size={{ xs: 12 }} sx={{ my: -1 }}>
                 <CheckboxElement name="flagManagesContent" label="Manages landing page content"
-                                 size="small" />
+                                 size="small" readOnly={!!readOnly} />
             </Grid>
             <Grid size={{ xs: 12 }} sx={{ my: -1 }}>
                 <CheckboxElement name="flagManagesFirstAid" label="Manages the First Aid team"
-                                 size="small" />
+                                 size="small" readOnly={!!readOnly} />
             </Grid>
             <Grid size={{ xs: 12 }} sx={{ my: -1 }}>
                 <CheckboxElement name="flagManagesFaq" label="Manages the Knowledge Base"
-                                 size="small" />
+                                 size="small" readOnly={!!readOnly} />
             </Grid>
             <Grid size={{ xs: 12 }} sx={{ my: -1 }}>
                 <CheckboxElement name="flagManagesSecurity" label="Manages the Security team"
-                                 size="small" />
+                                 size="small" readOnly={!!readOnly} />
             </Grid>
             <Grid size={{ xs: 12 }} sx={{ my: -1 }}>
                 <CheckboxElement
-                    name="flagRequestConfirmation" size="small"
+                    name="flagRequestConfirmation" size="small" readOnly={!!readOnly}
                     label="Request for confirmation in the application approve message?" />
             </Grid>
 

@@ -19,6 +19,7 @@ export class RolesTable extends Table<DBConnection, 'RolesTable'> {
     roleOrder = this.columnWithDefaultValue('role_order', 'int');
     roleAvailabilityEventLimit = this.column('role_availability_event_limit', 'int');
     rolePermissionGrant = this.optionalColumnWithDefaultValue('role_permission_grant', 'string');
+    roleFlagDefaultRestricted = this.columnWithDefaultValue('role_flag_default_restricted', 'int');
     roleAdminAccess = this.columnWithDefaultValue('role_admin_access', 'int');
     roleHotelEligible = this.columnWithDefaultValue('role_hotel_eligible', 'int');
     roleScheduleCollapse = this.columnWithDefaultValue('role_schedule_collapse', 'int');

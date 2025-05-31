@@ -346,6 +346,9 @@ const kUpdateTeamData = z.object({
     // slug is deliberately omitted
     title: z.string().nonempty(),
 
+    defaultRoleId: z.number(),
+    availableRoleIds: z.array(z.number()),
+
     flagManagesContent: z.boolean(),
     flagManagesFaq: z.boolean(),
     flagManagesFirstAid: z.boolean(),
@@ -364,24 +367,46 @@ export async function updateTeam(teamId: number, formData: unknown) {
             permission: 'organisation.teams',
         });
 
-        const affectedRows = await db.update(tTeams)
-            .set({
-                teamColourDarkTheme: data.colorDarkMode,
-                teamColourLightTheme: data.colorLightMode,
-                teamDescription: data.description,
-                teamEnvironmentId: data.environment,
-                teamName: data.name,
-                teamPlural: data.plural,
-                teamTitle: data.title,
+        if (!data.availableRoleIds.length)
+            return { success: false, error: 'The team must have at least one available role…' };
+        if (!data.availableRoleIds.includes(data.defaultRoleId))
+            return { success: false, error: 'The default role of this team must be available…' };
 
-                teamFlagManagesContent: !!data.flagManagesContent ? 1 : 0,
-                teamFlagManagesFaq: !!data.flagManagesFaq ? 1 : 0,
-                teamFlagManagesFirstAid: !!data.flagManagesFirstAid ? 1 : 0,
-                teamFlagManagesSecurity: !!data.flagManagesSecurity ? 1 : 0,
-                teamFlagRequestConfirmation: !!data.flagRequestConfirmation ? 1 : 0,
-            })
-            .where(tTeams.teamId.equals(teamId))
-            .executeUpdate();
+        const dbInstance = db;
+        const affectedRows = await dbInstance.transaction(async () => {
+            const affectedRows = await dbInstance.update(tTeams)
+                .set({
+                    teamColourDarkTheme: data.colorDarkMode,
+                    teamColourLightTheme: data.colorLightMode,
+                    teamDescription: data.description,
+                    teamEnvironmentId: data.environment,
+                    teamName: data.name,
+                    teamPlural: data.plural,
+                    teamTitle: data.title,
+
+                    teamFlagManagesContent: !!data.flagManagesContent ? 1 : 0,
+                    teamFlagManagesFaq: !!data.flagManagesFaq ? 1 : 0,
+                    teamFlagManagesFirstAid: !!data.flagManagesFirstAid ? 1 : 0,
+                    teamFlagManagesSecurity: !!data.flagManagesSecurity ? 1 : 0,
+                    teamFlagRequestConfirmation: !!data.flagRequestConfirmation ? 1 : 0,
+                })
+                .where(tTeams.teamId.equals(teamId))
+                .executeUpdate();
+
+            await dbInstance.deleteFrom(tTeamsRoles)
+                .where(tTeamsRoles.teamId.equals(teamId))
+                .executeDelete();
+
+            await dbInstance.insertInto(tTeamsRoles)
+                .values(data.availableRoleIds.map(roleId => ({
+                    teamId,
+                    roleId,
+                    roleDefault: data.defaultRoleId === roleId ? 1 : 0,
+                })))
+                .executeInsert();
+
+            return affectedRows;
+        });
 
         if (!affectedRows)
             return { success: false, error: 'Unable to update the team in the database…' };

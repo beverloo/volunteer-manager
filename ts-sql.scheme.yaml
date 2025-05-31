@@ -266,6 +266,10 @@ tables:
     type: text
     nullable: true
     default: "NULL"
+  - name: role_flag_default_restricted
+    type: tinyint(1) unsigned
+    nullable: false
+    default: "0"
   - name: role_admin_access
     type: tinyint(1)
     nullable: false
@@ -303,6 +307,7 @@ tables:
       `role_order` int(4) NOT NULL DEFAULT 0,
       `role_availability_event_limit` int(8) unsigned NOT NULL,
       `role_permission_grant` text DEFAULT NULL,
+      `role_flag_default_restricted` tinyint(1) unsigned NOT NULL DEFAULT 0,
       `role_admin_access` tinyint(1) NOT NULL DEFAULT 0,
       `role_hotel_eligible` tinyint(1) NOT NULL DEFAULT 0,
       `role_schedule_collapse` tinyint(1) unsigned NOT NULL DEFAULT 0,
