@@ -8,7 +8,7 @@ import { executeServerAction } from '@lib/serverAction';
 import { clearEnvironmentCache } from '@lib/Environment';
 import { clearPageMetadataCache } from '@app/admin/lib/generatePageMetadata';
 import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
-import db, { tEnvironments, tTeams } from '@lib/database';
+import db, { tEnvironments, tTeams, tTeamsRoles } from '@lib/database';
 
 import { kEnvironmentPurpose } from '@lib/database/Types';
 
@@ -133,6 +133,19 @@ export async function createTeam(formData: unknown) {
 
         if (!teamId)
             return { success: false, error: 'Unable to store the new team in the database…' };
+
+        // Set the default role for this team. Without this row created, it's not possible for
+        // volunteers to be allocated to the team. The default role is "Crew", our generic crew
+        // member role.
+        {
+            await db.insertInto(tTeamsRoles)
+                .set({
+                    teamId,
+                    roleId: /* Crew= */ 1,
+                    roleDefault: /* true= */ 1,
+                })
+                .executeInsert();
+        }
 
         RecordLog({
             type: kLogType.AdminTeamCreate,
