@@ -333,10 +333,11 @@ const kUpdateTeamData = z.object({
     // slug is deliberately omitted
     title: z.string().nonempty(),
 
-    managesFaq: z.boolean(),
-    managesFirstAid: z.boolean(),
-    managesSecurity: z.boolean(),
-    requestConfirmation: z.boolean(),
+    flagManagesContent: z.boolean(),
+    flagManagesFaq: z.boolean(),
+    flagManagesFirstAid: z.boolean(),
+    flagManagesSecurity: z.boolean(),
+    flagRequestConfirmation: z.boolean(),
 });
 
 /**
@@ -360,10 +361,11 @@ export async function updateTeam(teamId: number, formData: unknown) {
                 teamPlural: data.plural,
                 teamTitle: data.title,
 
-                teamManagesFaq: !!data.managesFaq ? 1 : 0,
-                teamManagesFirstAid: !!data.managesFirstAid ? 1 : 0,
-                teamManagesSecurity: !!data.managesSecurity ? 1 : 0,
-                teamRequestConfirmation: !!data.requestConfirmation ? 1 : 0,
+                teamFlagManagesContent: !!data.flagManagesContent ? 1 : 0,
+                teamFlagManagesFaq: !!data.flagManagesFaq ? 1 : 0,
+                teamFlagManagesFirstAid: !!data.flagManagesFirstAid ? 1 : 0,
+                teamFlagManagesSecurity: !!data.flagManagesSecurity ? 1 : 0,
+                teamFlagRequestConfirmation: !!data.flagRequestConfirmation ? 1 : 0,
             })
             .where(tTeams.teamId.equals(teamId))
             .executeUpdate();

@@ -22,7 +22,7 @@ import db, { tContentCategories } from '@lib/database';
  */
 export default async function EventTeamFaqPage(props: NextPageParams<'event' | 'team'>) {
     const { access, event, team, user } = await verifyAccessAndFetchPageInfo(props.params);
-    if (!team.managesFaq)
+    if (!team.flagManagesFaq)
         notFound();
 
     // Select the categories that questions can be associated with.

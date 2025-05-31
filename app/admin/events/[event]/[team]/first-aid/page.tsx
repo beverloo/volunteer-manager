@@ -31,7 +31,7 @@ export default async function EventTeamFirstAidPage(props: NextPageParams<'event
         },
     });
 
-    if (!team.managesFirstAid)
+    if (!team.flagManagesFirstAid)
         notFound();
 
     const canUpdateVendors = access.can('event.vendors', 'update', {

@@ -1,6 +1,8 @@
 // Copyright 2023 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
+import { notFound } from 'next/navigation';
+
 import type { NextPageParams } from '@lib/NextRouterParams';
 import { ContentCreate } from '@app/admin/content/ContentCreate';
 import { ContentList } from '@app/admin/content/ContentList';
@@ -16,6 +18,8 @@ import { verifyAccessAndFetchPageInfo } from '@app/admin/events/verifyAccessAndF
  */
 export default async function EventContentPage(props: NextPageParams<'event' | 'team'>) {
     const { access, event, team } = await verifyAccessAndFetchPageInfo(props.params);
+    if (!team.flagManagesContent)
+        notFound();
 
     const enableAuthorLink = access.can('volunteer.account.information', 'read');
     const pathPrefix = `/registration/${event.slug}/`;

@@ -26,8 +26,7 @@ import type { NextLayoutParams } from '@lib/NextRouterParams';
 import type { User } from '@lib/auth/User';
 import { AdminContent } from '../../AdminContent';
 import { AdminPageContainer } from '../../AdminPageContainer';
-import { type AdminSidebarMenuEntry, type AdminSidebarMenuSubMenuItem, AdminSidebar }
-    from '../../AdminSidebar';
+import { type AdminSidebarMenuEntry, AdminSidebar } from '../../AdminSidebar';
 import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
 
 import db, { tActivities, tEvents, tEventsSalesConfiguration, tEventsTeams, tHotelsAssignments,
@@ -96,9 +95,12 @@ async function fetchEventSidebarInformation(user: User, eventSlug: string) {
                 name: teamsJoin.teamName,
                 slug: teamsJoin.teamSlug,
                 color: teamsJoin.teamColourLightTheme,
-                managesFaq: teamsJoin.teamManagesFaq.equals(/* true= */ 1),
-                managesFirstAid: teamsJoin.teamManagesFirstAid.equals(/* true= */ 1),
-                managesSecurity: teamsJoin.teamManagesSecurity.equals(/* true= */ 1),
+
+                flagManagesContent: teamsJoin.teamFlagManagesContent.equals(/* true= */ 1),
+                flagManagesFaq: teamsJoin.teamFlagManagesFaq.equals(/* true= */ 1),
+                flagManagesFirstAid: teamsJoin.teamFlagManagesFirstAid.equals(/* true= */ 1),
+                flagManagesSecurity: teamsJoin.teamFlagManagesSecurity.equals(/* true= */ 1),
+
                 pendingApplications: pendingApplicationsJoin.applications,
             }),
             user: {
@@ -304,43 +306,6 @@ export default async function EventLayout(props: React.PropsWithChildren<NextLay
         if (!access.can('event.visible', teamPermissionScope))
             continue;  // the volunteer does not have access to this team
 
-        const knowledgeEntry: AdminSidebarMenuSubMenuItem['menu'] = [ /* empty */ ];
-        if (team.managesFaq) {
-            knowledgeEntry.push({
-                icon: <InfoOutlinedIcon />,
-                label: 'Knowledge base',
-                url: `/admin/events/${event}/${team.slug}/knowledge`,
-            });
-        }
-
-        const firstAidEntry: AdminSidebarMenuSubMenuItem['menu'] = [ /* empty */ ];
-        if (team.managesFirstAid) {
-            firstAidEntry.push({
-                icon: <LocalHospitalIcon />,
-                label: 'First aid',
-                url: `/admin/events/${event}/${team.slug}/first-aid`,
-                permission: {
-                    permission: 'event.vendors',
-                    operation: 'read',
-                    scope: teamPermissionScope,
-                },
-            });
-        }
-
-        const securityEntry: AdminSidebarMenuSubMenuItem['menu'] = [ /* empty */ ];
-        if (team.managesSecurity) {
-            securityEntry.push({
-                icon: <SecurityIcon />,
-                label: 'Security',
-                url: `/admin/events/${event}/${team.slug}/security`,
-                permission: {
-                    permission: 'event.vendors',
-                    operation: 'read',
-                    scope: teamPermissionScope,
-                },
-            });
-        }
-
         volunteersMenu.push({
             icon: <PeopleIcon htmlColor={team.color} />,
             label: team.name!,
@@ -363,9 +328,25 @@ export default async function EventLayout(props: React.PropsWithChildren<NextLay
                     icon: <FeedOutlinedIcon />,
                     label: 'Content',
                     url: `/admin/events/${event}/${team.slug}/content`,
+                    condition: team.flagManagesContent,
                 },
-                ...knowledgeEntry,
-                ...firstAidEntry,
+                {
+                    icon: <InfoOutlinedIcon />,
+                    label: 'Knowledge base',
+                    url: `/admin/events/${event}/${team.slug}/knowledge`,
+                    condition: team.flagManagesFaq,
+                },
+                {
+                    icon: <LocalHospitalIcon />,
+                    label: 'First aid',
+                    permission: {
+                        permission: 'event.vendors',
+                        operation: 'read',
+                        scope: teamPermissionScope,
+                    },
+                    url: `/admin/events/${event}/${team.slug}/first-aid`,
+                    condition: team.flagManagesFirstAid,
+                },
                 {
                     icon: <RepeatIcon />,
                     label: 'Retention',
@@ -386,7 +367,17 @@ export default async function EventLayout(props: React.PropsWithChildren<NextLay
                     },
                     url: `/admin/events/${event}/${team.slug}/schedule`,
                 },
-                ...securityEntry,
+                {
+                    icon: <SecurityIcon />,
+                    label: 'Security',
+                    permission: {
+                        permission: 'event.vendors',
+                        operation: 'read',
+                        scope: teamPermissionScope,
+                    },
+                    url: `/admin/events/${event}/${team.slug}/security`,
+                    condition: team.flagManagesSecurity,
+                },
                 {
                     icon: <PendingActionsIcon />,
                     label: 'Shifts',

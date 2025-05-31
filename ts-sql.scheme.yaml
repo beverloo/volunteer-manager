@@ -1843,6 +1843,26 @@ tables:
     type: int(8) unsigned
     nullable: true
     default: "NULL"
+  - name: team_flag_manages_content
+    type: tinyint(1) unsigned
+    nullable: false
+    default: "0"
+  - name: team_flag_manages_faq
+    type: tinyint(1) unsigned
+    nullable: false
+    default: "0"
+  - name: team_flag_manages_first_aid
+    type: tinyint(1) unsigned
+    nullable: false
+    default: "0"
+  - name: team_flag_manages_security
+    type: tinyint(1) unsigned
+    nullable: false
+    default: "0"
+  - name: team_flag_request_confirmation
+    type: tinyint(1) unsigned
+    nullable: false
+    default: "0"
   - name: team_request_confirmation
     type: tinyint(1) unsigned
     nullable: false
@@ -1897,6 +1917,11 @@ tables:
       `team_description` text NOT NULL,
       `team_environment` varchar(32) NOT NULL,
       `team_environment_id` int(8) unsigned DEFAULT NULL,
+      `team_flag_manages_content` tinyint(1) unsigned NOT NULL DEFAULT 0,
+      `team_flag_manages_faq` tinyint(1) unsigned NOT NULL DEFAULT 0,
+      `team_flag_manages_first_aid` tinyint(1) unsigned NOT NULL DEFAULT 0,
+      `team_flag_manages_security` tinyint(1) unsigned NOT NULL DEFAULT 0,
+      `team_flag_request_confirmation` tinyint(1) unsigned NOT NULL DEFAULT 0,
       `team_request_confirmation` tinyint(1) unsigned NOT NULL DEFAULT 0,
       `team_manages_faq` tinyint(1) unsigned NOT NULL DEFAULT 0,
       `team_manages_first_aid` tinyint(1) unsigned NOT NULL DEFAULT 0,

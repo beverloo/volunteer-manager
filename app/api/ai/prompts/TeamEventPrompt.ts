@@ -90,7 +90,7 @@ export abstract class TeamEventPrompt
                 domain: tEnvironments.environmentDomain,
                 domainOccupants: numberOfTeamsForEnvironment,
 
-                requestConfirmation: tTeams.teamRequestConfirmation.equals(/* true= */ 1),
+                requestConfirmation: tTeams.teamFlagRequestConfirmation.equals(/* true= */ 1),
                 whatsApp: eventsTeamsJoin.whatsappLink,
             })
             .executeSelectOne();

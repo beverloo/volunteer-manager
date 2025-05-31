@@ -31,7 +31,7 @@ export default async function EventTeamSecurityPage(props: NextPageParams<'event
         },
     });
 
-    if (!team.managesSecurity)
+    if (!team.flagManagesSecurity)
         notFound();
 
     const canUpdateVendors = access.can('event.vendors', 'update', {

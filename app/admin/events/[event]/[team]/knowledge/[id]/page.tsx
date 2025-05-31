@@ -16,7 +16,7 @@ import db, { tContentCategories } from '@lib/database';
  */
 export default async function EventFaqEntryPage(props: NextPageParams<'event' | 'team' | 'id'>) {
     const { event, team } = await verifyAccessAndFetchPageInfo(props.params);
-    if (!team.managesFaq)
+    if (!team.flagManagesFaq)
         notFound();
 
     const params = await props.params;

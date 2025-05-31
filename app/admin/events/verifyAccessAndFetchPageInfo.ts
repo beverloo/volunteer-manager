@@ -157,21 +157,6 @@ export interface PageInfoWithTeam extends PageInfo {
         colour: string;
 
         /**
-         * Whether this team is responsible for managing the frequently asked questions.
-         */
-        managesFaq: boolean;
-
-        /**
-         * Whether this team is responsible for managing the first aid team.
-         */
-        managesFirstAid: boolean;
-
-        /**
-         * Whether this team is responsible for managing the security team.
-         */
-        managesSecurity: boolean;
-
-        /**
          * Name of the team as it can be represented in the user interface.
          */
         name: string;
@@ -190,6 +175,26 @@ export interface PageInfoWithTeam extends PageInfo {
          * Environment of the frontend that this team is serviced by.
          */
         _environment: string;
+
+        /**
+         * Whether this team is responsible for managing landing page content.
+         */
+        flagManagesContent: boolean;
+
+        /**
+         * Whether this team is responsible for managing the frequently asked questions.
+         */
+        flagManagesFaq: boolean;
+
+        /**
+         * Whether this team is responsible for managing the first aid team.
+         */
+        flagManagesFirstAid: boolean;
+
+        /**
+         * Whether this team is responsible for managing the security team.
+         */
+        flagManagesSecurity: boolean;
     };
 }
 
@@ -295,9 +300,11 @@ export async function verifyAccessAndFetchPageInfo(
             plural: tTeams.teamPlural,
             slug: tTeams.teamSlug,
             _environment: tTeams.teamEnvironment,
-            managesFaq: tTeams.teamManagesFaq.equals(/* true= */ 1),
-            managesFirstAid: tTeams.teamManagesFirstAid.equals(/* true= */ 1),
-            managesSecurity: tTeams.teamManagesSecurity.equals(/* true= */ 1),
+
+            flagManagesContent: tTeams.teamFlagManagesContent.equals(/* true= */ 1),
+            flagManagesFaq: tTeams.teamFlagManagesFaq.equals(/* true= */ 1),
+            flagManagesFirstAid: tTeams.teamFlagManagesFirstAid.equals(/* true= */ 1),
+            flagManagesSecurity: tTeams.teamFlagManagesSecurity.equals(/* true= */ 1),
         })
         .executeSelectNoneOrOne();
 

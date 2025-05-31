@@ -48,10 +48,11 @@ export default async function TeamPage(props: NextPageParams<'slug'>) {
             slug: tTeams.teamSlug,
             title: tTeams.teamTitle,
 
-            managesFaq: tTeams.teamManagesFaq.equals(/* true= */ 1),
-            managesFirstAid: tTeams.teamManagesFirstAid.equals(/* true= */ 1),
-            managesSecurity: tTeams.teamManagesSecurity.equals(/* true= */ 1),
-            requestConfirmation: tTeams.teamRequestConfirmation.equals(/* true= */ 1),
+            flagManagesContent: tTeams.teamFlagManagesContent.equals(/* true= */ 1),
+            flagManagesFaq: tTeams.teamFlagManagesFaq.equals(/* true= */ 1),
+            flagManagesFirstAid: tTeams.teamFlagManagesFirstAid.equals(/* true= */ 1),
+            flagManagesSecurity: tTeams.teamFlagManagesSecurity.equals(/* true= */ 1),
+            flagRequestConfirmation: tTeams.teamFlagRequestConfirmation.equals(/* true= */ 1),
 
             enabled: tTeams.teamDeleted.isNull(),
         })
@@ -150,20 +151,24 @@ export default async function TeamPage(props: NextPageParams<'slug'>) {
             </Grid>
 
             <Grid size={{ xs: 12 }} sx={{ my: -1 }}>
-                <CheckboxElement name="managesFirstAid" label="Manages the First Aid team"
+                <CheckboxElement name="flagManagesContent" label="Manages landing page content"
                                  size="small" />
             </Grid>
             <Grid size={{ xs: 12 }} sx={{ my: -1 }}>
-                <CheckboxElement name="managesFaq" label="Manages the Knowledge Base"
+                <CheckboxElement name="flagManagesFirstAid" label="Manages the First Aid team"
                                  size="small" />
             </Grid>
             <Grid size={{ xs: 12 }} sx={{ my: -1 }}>
-                <CheckboxElement name="managesSecurity" label="Manages the Security team"
+                <CheckboxElement name="flagManagesFaq" label="Manages the Knowledge Base"
+                                 size="small" />
+            </Grid>
+            <Grid size={{ xs: 12 }} sx={{ my: -1 }}>
+                <CheckboxElement name="flagManagesSecurity" label="Manages the Security team"
                                  size="small" />
             </Grid>
             <Grid size={{ xs: 12 }} sx={{ my: -1 }}>
                 <CheckboxElement
-                    name="requestConfirmation" size="small"
+                    name="flagRequestConfirmation" size="small"
                     label="Request for confirmation in the application approve message?" />
             </Grid>
 
