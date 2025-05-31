@@ -9,7 +9,6 @@ import { useRouter } from 'next/navigation';
 
 import { SelectElement } from '@components/proxy/react-hook-form-mui';
 
-import Alert from '@mui/material/Alert';
 import Button from '@mui/material/Button';
 import CardActions from '@mui/material/CardActions';
 import CardContent from '@mui/material/CardContent';
@@ -25,7 +24,6 @@ import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
 import Paper from '@mui/material/Paper';
 import PersonSearchIcon from '@mui/icons-material/PersonSearch';
-import Snackbar from '@mui/material/Snackbar';
 import Stack from '@mui/material/Stack';
 import ThumbDownIcon from '@mui/icons-material/ThumbDown';
 import ThumbUpIcon from '@mui/icons-material/ThumbUp';
@@ -322,25 +320,14 @@ export function Application(props: ApplicationProps) {
 
     // ---------------------------------------------------------------------------------------------
 
-    const [ errorOpen, setErrorOpen ] = useState<boolean>(false);
-    const [ error, setError ] = useState<string | undefined>();
-
     const [ approveEverOpen, setApproveEverOpen ] = useState<boolean>(false);
     const [ approveOpen, setApproveOpen ] = useState<boolean>(false);
     const [ rejectEverOpen, setRejectEverOpen ] = useState<boolean>(false);
     const [ rejectOpen, setRejectOpen ] = useState<boolean>(false);
 
-    // TODO: Complete this method once the user interface exists...
-    async function processMove(serverFn: ServerAction) {
-        try {
-            throw new Error('Not yet implemented');
-        } catch (error: any) {
-            setError(error.message || 'Unable to process the decision…');
-            setErrorOpen(true);
-        }
-    }
-
-    async function processResponse(serverFn: ServerAction, subject?: string, message?: string) {
+    const processResponse = useCallback(async (
+        serverFn: ServerAction, subject?: string, message?: string) =>
+    {
         try {
             const formData = new FormData;
             if (!!subject)
@@ -362,7 +349,7 @@ export function Application(props: ApplicationProps) {
                 error: error.message || 'Unable to process the decision…',
             };
         }
-    }
+    }, [ router ]);
 
     const handleApproveClose = useCallback(() => setApproveOpen(false), [ /* no dependencies */ ]);
     const handleApproveOpen = useCallback(() => {
@@ -372,7 +359,7 @@ export function Application(props: ApplicationProps) {
 
     const handleApproved = useCallback(async (subject?: string, message?: string) => {
         return await processResponse(props.approveFn!, subject, message);
-    }, [ props.approveFn ]);
+    }, [ processResponse, props.approveFn ]);
 
     const handleRejectClose = useCallback(() => setRejectOpen(false), [ /* no dependencies */ ]);
     const handleRejectOpen = useCallback(() => {
@@ -382,7 +369,7 @@ export function Application(props: ApplicationProps) {
 
     const handleRejected = useCallback(async (subject?: string, message?: string) => {
         return await processResponse(props.rejectFn!, subject, message);
-    }, [ props.rejectFn ]);
+    }, [ processResponse, props.rejectFn ]);
 
     // ---------------------------------------------------------------------------------------------
 
@@ -437,14 +424,6 @@ export function Application(props: ApplicationProps) {
                         </CardActions>
                     </> }
             </Stack>
-
-            { !!error &&
-                <Snackbar open={errorOpen} autoHideDuration={3000}
-                          onClose={ () => setErrorOpen(false) }>
-                    <Alert severity="error" variant="filled">
-                        {error}
-                    </Alert>
-                </Snackbar> }
 
             { (!!moveEverOpen && !!props.moveFn) &&
                 <ServerActionDialog action={props.moveFn} open={moveOpen} onClose={handleCloseMove}
