@@ -3,8 +3,11 @@
 
 import { TextFieldElement } from '@components/proxy/react-hook-form-mui';
 
+import Alert from '@mui/material/Alert';
 import Divider from '@mui/material/Divider';
 import Grid from '@mui/material/Grid';
+import Link from '@mui/material/Link';
+import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 
 import { EnvironmentsDataTable } from './EnvironmentsDataTable';
@@ -28,11 +31,10 @@ export default async function EnvironmentsPage() {
 
     const canCreateEnvironments = access.can('root');  // only root can create new environments
 
-    const dbInstance = db;
-
     const teamsJoin = tTeams.forUseInLeftJoin();
 
-    const environments = await db.selectFrom(tEnvironments)
+    const dbInstance = db;
+    const environments = await dbInstance.selectFrom(tEnvironments)
         .leftJoin(teamsJoin)
             .on(teamsJoin.teamEnvironmentId.equals(tEnvironments.environmentId))
                 .and(teamsJoin.teamDeleted.isNull())
@@ -47,14 +49,53 @@ export default async function EnvironmentsPage() {
             teams: dbInstance.aggregateAsArray({
                 name: teamsJoin.teamName,
                 color: teamsJoin.teamColourLightTheme,
+
+                flagManagesContent: teamsJoin.teamFlagManagesContent,
             }),
         })
         .groupBy(tEnvironments.environmentId)
         .orderBy(tEnvironments.environmentDomain, 'asc')
         .executeSelectMany();
 
+    // ---------------------------------------------------------------------------------------------
+
+    type Warning = {
+        environment: string;
+        message: string;
+    };
+
+    const warnings: Warning[] = [ /* no warnings */ ];
+    for (const environment of environments) {
+        let numberOfTeamsManagingContent = 0;
+        for (const team of environment.teams) {
+            if (team.flagManagesContent)
+                ++numberOfTeamsManagingContent;
+        }
+
+        if (numberOfTeamsManagingContent > 1) {
+            warnings.push({
+                environment: environment.domain,
+                message:
+                    'content is being managed by multiple teams, which can lead to unclear ' +
+                    'ownership and missing content on the landing page',
+            });
+        }
+    }
+
     return (
         <>
+            { warnings.length > 0 &&
+                <>
+                    <Stack direction="column" spacing={2}>
+                        { warnings.map((warning, index) =>
+                            <Alert key={index} severity="warning">
+                                <Link href={`./environments/${warning.environment}`}>
+                                    <strong>{warning.environment}</strong>
+                                </Link> {warning.message}
+                            </Alert> )}
+                    </Stack>
+                    <Divider sx={{ my: 2 }} />
+                </> }
             <EnvironmentsDataTable environments={environments} />
             { canCreateEnvironments &&
                 <>
