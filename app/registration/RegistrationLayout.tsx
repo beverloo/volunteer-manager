@@ -6,6 +6,7 @@
 import Link from 'next/link'
 import { useMemo, useState } from 'react';
 
+import { default as MuiLink } from '@mui/material/Link';
 import Box from '@mui/material/Box';
 import Container, { type ContainerProps } from '@mui/material/Container';
 import Typography from '@mui/material/Typography';
@@ -95,7 +96,10 @@ export function RegistrationLayout(props: React.PropsWithChildren<RegistrationLa
                     {props.children}
                 </AuthenticationContext.Provider>
                 <Typography align="center" variant="body2" sx={{ mt: 1 }}>
-                    AnimeCon Volunteer Portal (<a href="https://github.com/beverloo/volunteer-manager">{process.env.buildHash}</a>) — © 2015–{year}
+                    AnimeCon Volunteer Portal (
+                    <MuiLink href="https://github.com/beverloo/volunteer-manager" color="inherit">
+                        {process.env.buildHash}
+                    </MuiLink>) — © 2015–{year}
                 </Typography>
             </Container>
         </>
