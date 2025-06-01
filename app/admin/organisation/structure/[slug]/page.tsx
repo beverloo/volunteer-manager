@@ -3,8 +3,8 @@
 
 import { notFound } from 'next/navigation';
 
-import { CheckboxElement, SelectElement, TextareaAutosizeElement, TextFieldElement }
-    from '@components/proxy/react-hook-form-mui';
+import { AutocompleteElement, CheckboxElement, SelectElement, TextareaAutosizeElement,
+    TextFieldElement } from '@components/proxy/react-hook-form-mui';
 
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import Divider from '@mui/material/Divider';
@@ -177,7 +177,7 @@ export default async function TeamPage(props: NextPageParams<'slug'>) {
                     matchId autocompleteProps={{ fullWidth: true, readOnly, size: 'small' }} />
             </Grid>
             <Grid size={{ xs: 12 }}>
-                <AutocompleteElementWithDisabledOptions
+                <AutocompleteElement
                     name="availableRoleIds" label="Available roles" options={roles} multiple
                     matchId autocompleteProps={{ fullWidth: true, readOnly, size: 'small' }} />
             </Grid>
