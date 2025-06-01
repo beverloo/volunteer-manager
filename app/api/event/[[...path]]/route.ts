@@ -5,7 +5,6 @@ import { NextRequest, NextResponse } from 'next/server';
 import { executeAction } from '../../Action';
 
 import type { NextRouteParams } from '@lib/NextRouterParams';
-import { application, kApplicationDefinition } from '../application';
 import { availabilityPreferences, kAvailabilityPreferencesDefinition } from '../availabilityPreferences';
 import { hotelPreferences, kHotelPreferencesDefinition } from '../hotelPreferences';
 import { refundRequest, kRefundRequestDefinition } from '../refundRequest';
@@ -22,8 +21,6 @@ export async function POST(request: NextRequest, props: NextRouteParams<never, '
     const action = Object.hasOwn(params, 'path') ? params.path!.join('/') : null;
 
     switch (action) {
-        case 'application':
-            return executeAction(request, kApplicationDefinition, application);
         case 'availability-preferences':
             return executeAction(
                 request, kAvailabilityPreferencesDefinition, availabilityPreferences);

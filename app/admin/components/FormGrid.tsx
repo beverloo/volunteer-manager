@@ -12,7 +12,8 @@ import Collapse from '@mui/material/Collapse';
 import Grid from '@mui/material/Grid';
 import Stack from '@mui/material/Stack';
 
-import { FormProvider, FormProviderContext, type FormProviderProps } from './FormProvider';
+import { FormProvider, FormProviderContext, type FormProviderProps }
+    from '@components/FormProvider';
 
 /**
  * Props accepted by the <FormGrid> component.
@@ -64,7 +65,7 @@ function InnerFormGrid(props: { callToAction?: string }) {
                         { props.callToAction ?? 'Save changes' }
                     </Button>
                     { (!!formContext.result && !formContext.result.success) &&
-                        <Alert severity="warning" sx={{flexGrow: 1, px: 1, py: 0}}>
+                        <Alert severity="warning" sx={{ flexGrow: 1, px: 1, py: 0 }}>
                             { formContext.result.error || 'The changes could not be saved' }
                         </Alert> }
                 </Stack>

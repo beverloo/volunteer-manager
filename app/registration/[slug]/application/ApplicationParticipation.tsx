@@ -3,21 +3,23 @@
 
 'use client';
 
+import type { z } from 'zod';
+
 import { SelectElement, TextareaAutosizeElement } from '@proxy/react-hook-form-mui';
 
 import Grid from '@mui/material/Grid';
 
-import type { ApplicationDefinition } from '@app/api/event/application';
+import { kServiceHoursProperty, kServiceTimingProperty } from './ApplicationActions';
+import { kShirtFit, kShirtSize, type ShirtFit, type ShirtSize } from '@lib/database/Types';
 
-import { kShirtFit, kShirtSize } from '@lib/database/Types';
-
-type ApplicationRequest = ApplicationDefinition['request'];
+type ServiceHourValues = z.TypeOf<typeof kServiceHoursProperty>;
+type ServiceTimingValues = z.TypeOf<typeof kServiceTimingProperty>;
 
 /**
  * Valid options for the number of hours volunteers are willing to work. When updating an ID, make
  * sure that `kDefaultValues` is updated as well.
  */
-const kServiceHoursOptions: { id: ApplicationRequest['serviceHours'], label: string }[] = [
+const kServiceHoursOptions: { id: ServiceHourValues, label: string }[] = [
     { id: '12', label: 'Up to 12 hours' },
     { id: '16', label: '12–16 hours' },
     { id: '20', label: '16–20 hours' },
@@ -28,7 +30,7 @@ const kServiceHoursOptions: { id: ApplicationRequest['serviceHours'], label: str
  * Valid options for the timing of shifts a volunteer could be issued. When updating an ID, make
  * sure that `kDefaultValues` is updated as well.
  */
-const kServiceTimingOption: { id: ApplicationRequest['serviceTiming'], label: string }[] = [
+const kServiceTimingOption: { id: ServiceTimingValues, label: string }[] = [
     { id: '8-20', label: 'Early (08:00–20:00)' },
     { id: '10-0', label: 'Regular (10:00–00:00)' },
     { id: '14-3', label: 'Late (14:00–03:00)' },
@@ -37,13 +39,13 @@ const kServiceTimingOption: { id: ApplicationRequest['serviceTiming'], label: st
 /**
  * Valid options for the t-shirt fit select field.
  */
-const kTShirtFitOptions: { id: ApplicationRequest['tshirtFit'], label: string }[] =
+const kTShirtFitOptions: { id: ShirtFit, label: string }[] =
     Object.values(kShirtFit).map(fit => ({ id: fit, label: fit }));
 
 /**
  * Valid options for the t-shirt size select field.
  */
-const kTShirtSizeOptions: { id: ApplicationRequest['tshirtSize'], label: string }[] = [
+const kTShirtSizeOptions: { id: ShirtSize, label: string }[] = [
     { id: kShirtSize.XS, label: 'XS' },
     { id: kShirtSize.S, label: 'Small' },
     { id: kShirtSize.M, label: 'Medium' },

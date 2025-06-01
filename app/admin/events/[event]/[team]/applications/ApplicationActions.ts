@@ -13,8 +13,7 @@ import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
 import db, { tEnvironments, tEvents, tTeams, tTeamsRoles, tUsers, tUsersEvents } from '@lib/database';
 
 import { kRegistrationStatus, kShirtFit, kShirtSize, kSubscriptionType } from '@lib/database/Types';
-import { kServiceHoursProperty, kServiceTimingProperty } from '@app/api/event/application';
-
+import { kServiceHoursProperty, kServiceTimingProperty } from '@app/registration/[slug]/application/ApplicationActions';
 
 /**
  * Fetches the unique ID of the event identified by the given `event` slug.

@@ -10,8 +10,7 @@ import { SendEmailTask } from '@lib/scheduler/tasks/SendEmailTask';
 import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
 import db, { tEvents, tEventsTeams, tTeams, tUsersEvents, tUsers } from '@lib/database';
 
-import { kApplicationProperties } from '../event/application';
-import { kRegistrationStatus } from '@lib/database/Types';
+import { kRegistrationStatus, kShirtFit, kShirtSize } from '@lib/database/Types';
 import { kTemporalZonedDateTime, type ApiDefinition, type ApiRequest, type ApiResponse }
     from '../Types';
 
@@ -39,7 +38,28 @@ export const kUpdateApplicationDefinition = z.object({
         // Update type (1): Application data
         //------------------------------------------------------------------------------------------
 
-        data: z.object(kApplicationProperties).optional(),
+        data: z.object({
+            /**
+             * Whether the volunteer would like their name to be included in the credit reel.
+             */
+            credits: z.boolean(),
+
+            /**
+             * Whether the volunteer would like to join our social media channels.
+             */
+            socials: z.boolean(),
+
+            /**
+             * Fit for the t-shirt that the volunteer would like to receive as a thank you.
+             */
+            tshirtFit: z.nativeEnum(kShirtFit),
+
+            /**
+             * Size of the t-shirt that the volunteer would like to receive as a thank you.
+             */
+            tshirtSize: z.nativeEnum(kShirtSize),
+
+        }).optional(),
 
         //------------------------------------------------------------------------------------------
         // Update type (2): Application metadata

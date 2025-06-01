@@ -1,79 +1,145 @@
-// Copyright 2023 Peter Beverloo & AnimeCon. All rights reserved.
+// Copyright 2025 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
 import { notFound } from 'next/navigation';
 
-import type { NextPageParams } from '@lib/NextRouterParams';
-import { type Content, getContent, getStaticContent } from '@lib/Content';
-import { ApplicationPage, type ApplicationPageProps, type PartneringTeamApplication } from './ApplicationPage';
-import { ApplicationStatusPage, type ApplicationStatusPageProps } from './ApplicationStatusPage';
-import { Markdown } from '@components/Markdown';
-import { contextForRegistrationPage } from '../contextForRegistrationPage';
-import { generatePortalMetadataFn } from '../../generatePortalMetadataFn';
-import db, { tEvents, tTeams, tUsersEvents } from '@lib/database';
+import Box from '@mui/material/Box';
+import SendIcon from '@mui/icons-material/Send';
 
-import { kRegistrationStatus } from '@lib/database/Types';
+import type { EnvironmentContext, EnvironmentContextEventAccess } from '@lib/EnvironmentContext';
+import type { NextPageParams } from '@lib/NextRouterParams';
+import { EventApplicationForm, type EventApplicationFormProps } from './EventApplicationForm';
+import { FormProvider } from '@components/FormProvider';
+import { FormSubmitButton } from '@components/FormSubmitButton';
+import { Markdown } from '@components/Markdown';
+import { determineEnvironment, type Environment } from '@lib/Environment';
+import { generatePortalMetadataFn } from '../../generatePortalMetadataFn';
+import { getContent, getStaticContent } from '@lib/Content';
+import { getEnvironmentContext } from '@lib/EnvironmentContext';
+import db, { tEnvironments, tEvents, tTeams, tUsersEvents } from '@lib/database';
+
+import { kRegistrationStatus, type ShirtFit, type ShirtSize } from '@lib/database/Types';
+
+import * as actions from './ApplicationActions';
 
 /**
- * The <EventApplicationPage> component serves the ability for volunteers to either apply to join
- * one of our events, or for them to see the status of their current application.
+ * The <EventApplicationPage> serves three purposes: first, to explain when applications aren't
+ * being presently considerer, second, to accept applications, and third, to inform the visitor of
+ * the status of their application in case one has already been made.
  */
 export default async function EventApplicationPage(props: NextPageParams<'slug'>) {
-    const context = await contextForRegistrationPage(props.params);
-    if (!context)
+    const environment = await determineEnvironment();
+    if (!environment)
         notFound();
 
-    const { access, environment, event, registration, teamSlug, user } = context;
+    const params = await props.params;
 
-    const eventAccessScope = { event: event.slug };
-    const teamAccessScope = { event: event.slug, team: teamSlug };
+    const context = await getEnvironmentContext(environment);
+    const event = context.events.find(event => event.slug === params.slug);
 
-    const canAccessAvailability = access.can('event.visible', teamAccessScope);
-    const canAccessHotels = access.can('event.hotels', eventAccessScope);
-    const canAccessRefunds = access.can('event.refunds', eventAccessScope);
-    const canAccessSchedule = access.can('event.schedule.planning', 'read', teamAccessScope);
-    const canAccessTrainings = access.can('event.trainings', eventAccessScope);
+    if (!event)
+        notFound();
 
-    let content: Content | undefined = undefined;
-    let state: 'status' | 'application' | 'unavailable';
+    // TODO: Enable applying multiple times on the same environment?
 
-    if (registration && user) {
-        state = 'status';
-    } else {
-        const environmentData = event.getEnvironmentData(environment.domain);
-        if (environmentData?.enableApplications ||
-                access.can('event.applications', 'create', teamAccessScope)) {
-            content = await getContent(environment.domain, event.id, [ 'application' ]);
-            state = 'application';
-        } else {
-            content = await getStaticContent([ 'registration', 'application', 'unavailable' ]);
-            state = 'unavailable';
-        }
+    if (event.applications.length > 0) {
+        return <EventApplicationStatusPage context={context} environment={environment}
+                                           event={event} />;
     }
 
-    let historicPreferences: ApplicationPageProps['historicPreferences'];
-    let partnerApplications: PartneringTeamApplication[] = [];
+    const { access } = context;
 
-    if (state === 'application' && user) {
-        partnerApplications = await db.selectFrom(tUsersEvents)
-            .innerJoin(tTeams)
-                .on(tTeams.teamId.equals(tUsersEvents.teamId))
-            .where(tUsersEvents.userId.equals(user.userId))
-                .and(tUsersEvents.eventId.equals(event.eventId))
-                .and(tUsersEvents.registrationStatus.in(
-                    [ kRegistrationStatus.Registered, kRegistrationStatus.Accepted ]))
-            .select({
-                environment: tTeams.teamEnvironment,
-                name: tTeams.teamName,
-                status: tUsersEvents.registrationStatus,
-            })
-            .orderBy(tTeams.teamName, 'asc')
-            .executeSelectMany();
+    const acceptsApplications = event.teams.some(team => {
+        if (team.applications === 'active' || team.applications === 'override')
+            return true;
 
-        historicPreferences = await db.selectFrom(tUsersEvents)
+        if (access.can('event.applications', 'create', { event: event.slug, team: team.slug }))
+            return true;
+
+        return false;
+    });
+
+    return acceptsApplications
+        ? <EventApplicationFormPage context={context} environment={environment} event={event} />
+        : <EventApplicationNotAvailablePage />;
+}
+
+/**
+ * Props available to the specialised sub-pages of the <EventApplicationPage> component.
+ */
+interface EventApplicationSpecialisedProps {
+    /**
+     * Context for which the page is being rendered.
+     */
+    context: EnvironmentContext;
+
+    /**
+     * Environment for which the page is being rendered.
+     */
+    environment: Environment;
+
+    /**
+     * Event for which the page is being rendered.
+     */
+    event: EnvironmentContextEventAccess;
+}
+
+/**
+ * The <EventApplicationNotAvailablePage> page informs the visitor that applications are presently
+ * closed, and that they may want to try again at a later point in time.
+ */
+async function EventApplicationNotAvailablePage() {
+    const content = await getStaticContent([ 'registration', 'application', 'unavailable' ]);
+    return (
+        <Markdown sx={{ p: 2 }}>{content?.markdown}</Markdown>
+    );
+}
+
+/**
+ * The <EventApplicationFormPage> page enables the visitor to apply to join one of our teams. Data
+ * is being checked in this method, after which the form defers to sub-components.
+ */
+async function EventApplicationFormPage(props: EventApplicationSpecialisedProps) {
+    const { environment, context, event } = props;
+
+    const dbInstance = db;
+
+    // ---------------------------------------------------------------------------------------------
+    // Determine the team to whom the application should be made. This is, by default, the team that
+    // manages the content, but can be overridden by special direct-apply links.
+    // ---------------------------------------------------------------------------------------------
+
+    const applicationTeamId = await dbInstance.selectFrom(tTeams)
+        .where(tTeams.teamSlug.in(environment.teams))
+            .and(tTeams.teamFlagManagesContent.equals(/* true= */ 1))
+        .selectOneColumn(tTeams.teamId)
+        .orderBy(tTeams.teamId, 'asc')  // arbitrary, but stable
+        .limit(1)
+        .executeSelectNoneOrOne();
+
+    if (!applicationTeamId)
+        notFound();
+
+    // TODO: Enable a mechanism to apply to a non-default team instead.
+
+    // ---------------------------------------------------------------------------------------------
+    // Determine context for the form, both to prepopulate known fields and to refer to applications
+    // they may have in progress with teams on other environments.
+    // ---------------------------------------------------------------------------------------------
+
+    type HistoricPreferences = {
+        tshirtFit?: ShirtFit;
+        tshirtSize?: ShirtSize;
+    };
+
+    let historicPreferences: HistoricPreferences | undefined;
+    let partnerApplications: EventApplicationFormProps['partnerApplications'] = [ /* none yet */ ];
+
+    if (!!context.user) {
+        historicPreferences = await dbInstance.selectFrom(tUsersEvents)
             .innerJoin(tEvents)
                 .on(tEvents.eventId.equals(tUsersEvents.eventId))
-            .where(tUsersEvents.userId.equals(user.userId))
+            .where(tUsersEvents.userId.equals(context.user.userId))
             .select({
                 tshirtFit: tUsersEvents.shirtFit,
                 tshirtSize: tUsersEvents.shirtSize,
@@ -81,49 +147,74 @@ export default async function EventApplicationPage(props: NextPageParams<'slug'>
             .orderBy(tEvents.eventStartTime, 'desc')
             .limit(1)
             .executeSelectNoneOrOne() ?? undefined;
-    }
 
-    let availabilityWindows: ApplicationStatusPageProps['availabilityWindows'] = { /* default */ };
-    if (state === 'status' && user) {
-        const dbInstance = db;
-
-        availabilityWindows = await dbInstance.selectFrom(tEvents)
-            .where(tEvents.eventId.equals(event.id))
+        partnerApplications = await dbInstance.selectFrom(tUsersEvents)
+            .innerJoin(tTeams)
+                .on(tTeams.teamId.equals(tUsersEvents.teamId))
+            .innerJoin(tEnvironments)
+                .on(tEnvironments.environmentId.equals(tTeams.teamEnvironmentId))
+            .where(tUsersEvents.userId.equals(context.user.userId))
+                .and(tUsersEvents.eventId.equals(event.id))
+                .and(tUsersEvents.registrationStatus.in(
+                    [ kRegistrationStatus.Registered, kRegistrationStatus.Accepted ]))
             .select({
-                hotelPreferences: {
-                    start: dbInstance.dateTimeAsString(tEvents.hotelPreferencesStart),
-                    end: dbInstance.dateTimeAsString(tEvents.hotelPreferencesEnd),
-                },
-                refundRequests: {
-                    start: dbInstance.dateTimeAsString(tEvents.refundRequestsStart),
-                    end: dbInstance.dateTimeAsString(tEvents.refundRequestsEnd),
-                },
-                trainingPreferences: {
-                    start: dbInstance.dateTimeAsString(tEvents.trainingPreferencesStart),
-                    end: dbInstance.dateTimeAsString(tEvents.trainingPreferencesEnd),
-                },
+                href:
+                    dbInstance.const('https://', 'string')
+                        .concat(tEnvironments.environmentDomain)
+                        .concat('/registration/')
+                        .concat(event.slug),
+                status: tUsersEvents.registrationStatus,
+                team: tTeams.teamName,
+
+                environment: tTeams.teamEnvironment,
             })
-            .executeSelectNoneOrOne() ?? { /* no availability windows */ };
+            .orderBy(tTeams.teamName, 'asc')
+            .executeSelectMany();
     }
+
+    // ---------------------------------------------------------------------------------------------
+
+    const action = actions.createApplication.bind(null, event.id, applicationTeamId);
+    const content = await getContent(environment.domain, event.id, [ 'application' ]);
+
+    // Set default values for the application form. These may be further contextualised with the
+    // volunteer's historic preferences if they've applied before, for e.g. their t-shirt size.
+    const defaultValues = {
+        availability: true,
+        credits: true,
+        serviceHours: '16',
+        serviceTiming: '10-0',
+        socials: true,
+        ...historicPreferences,
+    };
+
+    return (
+        <FormProvider action={action} defaultValues={defaultValues}>
+            <Box sx={{ p: 2 }}>
+                { !!content && <Markdown sx={{ pb: 2 }}>{content.markdown}</Markdown> }
+
+                <EventApplicationForm eventShortName={event.shortName}
+                                      partnerApplications={partnerApplications}
+                                      user={context.user} />
+
+                <FormSubmitButton callToAction="Submit application" startIcon={ <SendIcon /> }
+                                  sx={{ mt: 2 }} />
+            </Box>
+        </FormProvider>
+    );
+}
+
+/**
+ * The <EventApplicationStatusPage> page represents the case in which a visitor has one of more
+ * active applications, the status of which can be displayed.
+ */
+async function EventApplicationStatusPage(props: EventApplicationSpecialisedProps) {
+    // TODO: Single application case
+    // TODO: Multiple application case
 
     return (
         <>
-            { state === 'application' &&
-                <ApplicationPage content={content} team={teamSlug}
-                                 user={user} partnerApplications={partnerApplications}
-                                 event={event.toEventData(environment.domain)}
-                                 historicPreferences={historicPreferences} /> }
-            { (state === 'status' && (registration && user)) &&
-                <ApplicationStatusPage availabilityWindows={availabilityWindows}
-                                       canAccessAvailability={canAccessAvailability}
-                                       canAccessHotels={canAccessHotels}
-                                       canAccessRefunds={canAccessRefunds}
-                                       canAccessSchedule={canAccessSchedule}
-                                       canAccessTrainings={canAccessTrainings} user={user}
-                                       event={event.toEventData(environment.domain)}
-                                       registration={registration.toRegistrationData()} /> }
-            { state === 'unavailable' &&
-                <Markdown sx={{ p: 2 }}>{content?.markdown}</Markdown> }
+            TODO
         </>
     );
 }

@@ -17,7 +17,7 @@ import DialogTitle from '@mui/material/DialogTitle';
 import Typography from '@mui/material/Typography';
 
 import type { ServerAction } from '@lib/serverAction';
-import { FormProvider, FormProviderContext } from './FormProvider';
+import { FormProvider, FormProviderContext } from '@components/FormProvider';
 import { Markdown } from '@components/Markdown';
 
 /**

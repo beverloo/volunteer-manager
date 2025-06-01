@@ -1,7 +1,6 @@
 // Copyright 2023 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
-import type { ApplicationDefinition } from '@app/api/event/application';
 import type { AvailabilityPreferencesDefinition } from '@app/api/event/availabilityPreferences';
 import type { ConfirmIdentityDefinition } from '@app/api/auth/confirmIdentity';
 import type { CreateChallengeDefinition } from '@app/api/auth/passkeys/createChallenge';
@@ -194,7 +193,6 @@ export type ApiEndpoints = {
         '/api/auth/update-avatar': UpdateAvatarDefinition,
         '/api/display/help-request': HelpRequestDefinition,
         '/api/error': ErrorDefinition,
-        '/api/event/application': ApplicationDefinition,
         '/api/event/availability-preferences': AvailabilityPreferencesDefinition,
         '/api/event/hotel-preferences': HotelPreferencesDefinition,
         '/api/event/refund-request': RefundRequestDefinition,

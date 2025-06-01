@@ -147,8 +147,6 @@ interface AvailabilityWindowRequest {
 /**
  * Returns the status of the availability window contained within the given `request`, relative to
  * the givn `currentTime`. Overrides will be considered when the window is not normally opened.
- *
- * @note Exported for testing purposes.
  */
 export function determineAvailabilityStatus(
     currentTime: Temporal.ZonedDateTime, request: AvailabilityWindowRequest)

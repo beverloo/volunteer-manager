@@ -77,7 +77,7 @@ async function loadEnvironmentsFromDatabase(): Promise<void> {
     const environments = await dbInstance.selectFrom(tEnvironments)
         .leftJoin(teamsJoin)
             .on(teamsJoin.teamEnvironmentId.equals(tEnvironments.environmentId))
-            // TODO: Consider teamsJoin.teamDeleted
+                .and(teamsJoin.teamDeleted.isNull())
         .where(tEnvironments.environmentDeleted.isNull())
         .select({
             colours: {

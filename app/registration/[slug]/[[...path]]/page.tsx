@@ -79,7 +79,7 @@ export default async function EventContentPage(props: NextPageParams<'slug', 'pa
             { !!event.applications.length &&
                 <Button component={Link} href={`/registration/${event.slug}/application`}
                         color="inherit" variant="contained" sx={{ alignSelf: 'flex-start' }}>
-                    See the status of your application
+                    See the status of your application{ event.applications.length > 1 ? 's' : '' }
                 </Button> }
 
         </Stack>

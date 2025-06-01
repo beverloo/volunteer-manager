@@ -12,7 +12,7 @@ import { getRegistration } from '@lib/RegistrationLoader';
 import db, { tActivities, tActivitiesTimeslots, tEventsTeams, tTeams, tUsersEvents } from '@lib/database';
 
 import { kEventAvailabilityStatus } from '@lib/database/Types';
-import { kServiceHoursProperty, kServiceTimingProperty } from './application';
+import { kServiceHoursProperty, kServiceTimingProperty } from '@app/registration/[slug]/application/ApplicationActions';
 import { kTemporalZonedDateTime, type ApiDefinition, type ApiRequest, type ApiResponse }
     from '../Types';
 
