@@ -1,24 +1,36 @@
 // Copyright 2025 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
+import Link from 'next/link';
 import { notFound } from 'next/navigation';
 
+import type { SxProps } from '@mui/system';
+import type { Theme } from '@mui/material/styles';
+import { default as MuiLink } from '@mui/material/Link';
 import Box from '@mui/material/Box';
+import Divider from '@mui/material/Divider';
+import GroupIcon from '@mui/icons-material/Group';
+import List from '@mui/material/List';
+import ListItemButton from '@mui/material/ListItemButton';
+import ListItemIcon from '@mui/material/ListItemIcon';
+import ListItemText from '@mui/material/ListItemText';
 import SendIcon from '@mui/icons-material/Send';
 
 import type { EnvironmentContext, EnvironmentContextEventAccess } from '@lib/EnvironmentContext';
 import type { NextPageParams } from '@lib/NextRouterParams';
+import type { RegistrationStatus, ShirtFit, ShirtSize } from '@lib/database/Types';
 import { EventApplicationForm, type EventApplicationFormProps } from './EventApplicationForm';
 import { FormProvider } from '@components/FormProvider';
 import { FormSubmitButton } from '@components/FormSubmitButton';
 import { Markdown } from '@components/Markdown';
 import { determineEnvironment, type Environment } from '@lib/Environment';
+import { formatDate } from '@lib/Temporal';
 import { generatePortalMetadataFn } from '../../generatePortalMetadataFn';
 import { getContent, getStaticContent } from '@lib/Content';
 import { getEnvironmentContext } from '@lib/EnvironmentContext';
-import db, { tEnvironments, tEvents, tTeams, tUsersEvents } from '@lib/database';
+import db, { tEnvironments, tEvents, tRoles, tTeams, tUsersEvents } from '@lib/database';
 
-import { kRegistrationStatus, type ShirtFit, type ShirtSize } from '@lib/database/Types';
+import { kRegistrationStatus } from '@lib/database/Types';
 
 import * as actions from './ApplicationActions';
 
@@ -209,13 +221,121 @@ async function EventApplicationFormPage(props: EventApplicationSpecialisedProps)
  * active applications, the status of which can be displayed.
  */
 async function EventApplicationStatusPage(props: EventApplicationSpecialisedProps) {
-    // TODO: Single application case
-    // TODO: Multiple application case
+    const { environment, context, event } = props;
+
+    if (!event.applications.length || !context.user)
+        throw new Error('Invalid state');
+
+    if (event.applications.length === 1) {
+        return (
+            <>
+                Yo
+            </>
+        );
+    }
+
+    // ---------------------------------------------------------------------------------------------
+    // Fetch detailed information about the applications that the visitor has in progress for this
+    // event. Sort them based on relevance assumed from the application's status.
+    // ---------------------------------------------------------------------------------------------
+
+    const detailedApplications = await db.selectFrom(tUsersEvents)
+        .innerJoin(tRoles)
+            .on(tRoles.roleId.equals(tUsersEvents.roleId))
+        .innerJoin(tTeams)
+            .on(tTeams.teamId.equals(tUsersEvents.teamId))
+        .where(tUsersEvents.userId.equals(context.user.userId))
+            .and(tUsersEvents.eventId.equals(event.id))
+            .and(tTeams.teamSlug.in(environment.teams))
+        .select({
+            color: tTeams.teamColourLightTheme,
+            date: tUsersEvents.registrationDate,
+            role: tRoles.roleName,
+            slug: tTeams.teamSlug,
+            status: tUsersEvents.registrationStatus,
+            title: tTeams.teamTitle,
+        })
+        .executeSelectMany();
+
+    const kRegistrationStatusOrder: { [key in RegistrationStatus]: number } = {
+        [kRegistrationStatus.Accepted]: 0,
+        [kRegistrationStatus.Registered]: 1,
+        [kRegistrationStatus.Rejected]: 2,
+        [kRegistrationStatus.Cancelled]: 3,
+    };
+
+    detailedApplications.sort((lhs, rhs) => {
+        const lhsOrder = kRegistrationStatusOrder[lhs.status];
+        const rhsOrder = kRegistrationStatusOrder[rhs.status];
+
+        if (lhsOrder === rhsOrder)
+            return lhs.title.localeCompare(rhs.title);
+
+        return lhsOrder - rhsOrder;
+    });
+
+    // ---------------------------------------------------------------------------------------------
+
+    const content = await getStaticContent([ 'registration', 'application', 'multiple' ], {
+        event: event.shortName,
+    });
 
     return (
-        <>
-            TODO
-        </>
+        <Box sx={{ p: 2 }}>
+            { !!content &&
+                <>
+                    <Markdown sx={{ pb: 2 }}>{content.markdown}</Markdown>
+                    <Divider />
+                </> }
+            <List sx={{ pb: 0 }}>
+                { detailedApplications.map(application => {
+                    const href = `/registration/${event.slug}/application/${application.slug}`;
+
+                    let details: string;
+                    let detailsSx: SxProps<Theme> | undefined;
+
+                    switch (application.status) {
+                        case kRegistrationStatus.Registered:
+                            details = 'Your application is being considered';
+                            break;
+
+                        case kRegistrationStatus.Accepted:
+                            details = `You're part of the team! (${application.role})`;
+                            detailsSx = { color: 'success.main' };
+                            break;
+
+                        case kRegistrationStatus.Rejected:
+                            details = 'We are unable to move forward with your application';
+                            detailsSx = { color: 'error.main' };
+                            break;
+
+                        case kRegistrationStatus.Cancelled:
+                            details = 'Your participation has been cancelled';
+                            detailsSx = { color: 'error.main' };
+                            break;
+                    }
+
+                    const date =
+                        application.date ? formatDate(application.date, '—MMMM Do')
+                                         : /* missing registration date= */ '';
+
+                    return (
+                        <ListItemButton key={application.slug} LinkComponent={Link} href={href}>
+                            <ListItemIcon sx={{ minWidth: '40px' }}>
+                                <GroupIcon htmlColor={application.color} />
+                            </ListItemIcon>
+                            <ListItemText primary={application.title}
+                                          secondary={ <>{details}{date}</> }
+                                          slotProps={{ secondary: { sx: detailsSx } }} />
+                        </ListItemButton>
+                    );
+                } )}
+            </List>
+            <Divider sx={{ mb: 2 }} />
+            <MuiLink component={Link} href={`/registration/${event.slug}`}>
+                « Previous page
+            </MuiLink>
+        </Box>
     );
 }
 
