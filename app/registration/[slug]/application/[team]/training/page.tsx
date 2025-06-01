@@ -13,8 +13,8 @@ import { AvailabilityWarning } from '../AvailabilityWarning';
 import { Markdown } from '@components/Markdown';
 import { TrainingConfirmation } from './TrainingConfirmation';
 import { TrainingPreferences } from './TrainingPreferences';
-import { contextForRegistrationPage } from '../../contextForRegistrationPage';
-import { generatePortalMetadataFn } from '../../../generatePortalMetadataFn';
+import { contextForRegistrationPage } from '../../../contextForRegistrationPage';
+import { generatePortalMetadataFn } from '../../../../generatePortalMetadataFn';
 import { getStaticContent } from '@lib/Content';
 import { getTrainingOptions } from './getTrainingOptions';
 

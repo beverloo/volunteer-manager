@@ -33,6 +33,7 @@ import db, { tEnvironments, tEvents, tRoles, tTeams, tUsersEvents } from '@lib/d
 import { kRegistrationStatus } from '@lib/database/Types';
 
 import * as actions from './ApplicationActions';
+import EventApplicationStatus from './[team]/EventApplicationStatus';
 
 /**
  * The <EventApplicationPage> serves three purposes: first, to explain when applications aren't
@@ -224,15 +225,10 @@ async function EventApplicationStatusPage(props: EventApplicationSpecialisedProp
     const { environment, context, event } = props;
 
     if (!event.applications.length || !context.user)
-        throw new Error('Invalid state');
+        throw new Error('Invalid state for the <EventApplicationStatusPage> component');
 
-    if (event.applications.length === 1) {
-        return (
-            <>
-                Yo
-            </>
-        );
-    }
+    if (event.applications.length === 1)
+        return <EventApplicationStatus {...props} team={event.applications[0].team} />;
 
     // ---------------------------------------------------------------------------------------------
     // Fetch detailed information about the applications that the visitor has in progress for this

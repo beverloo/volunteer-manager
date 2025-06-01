@@ -12,8 +12,8 @@ import { AvailabilityExpectations, type AvailabilityDayInfo, type AvailabilityEx
 import { AvailabilityPreferences } from './AvailabilityPreferences';
 import { Markdown } from '@components/Markdown';
 import { Temporal, formatDate, isBefore, isAfter } from '@lib/Temporal';
-import { contextForRegistrationPage } from '../../contextForRegistrationPage';
-import { generatePortalMetadataFn } from '../../../generatePortalMetadataFn';
+import { contextForRegistrationPage } from '../../../contextForRegistrationPage';
+import { generatePortalMetadataFn } from '../../../../generatePortalMetadataFn';
 import { getPublicEventsForFestival, type EventTimeslotEntry } from './getPublicEventsForFestival';
 import { getStaticContent } from '@lib/Content';
 import db, { tUsersEvents } from '@lib/database';

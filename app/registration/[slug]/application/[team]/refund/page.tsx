@@ -14,8 +14,8 @@ import { Markdown } from '@components/Markdown';
 import { RefundConfirmation } from './RefundConfirmation';
 import { RefundRequest } from './RefundRequest';
 import { Temporal, formatDate } from '@lib/Temporal';
-import { contextForRegistrationPage } from '../../contextForRegistrationPage';
-import { generatePortalMetadataFn } from '../../../generatePortalMetadataFn';
+import { contextForRegistrationPage } from '../../../contextForRegistrationPage';
+import { generatePortalMetadataFn } from '../../../../generatePortalMetadataFn';
 import db, { tEvents } from '@lib/database';
 
 /**

@@ -17,7 +17,7 @@ import Typography from '@mui/material/Typography';
 
 import type { EventTimeslotEntry } from './getPublicEventsForFestival';
 import type { RegistrationAvailability } from '@lib/Registration';
-import { ApplicationAvailabilityForm } from '../ApplicationParticipation';
+import { ApplicationAvailabilityForm } from '../../ApplicationParticipation';
 import { Markdown } from '@components/Markdown';
 import { callApi } from '@lib/callApi';
 
