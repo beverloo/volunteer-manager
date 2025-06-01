@@ -42,7 +42,11 @@ export function ApplicationProgressHeader(props: ApplicationProgressHeaderProps)
         if (!hasAccessToRegistration)
             continue;  // the visitor does not have access to this event anymore
 
-        applications = event.applications;
+        applications = event.applications.map(application => ({
+            ...application,
+            team: application.team.replace(/s$/, ''),
+        }));
+
         applicationEvent = {
             shortName: event.shortName,
             slug: event.slug,

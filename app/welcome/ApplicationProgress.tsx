@@ -121,7 +121,7 @@ interface ApplicationProgressProps {
  * Specialisation of the <ApplicationProgress> component that will only be used when the application
  * was accepted by one of the volunteering leads. Details are shown on a more detailed page.
  */
-export function ApplicationProgressAccepted(props: Pick<ApplicationProgressProps, 'event'>) {
+export function ApplicationProgressAccepted(props: ApplicationProgressProps) {
     const router = useRouter();
 
     const navigateToApplication = useCallback(() => {
@@ -138,7 +138,7 @@ export function ApplicationProgressAccepted(props: Pick<ApplicationProgressProps
                         <ThumbUpIcon fontSize="inherit" />
                     </Box>
                     <Typography variant="body2">
-                        Your participation has been <b>confirmed</b>
+                        Your {props.application.team} participation has been <b>confirmed</b>
                     </Typography>
                 </Box>
 
@@ -172,7 +172,7 @@ export function ApplicationProgress(props: ApplicationProgressProps) {
     }
 
     if (application.status === kRegistrationStatus.Accepted)
-        return <ApplicationProgressAccepted event={props.event} />;
+        return <ApplicationProgressAccepted {...props} />;
 
     let containerStyle: SxProps<Theme> = { /* no styles */ };
     let icon: React.ReactNode;
@@ -183,7 +183,7 @@ export function ApplicationProgress(props: ApplicationProgressProps) {
         case kRegistrationStatus.Registered:
             containerStyle = kStyles.containerRegistered;
             icon = <HowToVoteIcon fontSize="inherit" />;
-            title = <>Your application is <b>being considered</b></>;
+            title = <>Your {props.application.team} application is <b>being considered</b></>;
             explanation = (
                 <Typography variant="body2">
                     We have received your application for <strong>{event.shortName}</strong> and
@@ -197,7 +197,7 @@ export function ApplicationProgress(props: ApplicationProgressProps) {
         case kRegistrationStatus.Cancelled:
             containerStyle = kStyles.containerCancelledOrRejected;
             icon = <DoNotDisturbAltIcon fontSize="inherit" />;
-            title = <>Your participation has been <b>cancelled</b></>;
+            title = <>Your {props.application.team} participation has been <b>cancelled</b></>;
             explanation = (
                 <Typography variant="body2">
                     Unfortunately you've withdrawn from participating in the
@@ -210,7 +210,7 @@ export function ApplicationProgress(props: ApplicationProgressProps) {
         case kRegistrationStatus.Rejected:
             containerStyle = kStyles.containerCancelledOrRejected;
             icon = <DoNotDisturbAltIcon fontSize="inherit" />;
-            title = <>Your participation has been <b>declined</b></>;
+            title = <>Your {props.application.team} participation has been <b>declined</b></>;
             explanation = (
                 <Typography variant="body2">
                     Unfortunately we have not been able to offer you participation in the
