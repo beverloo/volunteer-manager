@@ -1,10 +1,7 @@
 // Copyright 2023 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
-'use client';
-
 import Link from 'next/link';
-import { useMemo } from 'react';
 
 import Box from '@mui/material/Box';
 import EventNoteIcon from '@mui/icons-material/EventNote';
@@ -20,13 +17,17 @@ import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 
-import type { EventDataWithEnvironment } from '@lib/Event';
-import type { RegistrationData, RegistrationRefund, RegistrationTraining } from '@lib/Registration';
+import type { EnvironmentContext } from '@lib/EnvironmentContext';
+import type { EventAvailabilityStatus } from '@lib/database/Types';
+import type { Registration } from './EventApplicationStatus';
 import type { User } from '@lib/auth/User';
-import { type EventAvailabilityStatus, kRegistrationStatus } from '@lib/database/Types';
 import { Temporal, formatDate, isBefore, isAfter } from '@lib/Temporal';
 
-import { kEventAvailabilityStatus } from '@lib/database/Types';
+import { kEventAvailabilityStatus, kRegistrationStatus } from '@lib/database/Types';
+
+type RegistrationData = Registration['registration'];
+type RegistrationRefund = NonNullable<RegistrationData['refund']>;
+type RegistrationTraining = NonNullable<RegistrationData['training']>;
 
 type WindowStatus =
     undefined | { enabled: boolean; status: 'pending' | 'missed'; secondary: string };
@@ -37,7 +38,7 @@ type WindowStatus =
  * many details as we can share will be shown instead.
  */
 function determineAvailabilityWindowStatus(
-    now: Temporal.Instant, availabilityWindow?: { start?: string; end?: string }): WindowStatus
+    now: Temporal.Instant, availabilityWindow?: { start?: Temporal.ZonedDateTime; end?: Temporal.ZonedDateTime }): WindowStatus
 {
     // Case (1): No availability window has been defined at all.
     if (!availabilityWindow || (!availabilityWindow.start && !availabilityWindow.end)) {
@@ -50,7 +51,7 @@ function determineAvailabilityWindowStatus(
 
     // Case (2a): The availability window's start date may be in the future.
     if (!!availabilityWindow.start) {
-        const start = Temporal.ZonedDateTime.from(availabilityWindow.start);
+        const start = availabilityWindow.start;
 
         if (Temporal.Instant.compare(start.toInstant(), now) > 0) {
             return {
@@ -63,7 +64,7 @@ function determineAvailabilityWindowStatus(
 
     // Case (2b): The availability window's end date may be in the past.
     if (!!availabilityWindow.end) {
-        const end = Temporal.ZonedDateTime.from(availabilityWindow.end);
+        const end = availabilityWindow.end;
 
         if (Temporal.Instant.compare(end.toInstant(), now) <= 0) {
             return {
@@ -81,6 +82,11 @@ function determineAvailabilityWindowStatus(
  * Props accepted by the <AvailabilityButton> component.
  */
 interface AvailabilityButtonProps {
+    /**
+     * Base URL for linking the button to an appropriate location.
+     */
+    baseUrl: string;
+
     /**
      * What the status of the availability page is.
      */
@@ -131,7 +137,7 @@ function AvailabilityButton(props: AvailabilityButtonProps) {
     return (
         <ListItemButton LinkComponent={Link} sx={{ pl: 4 }}
                         disabled={!enabled && !override}
-                        href="./application/availability">
+                        href={`${props.baseUrl}/availability`}>
 
             <ListItemIcon>
                 { buttonStatus === 'locked' && <TaskAltIcon color="success" /> }
@@ -157,12 +163,17 @@ interface HotelStatusButtonProps {
     /**
      * Availability window during which volunteers can indicate their hotel preferences.
      */
-    availabilityWindow?: { start?: string; end?: string; };
+    availabilityWindow?: { start?: Temporal.ZonedDateTime; end?: Temporal.ZonedDateTime; };
+
+    /**
+     * Base URL for linking the button to an appropriate location.
+     */
+    baseUrl: string;
 
     /**
      * Bookings that were created on behalf of the volunteer.
      */
-    bookings: RegistrationData['hotelBookings'];
+    bookings: Registration['hotelBookings'];
 
     /**
      * Whether the button should be enabled by default, i.e. has information been published?
@@ -272,7 +283,7 @@ function HotelStatusButton(props: HotelStatusButtonProps) {
     return (
         <ListItemButton LinkComponent={Link} sx={{ pl: 4 }}
                         disabled={!enabled && !override}
-                        href="./application/hotel">
+                        href={`${props.baseUrl}/hotel`}>
 
             <ListItemIcon>
                 { status === 'confirmed' && <TaskAltIcon color="success" /> }
@@ -299,7 +310,12 @@ interface RefundStatusButtonProps {
     /**
      * Availability window during which volunteers can request their ticket refund.
      */
-    availabilityWindow?: { start?: string; end?: string; };
+    availabilityWindow?: { start?: Temporal.ZonedDateTime; end?: Temporal.ZonedDateTime; };
+
+    /**
+     * Base URL for linking the button to an appropriate location.
+     */
+    baseUrl: string;
 
     /**
      * Whether the button should be enabled by default, i.e. has information been published?
@@ -380,7 +396,7 @@ function RefundStatusButton(props: RefundStatusButtonProps) {
     }
 
     return (
-        <ListItemButton LinkComponent={Link} sx={{ pl: 4 }} href="./application/refund">
+        <ListItemButton LinkComponent={Link} sx={{ pl: 4 }} href={`${props.baseUrl}/refund`}>
             <ListItemIcon>
                 { status === 'confirmed' && <TaskAltIcon color="success" /> }
                 { status === 'pending' && <RadioButtonUncheckedIcon color="warning" /> }
@@ -402,7 +418,12 @@ interface TrainingStatusButtonProps {
     /**
      * Availability window during which volunteers can indicate their training preferences.
      */
-    availabilityWindow?: { start?: string; end?: string; };
+    availabilityWindow?: { start?: Temporal.ZonedDateTime; end?: Temporal.ZonedDateTime; };
+
+    /**
+     * Base URL for linking the button to an appropriate location.
+     */
+    baseUrl: string;
 
     /**
      * Whether the button should be enabled by default, i.e. has information been published?
@@ -514,7 +535,7 @@ function TrainingStatusButton(props: TrainingStatusButtonProps) {
     return (
         <ListItemButton LinkComponent={Link} sx={{ pl: 4 }}
                         disabled={!enabled && !override}
-                        href="./application/training">
+                        href={`${props.baseUrl}/training`}>
 
             <ListItemIcon>
                 { status === 'confirmed' && <TaskAltIcon color="success" /> }
@@ -535,52 +556,45 @@ function TrainingStatusButton(props: TrainingStatusButtonProps) {
 }
 
 /**
- * Props accepted by the <ApplicationStatusPage> page.
+ * Props accepted by the <EventApplicationPage> page.
  */
-export interface ApplicationStatusPageProps {
+export interface EventApplicationPageProps {
     /**
      * Availability windows that apply for this event, as configured by volunteering leadership.
      */
     availabilityWindows: {
-        hotelPreferences?: { start?: string; end?: string; };
-        refundRequests?: { start?: string; end?: string; };
-        trainingPreferences?: { start?: string; end?: string; };
+        hotelPreferences?: { start?: Temporal.ZonedDateTime; end?: Temporal.ZonedDateTime; };
+        refundRequests?: { start?: Temporal.ZonedDateTime; end?: Temporal.ZonedDateTime; };
+        trainingPreferences?: { start?: Temporal.ZonedDateTime; end?: Temporal.ZonedDateTime; };
     };
 
     /**
-     * Whether the volunteer is able to access availability regardless of publication status.
+     * Context about the environment for which this page is being displayed.
      */
-    canAccessAvailability: boolean;
+    context: EnvironmentContext;
 
     /**
-     * Whether the volunteer is able to access hotels regardless of publication status.
+     * Information that needs to be known about the event in order to render this page.
      */
-    canAccessHotels: boolean;
-
-    /**
-     * Whether the volunteer is able to access refunds regardless of publication status.
-     */
-    canAccessRefunds: boolean;
-
-    /**
-     * Whether the volunteer is able to access the schedule regardless of publication status.
-     */
-    canAccessSchedule: boolean;
-
-    /**
-     * Whether the volunteer is able to access trainings regardless of publication status.
-     */
-    canAccessTrainings: boolean;
-
-    /**
-     * The event for which data is being displayed on this page.
-     */
-    event: EventDataWithEnvironment;
+    event: {
+        enableSchedule: boolean;
+        hotelEnabled: boolean;
+        refundEnabled: boolean;
+        shortName: string;
+        slug: string;
+        timezone: string;
+        trainingEnabled: boolean;
+    };
 
     /**
      * Information about the user's existing registration.
      */
-    registration: RegistrationData;
+    registration: Registration;
+
+    /**
+     * URL-safe slug that represents the team for this application.
+     */
+    team: string;
 
     /**
      * The user who is currently signed in. We require someone to be signed in when applying, as
@@ -590,11 +604,26 @@ export interface ApplicationStatusPageProps {
 }
 
 /**
- * The <ApplicationStatusPage> component confirms to a user that their application has been
+ * The <EventApplicationPage> component confirms to a user that their application has been
  * retrieved by the team's leads and the status of its consideration.
  */
-export function ApplicationStatusPage(props: ApplicationStatusPageProps) {
-    const { availabilityWindows: aw, event, registration, user } = props;
+export function EventApplicationPage(props: EventApplicationPageProps) {
+    const { availabilityWindows: aw, event, team, user } = props;
+
+    const { access } = props.context;
+
+    const eventAccessScope = { event: event.slug };
+    const teamAccessScope = { event: event.slug, team: team };
+
+    const canAccessAvailability = access.can('event.visible', teamAccessScope);
+    const canAccessHotels = access.can('event.hotels', eventAccessScope);
+    const canAccessRefunds = access.can('event.refunds', eventAccessScope);
+    const canAccessSchedule = access.can('event.schedule.planning', 'read', teamAccessScope);
+    const canAccessTrainings = access.can('event.trainings', eventAccessScope);
+
+    const { hotelBookings, registration } = props.registration;
+
+    // ---------------------------------------------------------------------------------------------
 
     let label: string;
     let explanation: string;
@@ -625,20 +654,23 @@ export function ApplicationStatusPage(props: ApplicationStatusPageProps) {
 
     // Display and enablement of hotel booking preferences.
     const displayHotel = registration.hotelEligible || !!registration.hotelPreferences ||
-                         registration.hotelBookings.length > 0;
+                         hotelBookings.length > 0;
 
     // Display and enablement of the ticket refund option.
     const displayRefundWithOverride =
-        registration.refund || registration.refundInformationPublished || props.canAccessRefunds;
+        registration.refund || registration.refundInformationPublished || canAccessRefunds;
 
     // Display and enablement of training preferences.
     const displayTraining = registration.trainingEligible || !!registration.training;
 
     const enableSchedule = event.enableSchedule;
-    const enableScheduleWithOverride = enableSchedule || props.canAccessSchedule;
+    const enableScheduleWithOverride = enableSchedule || canAccessSchedule;
+
+    // Base URL for links to more detailed registration pages.
+    const baseUrl = `/registration/${event.slug}/application/${team}`;
 
     // The current moment in time as an instant, at the time of the component being mounted.
-    const now = useMemo(() => Temporal.Now.instant(), [ /* no dependencies */ ]);
+    const now = Temporal.Now.instant();
 
     const sp = ' ';  // thanks React
     return (
@@ -667,29 +699,30 @@ export function ApplicationStatusPage(props: ApplicationStatusPageProps) {
                         </ListItem>
 
                         <AvailabilityButton status={registration.availabilityStatus}
-                                            override={props.canAccessAvailability} />
+                                            override={canAccessAvailability} baseUrl={baseUrl} />
 
                         { (event.hotelEnabled && displayHotel) &&
                             <HotelStatusButton availabilityWindow={aw.hotelPreferences}
-                                               bookings={registration.hotelBookings} now={now}
+                                               bookings={hotelBookings} now={now}
                                                enabled={registration.hotelInformationPublished}
-                                               override={props.canAccessHotels}
-                                               preferences={registration.hotelPreferences} /> }
+                                               override={canAccessHotels}
+                                               preferences={registration.hotelPreferences}
+                                               baseUrl={baseUrl} /> }
 
                         { (event.trainingEnabled && displayTraining) &&
                             <TrainingStatusButton availabilityWindow={aw.trainingPreferences}
                                                   enabled={
                                                       registration.trainingInformationPublished}
-                                                  override={props.canAccessTrainings}
+                                                  override={canAccessTrainings} baseUrl={baseUrl}
                                                   timezone={event.timezone} now={now}
                                                   training={registration.training} /> }
 
                         { (event.refundEnabled && displayRefundWithOverride) &&
                             <RefundStatusButton availabilityWindow={aw.refundRequests} now={now}
                                                 enabled={registration.refundInformationPublished}
-                                                override={props.canAccessRefunds}
+                                                override={canAccessRefunds}
                                                 refund={registration.refund}
-                                                timezone={event.timezone} /> }
+                                                baseUrl={baseUrl} timezone={event.timezone} /> }
 
                         <ListItemButton LinkComponent={Link} sx={{ pl: 4 }}
                                         disabled={!enableScheduleWithOverride}
