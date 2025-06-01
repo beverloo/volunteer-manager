@@ -8,13 +8,10 @@ import { useSearchParams } from 'next/navigation';
 
 import Paper from '@mui/material/Paper';
 
-import type { EventData } from '@lib/Event';
-import type { RegistrationData } from '@lib/Registration';
 import type { User } from '@lib/auth/User';
 import { AuthenticationContext } from './AuthenticationContext';
 import { LazyAuthenticationFlow } from '../registration/LazyAuthenticationFlow';
 import { RegistrationHeader } from './RegistrationHeader';
-import { RegistrationProgress } from './RegistrationProgress';
 
 /**
  * Props accepted by the <RegistrationContentContainer> component.
@@ -26,12 +23,6 @@ interface RegistrationContentContainerProps {
     children?: React.ReactNode;
 
     /**
-     * The event for which the registration content is being shown. Required in order to display
-     * an interactive registration progress.
-     */
-    event?: EventData;
-
-    /**
      * Title of the page that should be displayed
      */
     title?: string;
@@ -41,12 +32,6 @@ interface RegistrationContentContainerProps {
      * visitor still has to create a new account.
      */
     redirectUrl?: string;
-
-    /**
-     * The registration of the volunteer who wishes to participate in this event. A bar is shown at
-     * the top containing information about the progression of their interest.
-     */
-    registration?: RegistrationData;
 
     /**
      * Information about the signed in user, as they should be shown in the header.
@@ -84,9 +69,6 @@ export function RegistrationContentContainer(props: RegistrationContentContainer
                 <RegistrationHeader onUserChipClick={() => setAuthFlowOpen(true)}
                                     title={props.title ?? 'AnimeCon Volunteer Manager'}
                                     user={props.user} />
-
-                { (props.event && props.registration) &&
-                    <RegistrationProgress event={props.event} registration={props.registration} /> }
 
                 {props.children}
 

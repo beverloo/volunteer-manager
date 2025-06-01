@@ -11,8 +11,8 @@ import { dayjs } from '@lib/DateTime';
 
 import Paper from '@mui/material/Paper';
 
-import type { HotelPreferencesProps } from '@app/registration/[slug]/application/hotel/HotelPreferences';
-import { HotelPreferencesForm } from '@app/registration/[slug]/application/hotel/HotelPreferencesForm';
+import type { HotelPreferencesProps } from '@app/registration/[slug]/application/[team]/hotel/HotelPreferences';
+import { HotelPreferencesForm } from '@app/registration/[slug]/application/[team]/hotel/HotelPreferencesForm';
 import { PaperHeader } from '@app/admin/components/PaperHeader';
 import { SubmitCollapse } from '@app/admin/components/SubmitCollapse';
 import { callApi } from '@lib/callApi';

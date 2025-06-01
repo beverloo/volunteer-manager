@@ -18,7 +18,7 @@ import Paper from '@mui/material/Paper';
 import Typography from '@mui/material/Typography';
 import { darken, lighten } from '@mui/system/colorManipulator';
 
-import type { EventTimeslotEntry } from '@app/registration/[slug]/application/availability/getPublicEventsForFestival';
+import type { EventTimeslotEntry } from '@app/registration/[slug]/application/[team]/availability/getPublicEventsForFestival';
 import type { PageInfoWithTeam } from '@app/admin/events/verifyAccessAndFetchPageInfo';
 import type { TimelineEvent } from '@beverloo/volunteer-manager-timeline';
 import { ApplicationAvailabilityForm } from '@app/registration/[slug]/application/ApplicationParticipation';

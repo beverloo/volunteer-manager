@@ -38,7 +38,9 @@ type WindowStatus =
  * many details as we can share will be shown instead.
  */
 function determineAvailabilityWindowStatus(
-    now: Temporal.Instant, availabilityWindow?: { start?: Temporal.ZonedDateTime; end?: Temporal.ZonedDateTime }): WindowStatus
+    now: Temporal.Instant,
+    availabilityWindow?: { start?: Temporal.ZonedDateTime; end?: Temporal.ZonedDateTime })
+        : WindowStatus
 {
     // Case (1): No availability window has been defined at all.
     if (!availabilityWindow || (!availabilityWindow.start && !availabilityWindow.end)) {

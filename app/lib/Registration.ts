@@ -10,7 +10,7 @@ import { getAvailabilityWindowStatus, type AvailabilityWindowStatus }
 /**
  * Interface that maps to the database representation of a registration.
  */
-export interface RegistrationDatabaseRow {
+interface RegistrationDatabaseRow {
     role: string;
     teamId: number;
     status: RegistrationStatus;
@@ -98,7 +98,7 @@ export interface RegistrationAvailability {
 /**
  * Hotel information associated with a registration for participation in a particular event.
  */
-export interface RegistrationHotelRequest {
+interface RegistrationHotelRequest {
     /**
      * ID of the hotel room they would like to stay in, if any.
      */
@@ -144,7 +144,7 @@ export interface RegistrationHotelRequest {
 /**
  * Information related to a hotel room booking contained within a registration.
  */
-export interface RegistrationHotelBooking {
+interface RegistrationHotelBooking {
     /**
      * Date on which the hotel room can be checked in to. ("YYYY-MM-DD")
      */
@@ -436,38 +436,4 @@ export class Registration implements RegistrationData {
     get trainingAvailabilityWindow() { return this.#trainingAvailabilityWindow; }
     get trainingEligible() { return this.#registration.trainingEligible; }
     get training() { return this.#registration.training; }
-
-    // ---------------------------------------------------------------------------------------------
-    // Functionality to obtain a plain RegistrationData object:
-    // ---------------------------------------------------------------------------------------------
-
-    /**
-     * Converts this instance to a RegistrationData object that can be transferred to the client.
-     */
-    toRegistrationData(): RegistrationData {
-        return {
-            role: this.role,
-            teamId: this.teamId,
-            status: this.status,
-
-            availabilityStatus: this.availabilityStatus,
-            availabilityEventLimit: this.availabilityEventLimit,
-            availability: this.availability,
-
-            hotelInformationPublished: this.hotelInformationPublished,
-            hotelAvailabilityWindow: this.hotelAvailabilityWindow,
-            hotelEligible: this.hotelEligible,
-            hotelPreferences: this.hotelPreferences,
-            hotelBookings: this.#hotelBookings,
-
-            refundInformationPublished: this.refundInformationPublished,
-            refundAvailabilityWindow: this.refundAvailabilityWindow,
-            refund: this.refund,
-
-            trainingInformationPublished: this.trainingInformationPublished,
-            trainingAvailabilityWindow: this.#trainingAvailabilityWindow,
-            trainingEligible: this.trainingEligible,
-            training: this.training,
-        };
-    }
 }

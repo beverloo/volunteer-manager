@@ -24,10 +24,10 @@ import { VolunteerHeader } from './VolunteerHeader';
 import { VolunteerIdentity } from './VolunteerIdentity';
 import { VolunteerNotes } from './VolunteerNotes';
 import { VolunteerSchedule } from './VolunteerSchedule';
-import { getHotelRoomOptions } from '@app/registration/[slug]/application/hotel/getHotelRoomOptions';
-import { getTrainingOptions } from '@app/registration/[slug]/application/training/getTrainingOptions';
+import { getHotelRoomOptions } from '@app/registration/[slug]/application/[team]/hotel/getHotelRoomOptions';
+import { getTrainingOptions } from '@app/registration/[slug]/application/[team]/training/getTrainingOptions';
 import { getPublicEventsForFestival, type EventTimeslotEntry }
-    from '@app/registration/[slug]/application/availability/getPublicEventsForFestival';
+    from '@app/registration/[slug]/application/[team]/availability/getPublicEventsForFestival';
 import { getShiftsForEvent } from '@app/admin/lib/getShiftsForEvent';
 import { readSetting } from '@lib/Settings';
 import { readUserSettings } from '@lib/UserSettings';

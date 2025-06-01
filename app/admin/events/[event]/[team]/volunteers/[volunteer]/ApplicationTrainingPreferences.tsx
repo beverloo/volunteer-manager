@@ -11,7 +11,7 @@ import Paper from '@mui/material/Paper';
 
 import { PaperHeader } from '@app/admin/components/PaperHeader';
 import { SubmitCollapse } from '@app/admin/components/SubmitCollapse';
-import { TrainingPreferencesForm } from '@app/registration/[slug]/application/training/TrainingPreferencesForm';
+import { TrainingPreferencesForm } from '@app/registration/[slug]/application/[team]/training/TrainingPreferencesForm';
 import { callApi } from '@lib/callApi';
 
 /**

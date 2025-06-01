@@ -10,7 +10,7 @@ import { type FieldValues, FormContainer, useForm } from '@proxy/react-hook-form
 import Paper from '@mui/material/Paper';
 
 import { PaperHeader } from '@app/admin/components/PaperHeader';
-import { RefundRequestForm } from '@app/registration/[slug]/application/refund/RefundRequestForm';
+import { RefundRequestForm } from '@app/registration/[slug]/application/[team]/refund/RefundRequestForm';
 import { SubmitCollapse } from '@app/admin/components/SubmitCollapse';
 import { callApi } from '@lib/callApi';
 
