@@ -1,7 +1,7 @@
 // Copyright 2023 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
-import { z } from 'zod';
+import { z } from 'zod/v4';
 
 import Divider from '@mui/material/Divider';
 import Grid from '@mui/material/Grid';
@@ -15,7 +15,7 @@ import { executeServerAction } from '@lib/serverAction';
 import { getEventNameForId } from '@lib/EventLoader';
 import db, { tEvents } from '@lib/database';
 
-import { kTemporalZonedDateTime } from '@app/api/Types';
+import { kTemporalZonedDateTime } from '@app/api/TypesV4';
 import { SectionIntroduction } from '@app/admin/components/SectionIntroduction';
 
 /**

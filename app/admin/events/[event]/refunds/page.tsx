@@ -2,7 +2,7 @@
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
 import { notFound } from 'next/navigation';
-import { z } from 'zod';
+import { z } from 'zod/v4';
 
 import Grid from '@mui/material/Grid';
 
@@ -20,7 +20,7 @@ import { getEventNameForId } from '@lib/EventLoader';
 import { verifyAccessAndFetchPageInfo } from '@app/admin/events/verifyAccessAndFetchPageInfo';
 import db, { tEvents } from '@lib/database';
 
-import { kTemporalZonedDateTime } from '@app/api/Types';
+import { kTemporalZonedDateTime } from '@app/api/TypesV4';
 
 /**
  * The data associated with a hotel configuration update.

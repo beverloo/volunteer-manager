@@ -3,8 +3,9 @@
 
 import { headers } from 'next/headers';
 
-import type { ZodObject, ZodRawShape, z } from 'zod';
-import { ZodError, ZodFirstPartyTypeKind } from 'zod';
+import type { ZodObject, ZodRawShape, z } from 'zod/v4';
+import type { $ZodArrayDef, $ZodNullableDef, $ZodOptionalDef, $ZodPipeDef, $ZodTypeDef } from 'zod/v4/core';
+import { ZodError } from 'zod/v4';
 
 import type { User } from './auth/User';
 import { AccessControl } from './auth/AccessControl';
@@ -101,7 +102,7 @@ export type PartialServerAction<T> = (param: T, formData: unknown) => Promise<Se
  * Type definition that represents a React server action. When the action does not return any value
  * success will be assumed, whereas exceptions will be represented as a failure.
  */
-export type ServerActionImplementation<T extends ZodObject<ZodRawShape, any, any>> =
+export type ServerActionImplementation<T extends ZodObject<ZodRawShape>> =
     (data: z.output<T>, props: ServerActionProps) => Promise<ServerActionResult | undefined | void>;
 
 /**
@@ -136,35 +137,40 @@ function coerceZodBoolean(value: FormDataEntryValue): FormDataEntryValue | boole
  * Coerces the given `value` to the type represented by the given `def`, which is a Zod type
  * definition. The `typeName` field is not included in the base definition, but always exists.
  */
-function coerceZodType(def: any, values: FormDataEntryValue[]): ServerActionCoercedTypes {
+function coerceZodType(def: $ZodTypeDef, values: FormDataEntryValue[]): ServerActionCoercedTypes {
     do {
-        if (def.typeName === ZodFirstPartyTypeKind.ZodEffects)
-            def = def.schema._def;
-
-        if (def.typeName === ZodFirstPartyTypeKind.ZodNullable) {
+        if (def.type === 'nullable') {
             if (!!values.length && (values[0] === null || values[0] === 'null'))
                 return null;
 
-            def = def.innerType._def;
+            const typedDef = def as $ZodNullableDef;
+            def = typedDef.innerType._zod.def;
         }
 
-        if (def.typeName === ZodFirstPartyTypeKind.ZodOptional) {
+        if (def.type === 'optional') {
             if (!values.length || (values[0] === undefined || values[0] === 'undefined'))
                 return undefined;
 
-            def = def.innerType._def;
+            const typedDef = def as $ZodOptionalDef;
+            def = typedDef.innerType._zod.def;
         }
 
-    } while (
-        def.typeName === ZodFirstPartyTypeKind.ZodEffects ||
-        def.typeName === ZodFirstPartyTypeKind.ZodOptional ||
-        def.typeName === ZodFirstPartyTypeKind.ZodNullable);
+        if (def.type === 'pipe') {
+            const typedDef = def as $ZodPipeDef;
+            def = typedDef.in._zod.def;
+        }
 
-    switch (def.typeName) {
-        case ZodFirstPartyTypeKind.ZodArray:
-            return values.map(value => coerceZodType(def.type._def, [ value ])) as any[];
-        case ZodFirstPartyTypeKind.ZodBoolean:
+    } while (def.type === 'nullable' || def.type === 'optional' || def.type === 'pipe');
+
+    switch (def.type) {
+        case 'array': {
+            const typedDef = def as $ZodArrayDef;
+            return values.map(value =>
+                coerceZodType(typedDef.element._zod.def, [ value ])) as any[];
+        }
+        case 'boolean': {
             return coerceZodBoolean(values[0]);
+        }
     }
 
     return values[0];
@@ -175,13 +181,13 @@ function coerceZodType(def: any, values: FormDataEntryValue[]): ServerActionCoer
  * invoking processing and transformation functions. This allows certain types such as arrays,
  * booleans and numbers to work as expected.
  */
-function coerceFormData<T extends ZodObject<ZodRawShape, any, any>>(scheme: T, formData: FormData) {
+function coerceFormData<T extends ZodObject<ZodRawShape>>(scheme: T, formData: FormData) {
     const unvalidatedData: Record<string, ServerActionCoercedTypes> = { /* empty */ };
     for (const key of formData.keys()) {
         const values = formData.getAll(key);
         if (Object.hasOwn(scheme.shape, key)) {
             if (values.length > 0)
-                unvalidatedData[key] = coerceZodType(scheme.shape[key]._def, values);
+                unvalidatedData[key] = coerceZodType(scheme.shape[key]._zod.def, values);
             else
                 unvalidatedData[key] = undefined;
 
@@ -215,7 +221,7 @@ export function formatZodError(error: ZodError): string {
  * as the first statement in their body, per the rules of React's Server Actions. Furthermore, React
  * takes care of version skew and common attack types, which we build upon with further validation.
  */
-export async function executeServerAction<T extends ZodObject<ZodRawShape, any, any>>(
+export async function executeServerAction<T extends ZodObject<ZodRawShape>>(
     formData: unknown, scheme: T, action: ServerActionImplementation<T>, userForTesting?: User)
         : Promise<ServerActionResult>
 {

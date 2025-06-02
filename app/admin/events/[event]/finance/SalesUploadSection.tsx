@@ -2,7 +2,7 @@
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
 import Link from 'next/link';
-import { z } from 'zod';
+import { z } from 'zod/v4';
 
 import { default as MuiLink } from '@mui/material/Link';
 import AutoGraphOutlinedIcon from '@mui/icons-material/AutoGraphOutlined';

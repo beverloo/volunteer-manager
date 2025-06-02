@@ -3,7 +3,7 @@
 
 import { cookies } from 'next/headers';
 import { notFound } from 'next/navigation';
-import { z } from 'zod';
+import { z } from 'zod/v4';
 
 import { RecordLog, kLogSeverity, kLogType } from '@lib/Log';
 import { executeServerAction } from '@lib/serverAction';
@@ -16,7 +16,7 @@ import { writeSealedSessionCookieToStore } from '@lib/auth/Session';
 import db, { tUsers, tUsersAuth } from '@lib/database';
 
 import { kAuthType } from '@lib/database/Types';
-import { kTemporalPlainDate } from '@app/api/Types';
+import { kTemporalPlainDate } from '@app/api/TypesV4';
 
 /**
  * Zod type that describes that no data is expected.

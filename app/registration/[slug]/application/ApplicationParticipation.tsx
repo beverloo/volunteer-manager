@@ -9,7 +9,7 @@ import { SelectElement, TextareaAutosizeElement } from '@proxy/react-hook-form-m
 
 import Grid from '@mui/material/Grid';
 
-import { kServiceHoursProperty, kServiceTimingProperty } from './ApplicationActions';
+import { kServiceHoursProperty, kServiceTimingProperty } from './ApplicationActionsV3';
 import { kShirtFit, kShirtSize, type ShirtFit, type ShirtSize } from '@lib/database/Types';
 
 type ServiceHourValues = z.TypeOf<typeof kServiceHoursProperty>;

@@ -1,7 +1,7 @@
 // Copyright 2024 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
-import { z } from 'zod';
+import { z } from 'zod/v4';
 
 import { SelectElement, TextFieldElement } from '@proxy/react-hook-form-mui';
 
@@ -15,7 +15,7 @@ import { RecordLog, kLogSeverity, kLogType } from '@lib/Log';
 import { executeServerAction } from '@lib/serverAction';
 import db, { tEvents } from '@lib/database';
 
-import { kTemporalZonedDateTime } from '@app/api/Types';
+import { kTemporalZonedDateTime } from '@app/api/TypesV4';
 
 /**
  * Options that can be presented to the senior in regards to the event availability status.

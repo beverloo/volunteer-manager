@@ -1,7 +1,7 @@
 // Copyright 2024 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
-import { z } from 'zod';
+import { z } from 'zod/v4';
 
 import PeopleIcon from '@mui/icons-material/People';
 
@@ -10,7 +10,7 @@ import { FormGridSection } from '@app/admin/components/FormGridSection';
 import { executeServerAction } from '@lib/serverAction';
 import db, { tEventsTeams } from '@lib/database';
 
-import { kTemporalZonedDateTime } from '@app/api/Types';
+import { kTemporalZonedDateTime } from '@app/api/TypesV4';
 
 /**
  * The data associated with team settings. Used for both input and output validation.

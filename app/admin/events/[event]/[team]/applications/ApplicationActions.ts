@@ -2,7 +2,7 @@
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
 import { forbidden, notFound, unauthorized } from 'next/navigation';
-import { z } from 'zod';
+import { z } from 'zod/v4';
 
 import { Publish } from '@lib/subscriptions';
 import { RecordLog, kLogSeverity, kLogType } from '@lib/Log';
