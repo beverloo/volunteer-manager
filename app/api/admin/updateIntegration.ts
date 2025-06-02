@@ -59,7 +59,7 @@ export const kUpdateIntegrationDefinition = z.object({
             accountSid: z.string(),
             messagingSidSms: z.string(),
             messagingSidWhatsapp: z.string(),
-            region: z.nativeEnum(kTwilioRegion),
+            region: z.enum(kTwilioRegion),
         }).optional(),
 
         /**

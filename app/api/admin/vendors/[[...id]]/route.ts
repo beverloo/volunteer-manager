@@ -41,19 +41,19 @@ const kVendorRowModel = z.object({
     /**
      * Gender of the vendor. Used for statistical purposes.
      */
-    gender: z.nativeEnum(kVendorGender),
+    gender: z.enum(kVendorGender),
 
     /**
      * T-shirt size of the vendor, only if they should be granted one. The empty string is used to
      * reset the shirt size to a null value.
      */
-    shirtSize: z.nativeEnum(kShirtSize).or(z.literal(' ')).optional(),
+    shirtSize: z.enum(kShirtSize).or(z.literal(' ')).optional(),
 
     /**
      * T-shirt fit of the vendor, only if they should be granted one. The empty string is used to
      * reset the shirt fit to a null value.
      */
-    shirtFit: z.nativeEnum(kShirtFit).or(z.literal(' ')).optional(),
+    shirtFit: z.enum(kShirtFit).or(z.literal(' ')).optional(),
 });
 
 /**
@@ -69,7 +69,7 @@ const kVendorContext = z.object({
         /**
          * Unique name of the vendor team that is being consulted.
          */
-        team: z.nativeEnum(kVendorTeam),
+        team: z.enum(kVendorTeam),
     }),
 });
 

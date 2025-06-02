@@ -42,7 +42,7 @@ const kLogsRowModel = z.object({
     /**
      * The severity assigned to the log entry.
      */
-    severity: z.nativeEnum(kLogSeverity),
+    severity: z.enum(kLogSeverity),
 
     /**
      * Source of the person or entity who issued the log message, if any.

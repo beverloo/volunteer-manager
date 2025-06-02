@@ -25,7 +25,7 @@ const kProgramActivityRowModel = z.object({
     /**
      * Type of this activity, i.e. sourced from AnPlan or internal to our system.
      */
-    type: z.nativeEnum(kActivityType),
+    type: z.enum(kActivityType),
 
     /**
      * Title of the activity.

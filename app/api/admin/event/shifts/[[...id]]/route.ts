@@ -96,7 +96,7 @@ const kEventShiftRowModel = z.object({
     /**
      * Expected overlap between the shifts and any and all timeslots.
      */
-    demandOverlap: z.nativeEnum(kShiftDemandOverlap).optional(),
+    demandOverlap: z.enum(kShiftDemandOverlap).optional(),
 });
 
 /**

@@ -151,7 +151,7 @@ const kDisplayDefinition = z.object({
         /**
          * Status of the help request that has been issued by this display, if any.
          */
-        helpRequestStatus: z.nativeEnum(kDisplayHelpRequestStatus).optional(),
+        helpRequestStatus: z.enum(kDisplayHelpRequestStatus).optional(),
 
         /**
          * The piece of Del a Rie advice that should be shared.

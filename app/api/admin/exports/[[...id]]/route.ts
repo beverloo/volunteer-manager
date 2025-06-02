@@ -37,7 +37,7 @@ const kExportRowModel = z.object({
     /**
      * The type of export this describes.
      */
-    type: z.nativeEnum(kExportType),
+    type: z.enum(kExportType),
 
     /**
      * Justification for the data export, should be a brief sentence at most.

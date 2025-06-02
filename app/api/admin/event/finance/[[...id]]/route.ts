@@ -28,7 +28,7 @@ const kEventFinanceRowModel = z.object({
     /**
      * Category of sale that this row model details.
      */
-    category: z.nativeEnum(kEventSalesCategory).or(z.literal('null')).optional(),
+    category: z.enum(kEventSalesCategory).or(z.literal('null')).optional(),
 
     /**
      * Maximum number of sales that can be supported for this particular category.

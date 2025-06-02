@@ -24,7 +24,7 @@ const kProgramChangeRowModel = z.object({
     /**
      * Severity of the change, i.e. how much attention should we pay to it?
      */
-    severity: z.nativeEnum(kMutationSeverity),
+    severity: z.enum(kMutationSeverity),
 
     /**
      * Date & time describing when the change happened, in UTC.

@@ -15,7 +15,7 @@ import { kVertexSupportedModels } from '@lib/integrations/vertexai/VertexSupport
  * The Vertex AI settings object. Shared across multiple API calls.
  */
 export const kVertexAiSettings = z.object({
-    model: z.nativeEnum(kVertexSupportedModels),
+    model: z.enum(kVertexSupportedModels),
     temperature: z.number().gte(0).lte(1),
     tokenLimit: z.number().gte(1).lte(1024),
     topK: z.number().gte(1).lte(40),

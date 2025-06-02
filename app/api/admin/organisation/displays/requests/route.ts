@@ -26,7 +26,7 @@ const kDisplayRequestRowModel = z.object({
     /**
      * Team / individual target of the received help request.
      */
-    target: z.nativeEnum(kDisplayHelpRequestTarget),
+    target: z.enum(kDisplayHelpRequestTarget),
 
     /**
      * Name of the display from which the request was issued.

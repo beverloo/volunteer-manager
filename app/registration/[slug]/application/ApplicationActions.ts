@@ -28,8 +28,8 @@ export const kServiceTimingProperty = z.enum([ '8-20', '10-0', '14-3' ]);
  * Zod type that describes the data required when creating an application.
  */
 const kCreateApplicationData = z.object({
-    tshirtSize: z.nativeEnum(kShirtSize),
-    tshirtFit: z.nativeEnum(kShirtFit),
+    tshirtSize: z.enum(kShirtSize),
+    tshirtFit: z.enum(kShirtFit),
 
     serviceHours: kServiceHoursProperty,
     serviceTiming: kServiceTimingProperty,

@@ -23,7 +23,7 @@ const kHelpRequestDefinition = z.object({
         /**
          * To whom should the help request be directed?
          */
-        target: z.nativeEnum(kDisplayHelpRequestTarget),
+        target: z.enum(kDisplayHelpRequestTarget),
     }),
     response: z.object({
         /**

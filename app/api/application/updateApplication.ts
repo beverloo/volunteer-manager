@@ -52,12 +52,12 @@ export const kUpdateApplicationDefinition = z.object({
             /**
              * Fit for the t-shirt that the volunteer would like to receive as a thank you.
              */
-            tshirtFit: z.nativeEnum(kShirtFit),
+            tshirtFit: z.enum(kShirtFit),
 
             /**
              * Size of the t-shirt that the volunteer would like to receive as a thank you.
              */
-            tshirtSize: z.nativeEnum(kShirtSize),
+            tshirtSize: z.enum(kShirtSize),
 
         }).optional(),
 
@@ -102,7 +102,7 @@ export const kUpdateApplicationDefinition = z.object({
             /**
              * The registration status that the volunteer should be updated to.
              */
-            registrationStatus: z.nativeEnum(kRegistrationStatus),
+            registrationStatus: z.enum(kRegistrationStatus),
 
             /**
              * Subject of the message that should be sent out. May be omitted for certain users.

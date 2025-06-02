@@ -56,7 +56,7 @@ export const kUpdateVendorScheduleDefinition = z.object({
         /**
          * Team of vendors for whom the schedules are being updated.
          */
-        team: z.nativeEnum(kVendorTeam),
+        team: z.enum(kVendorTeam),
 
         /**
          * Array of vendor Ids that were considered for this update, to help reduce race conditions.

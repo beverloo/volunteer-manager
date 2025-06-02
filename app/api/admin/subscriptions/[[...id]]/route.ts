@@ -35,7 +35,7 @@ const kSubscriptionRowModel = z.object({
     /**
      * Type of subscription that this row is dealing with.
      */
-    type: z.nativeEnum(kSubscriptionType).optional(),
+    type: z.enum(kSubscriptionType).optional(),
 
     /**
      * Whether notifications for this subscription will be delivered by e-mail.
@@ -209,7 +209,7 @@ createDataTableApi(kSubscriptionRowModel, kSubscriptionContext, {
 
         // (1) Parse the incoming data given the path included in the `row`.
         const userId = z.coerce.number().parse(matches[1]);
-        const type = z.nativeEnum(kSubscriptionType).parse(matches[2]);
+        const type = z.enum(kSubscriptionType).parse(matches[2]);
         const typeId = matches[3] === 'null' ? null
                                              : z.coerce.number().parse(matches[3]);
 

@@ -48,7 +48,7 @@ const kDisplaysRowModel = z.object({
     /**
      * The help request status this display is in, if any.
      */
-    helpRequestStatus: z.nativeEnum(kDisplayHelpRequestStatus).or(z.literal(' ')).optional(),
+    helpRequestStatus: z.enum(kDisplayHelpRequestStatus).or(z.literal(' ')).optional(),
 
     /**
      * Last check-in performed by the device. (Temporal ZDT-compatible format.)

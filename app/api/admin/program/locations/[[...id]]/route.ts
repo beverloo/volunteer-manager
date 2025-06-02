@@ -25,7 +25,7 @@ const kProgramLocationRowModel = z.object({
     /**
      * Type of location this entails, i.e. sourced from AnPlan or internal to our system.
      */
-    type: z.nativeEnum(kActivityType),
+    type: z.enum(kActivityType),
 
     /**
      * Name of the location, which does not have to be its display name.

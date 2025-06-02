@@ -60,7 +60,7 @@ const kOutboxTwilioContext = z.object({
         /**
          * Type of message that should be considered for this API.
          */
-        type: z.nativeEnum(kTwilioOutboxType),
+        type: z.enum(kTwilioOutboxType),
     }),
 });
 

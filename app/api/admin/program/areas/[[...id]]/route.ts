@@ -25,7 +25,7 @@ const kProgramAreaRowModel = z.object({
     /**
      * Type of area this entails, i.e. sourced from AnPlan or internal to our system.
      */
-    type: z.nativeEnum(kActivityType),
+    type: z.enum(kActivityType),
 
     /**
      * Name of the area, which does not have to be its display name.

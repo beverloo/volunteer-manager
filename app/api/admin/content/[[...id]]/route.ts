@@ -95,7 +95,7 @@ const kContentContext = z.object({
         /**
          * Kind of content that's being requested.
          */
-        type: z.nativeEnum(kContentType),
+        type: z.enum(kContentType),
     }),
 });
 

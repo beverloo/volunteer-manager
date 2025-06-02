@@ -135,8 +135,8 @@ export async function decideApplication(
  */
 const kCreateApplicationData = z.object({
     userId: z.number(),
-    tshirtSize: z.nativeEnum(kShirtSize),
-    tshirtFit: z.nativeEnum(kShirtFit),
+    tshirtSize: z.enum(kShirtSize),
+    tshirtFit: z.enum(kShirtFit),
     serviceHours: kServiceHoursProperty,
     serviceTiming: kServiceTimingProperty,
     preferences: z.string().optional(),

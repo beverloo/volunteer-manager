@@ -288,7 +288,7 @@ const kUpdateEnvironmentData = z.object({
     colorLightMode: z.string().regex(/^#([0-9a-f]){6}$/i),
     description: z.string().nonempty(),
     // domain is deliberately omitted
-    purpose: z.nativeEnum(kEnvironmentPurpose),
+    purpose: z.enum(kEnvironmentPurpose),
     title: z.string().nonempty(),
 });
 

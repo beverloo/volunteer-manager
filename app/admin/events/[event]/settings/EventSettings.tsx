@@ -100,7 +100,7 @@ const kEventSettingsData = z.object({
     /**
      * Whether volunteers can indicate their availability.
      */
-    availabilityStatus: z.nativeEnum(kEventAvailabilityStatus),
+    availabilityStatus: z.enum(kEventAvailabilityStatus),
 
     /**
      * Whether hotel management is enabled for this event.
