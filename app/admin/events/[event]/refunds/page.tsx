@@ -20,7 +20,7 @@ import { getEventNameForId } from '@lib/EventLoader';
 import { verifyAccessAndFetchPageInfo } from '@app/admin/events/verifyAccessAndFetchPageInfo';
 import db, { tEvents } from '@lib/database';
 
-import { kTemporalZonedDateTime } from '@app/api/TypesV4';
+import { kTemporalZonedDateTime } from '@app/api/Types';
 
 /**
  * The data associated with a hotel configuration update.

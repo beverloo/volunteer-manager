@@ -16,7 +16,7 @@ import { executeServerAction } from '@lib/serverAction';
 import { getEventNameForId } from '@lib/EventLoader';
 import db, { tEvents } from '@lib/database';
 
-import { kTemporalZonedDateTime } from '@app/api/TypesV4';
+import { kTemporalZonedDateTime } from '@app/api/Types';
 
 /**
  * The data associated with a hotel configuration update.

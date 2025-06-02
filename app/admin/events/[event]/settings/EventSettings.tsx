@@ -15,7 +15,7 @@ import { RecordLog, kLogSeverity, kLogType } from '@lib/Log';
 import { executeServerAction } from '@lib/serverAction';
 import db, { tEvents } from '@lib/database';
 
-import { kTemporalZonedDateTime } from '@app/api/TypesV4';
+import { kTemporalZonedDateTime } from '@app/api/Types';
 
 /**
  * Options that can be presented to the senior in regards to the event availability status.

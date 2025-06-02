@@ -10,7 +10,7 @@ import { FormGridSection } from '@app/admin/components/FormGridSection';
 import { executeServerAction } from '@lib/serverAction';
 import db, { tEventsTeams } from '@lib/database';
 
-import { kTemporalZonedDateTime } from '@app/api/TypesV4';
+import { kTemporalZonedDateTime } from '@app/api/Types';
 
 /**
  * The data associated with team settings. Used for both input and output validation.

@@ -14,9 +14,6 @@ import db, { tEnvironments, tEvents, tEventsTeams, tTeams, tTeamsRoles, tUsersEv
 
 import { kRegistrationStatus, kShirtFit, kShirtSize, kSubscriptionType } from '@lib/database/Types';
 
-// TODO: Remove the duplication of the types defined in this file w/ ApplicationActionV3.ts when
-// TODO: our entire codebase has updated to Zod v4
-
 /**
  * Number of hours that the volunteer would like to help us out with.
  */

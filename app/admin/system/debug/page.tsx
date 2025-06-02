@@ -20,7 +20,7 @@ import { Section } from '@app/admin/components/Section';
 import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
 import { executeServerAction } from '@lib/serverAction';
 
-import { kTemporalZonedDateTime } from '@app/api/TypesV4';
+import { kTemporalZonedDateTime } from '@app/api/Types';
 
 /**
  * Zod scheme that the debug action will be validated against.
