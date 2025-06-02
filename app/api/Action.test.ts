@@ -186,7 +186,7 @@ describe('Action', () => {
             const responseBody = await response.json();
 
             expect(responseBody.success).toBeFalsy();
-            expect(responseBody.error).toContain('(response/first): Required');
+            expect(responseBody.error).toContain('(response/first): Invalid input');
 
             expect(invocationCounter).toBe(4);
         }
@@ -200,7 +200,7 @@ describe('Action', () => {
             const responseBody = await response.json();
 
             expect(responseBody.success).toBeFalsy();
-            expect(responseBody.error).toContain('(response/first): Expected string');
+            expect(responseBody.error).toContain('(response/first): Invalid input');
 
             expect(invocationCounter).toBe(5);
         }
