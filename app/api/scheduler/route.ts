@@ -3,7 +3,7 @@
 
 import { NextRequest } from 'next/server';
 import { forbidden } from 'next/navigation';
-import { z } from 'zod';
+import { z } from 'zod/v4';
 
 import { type ActionProps, executeAction } from '../Action';
 import { TaskRunner } from '@lib/scheduler/TaskRunner';

@@ -4,7 +4,7 @@
 import type { VerifyAuthenticationResponseOpts } from '@simplewebauthn/server';
 import { isoBase64URL } from '@simplewebauthn/server/helpers';
 import { verifyAuthenticationResponse } from '@simplewebauthn/server';
-import { z } from 'zod';
+import { z } from 'zod/v4';
 
 import type { ActionProps } from '../Action';
 import type { ApiDefinition, ApiRequest, ApiResponse } from '../Types';

@@ -1,7 +1,7 @@
 // Copyright 2023 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
-import type { AnyZodObject, ZodObject, ZodRawShape, z } from 'zod';
+import { z, ZodDiscriminatedUnion, ZodIntersection, ZodRecord, ZodUnion, type ZodObject } from 'zod/v4';
 import { NextRequest, NextResponse } from 'next/server';
 
 import { getAccessFallbackHTTPStatus, isHTTPAccessFallbackError }
@@ -64,6 +64,14 @@ export interface ActionProps {
 }
 
 /**
+ * Type definition for the request/response pair we expect in Actions.
+ */
+type ActionZodObject = ZodObject<{
+    [key in 'request' | 'response' ]:
+        ZodDiscriminatedUnion | ZodIntersection | ZodObject | ZodRecord | ZodUnion
+}>;
+
+/**
  * An Action is an asynchronous function that receives validated request data according to a given
  * type, and returns success data according to another given type. Errors that occur during the
  * action must be thrown as an exception.
@@ -71,7 +79,7 @@ export interface ActionProps {
  * Optionally, an action may consume the `props` object, which enables it to understand who is
  * making the request and alter their state (e.g. sign them out), among other things.
  */
-export type Action<T extends ZodObject<ZodRawShape, any, any>> =
+export type Action<T extends ActionZodObject> =
     (request: z.infer<T>['request'], props: ActionProps) => Promise<z.infer<T>['response']>;
 
 /**
@@ -90,7 +98,7 @@ function createResponse(status: number, payload: any): NextResponse {
  * other types of requests will carry it as part of the request payload.
  */
 async function distillAndValidateRequestParams(
-    request: NextRequest, definition: AnyZodObject, routeParams?: ActionRouteParams)
+    request: NextRequest, definition: ZodObject, routeParams?: ActionRouteParams)
 {
     let requestPayload: Record<string, any>;
     switch (request.method) {
@@ -163,7 +171,7 @@ async function distillAndValidateRequestParams(
  * @param userForTesting The user for whom this request is issued, only valid for testing.
  * @returns A NextResponse populated with the resulting information.
  */
-export async function executeAction<T extends ZodObject<ZodRawShape, any, any>>(
+export async function executeAction<T extends ActionZodObject>(
     request: NextRequest, interfaceDefinition: T, action: Action<T>,
     routeParams?: ActionRouteParams, userForTesting?: User)
         : Promise<NextResponse>

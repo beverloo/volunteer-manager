@@ -2,7 +2,7 @@
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
 import { forbidden, notFound } from 'next/navigation';
-import { z } from 'zod';
+import { z } from 'zod/v4';
 
 import { type DataTableEndpoints, createDataTableApi } from '@app/api/createDataTableApi';
 import { RecordLog, kLogSeverity, kLogType } from '@lib/Log';
@@ -42,7 +42,7 @@ const kProgramRequestRowModel = z.object({
     /**
      * Unique IDs of the teams, and whether one or more associated shifts have been scheduled.
      */
-    shifts: z.record(z.array(z.number())),
+    shifts: z.record(z.string(), z.array(z.number())),
 });
 
 /**

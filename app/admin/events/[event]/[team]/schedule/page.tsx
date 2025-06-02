@@ -2,7 +2,7 @@
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
 import { notFound } from 'next/navigation';
-import { z } from 'zod';
+import { z } from 'zod/v4';
 
 import Alert from '@mui/material/Alert';
 import HistoryIcon from '@mui/icons-material/History';

@@ -4,7 +4,7 @@
 import { NextRequest } from 'next/server';
 import { forbidden } from 'next/navigation';
 import { serialize } from 'cookie';
-import { z } from 'zod';
+import { z } from 'zod/v4';
 
 import type { User } from '@lib/auth/User';
 import { type ActionProps, executeAction } from './Action';

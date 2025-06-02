@@ -4,7 +4,7 @@
 import { forbidden, notFound } from 'next/navigation';
 import { generateRegistrationOptions } from '@simplewebauthn/server';
 import { isoBase64URL } from '@simplewebauthn/server/helpers';
-import { z } from 'zod';
+import { z } from 'zod/v4';
 
 import type { ActionProps } from '../../Action';
 import type { ApiDefinition, ApiRequest, ApiResponse } from '../../Types';

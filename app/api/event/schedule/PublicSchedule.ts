@@ -1,7 +1,7 @@
 // Copyright 2024 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
-import { z } from 'zod';
+import { z } from 'zod/v4';
 
 import { kVendorTeam as kVendorTeamEnum } from '@lib/database/Types';
 
@@ -466,7 +466,7 @@ export const kPublicSchedule = z.strictObject({
      * will be presented with an informational card, where volunteering leads will be able to see
      * their full availability in a calendar-style display.
      */
-    vendors: z.record(z.nativeEnum(kVendorTeamEnum), kVendorTeam),
+    vendors: z.partialRecord(z.enum(kVendorTeamEnum), kVendorTeam),
 
     /**
      * Number of volunteers who are currently on a shift.

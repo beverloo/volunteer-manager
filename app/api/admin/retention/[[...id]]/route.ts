@@ -3,7 +3,7 @@
 
 import { NextRequest } from 'next/server';
 import { forbidden, notFound } from 'next/navigation';
-import { z } from 'zod';
+import { z } from 'zod/v4';
 
 import { type DataTableEndpoints, createDataTableApi } from '@app/api/createDataTableApi';
 import { RecordLog, kLogSeverity, kLogType } from '@lib/Log';

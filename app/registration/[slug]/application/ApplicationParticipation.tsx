@@ -3,7 +3,7 @@
 
 'use client';
 
-import type { z } from 'zod';
+import type { z } from 'zod/v4';
 
 import { SelectElement, TextareaAutosizeElement } from '@proxy/react-hook-form-mui';
 

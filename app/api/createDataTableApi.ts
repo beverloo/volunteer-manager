@@ -3,7 +3,7 @@
 
 import { NextRequest } from 'next/server';
 
-import { type AnyZodObject, type ZodTypeAny, ZodNever, z } from 'zod';
+import { type ZodObject, type ZodTypeAny, ZodNever, z } from 'zod/v4';
 
 import { type ActionProps, executeAction } from './Action';
 
@@ -33,7 +33,7 @@ type DataTableContext<Context extends ZodTypeAny> =
 /**
  * Request and response expected for POST requests with the purpose of creating rows.
  */
-type DataTableCreateHandlerRequest<Context extends ZodTypeAny, RowModel extends AnyZodObject> =
+type DataTableCreateHandlerRequest<Context extends ZodTypeAny, RowModel extends ZodObject> =
     DataTableContext<Context> & {
         /**
          * Partial row containing the values that should seed the new row.
@@ -41,7 +41,7 @@ type DataTableCreateHandlerRequest<Context extends ZodTypeAny, RowModel extends 
         row: Partial<z.infer<RowModel>>;
     };
 
-type DataTableCreateHandlerResponse<RowModel extends AnyZodObject> = DataTableHandlerErrorResponse |
+type DataTableCreateHandlerResponse<RowModel extends ZodObject> = DataTableHandlerErrorResponse |
     {
         /**
          * Whether the operation could be completed successfully.
@@ -64,7 +64,7 @@ type DataTableDeleteHandlerRequest<Context extends ZodTypeAny> = DataTableContex
     id: number;
 };
 
-type DataTableDeleteHandlerResponse<RowModel extends AnyZodObject> =
+type DataTableDeleteHandlerResponse<RowModel extends ZodObject> =
     DataTableHandlerErrorResponse | {
         /**
          * Whether the operation could be completed successfully.
@@ -88,7 +88,7 @@ type DataTableGetHandlerRequest<Context extends ZodTypeAny> = DataTableContext<C
     id: number;
 };
 
-type DataTableGetHandlerResponse<RowModel extends AnyZodObject> = DataTableHandlerErrorResponse | {
+type DataTableGetHandlerResponse<RowModel extends ZodObject> = DataTableHandlerErrorResponse | {
     /**
      * Whether the operation could be completed successfully.
      */
@@ -103,7 +103,7 @@ type DataTableGetHandlerResponse<RowModel extends AnyZodObject> = DataTableHandl
 /**
  * Request and response expected for GET requests with the purpose of listing rows.
  */
-type DataTableListHandlerRequest<RowModel extends AnyZodObject,
+type DataTableListHandlerRequest<RowModel extends ZodObject,
                                  Context extends ZodTypeAny> = DataTableContext<Context> & {
     /**
      * Pagination that should be applied to the row selection.
@@ -136,7 +136,7 @@ type DataTableListHandlerRequest<RowModel extends AnyZodObject,
     };
 };
 
-type DataTableListHandlerResponse<RowModel extends AnyZodObject> = DataTableHandlerErrorResponse | {
+type DataTableListHandlerResponse<RowModel extends ZodObject> = DataTableHandlerErrorResponse | {
     /**
      * Whether the operation could be completed successfully.
      */
@@ -179,7 +179,7 @@ type DataTableReorderHandlerResponse = DataTableHandlerErrorResponse | {
 /**
  * Request and response expected for PUT requests with the purpose of updating rows.
  */
-type DataTableUpdateHandlerRequest<RowModel extends AnyZodObject,
+type DataTableUpdateHandlerRequest<RowModel extends ZodObject,
                                    Context extends ZodTypeAny> = DataTableContext<Context> & {
     /**
      * Unique ID of the row that's about to be updated. Also contained within the `row`, whereas it
@@ -204,7 +204,7 @@ type DataTableUpdateHandlerResponse = DataTableHandlerErrorResponse | {
  * The input request format for PUT requests to this Data Table API's endpoint. The endpoint
  * supports two formats - either updating a single row, or updating row order.
  */
-type DataTablePutHandlerRequest<RowModel extends AnyZodObject, Context extends ZodTypeAny> =
+type DataTablePutHandlerRequest<RowModel extends ZodObject, Context extends ZodTypeAny> =
     DataTableReorderHandlerRequest<Context> | DataTableUpdateHandlerRequest<RowModel, Context>;
 
 /**
@@ -220,7 +220,7 @@ type DataTableWriteLogRequest<Context extends ZodTypeAny> = DataTableContext<Con
 /**
  * `callApi()` compatible endpoint definitions for the generated APIs.
  */
-export type DataTableEndpoints<RowModel extends AnyZodObject, Context extends ZodTypeAny> = {
+export type DataTableEndpoints<RowModel extends ZodObject, Context extends ZodTypeAny> = {
     create: {
         request: DataTableCreateHandlerRequest<Context, RowModel>,
         response: DataTableCreateHandlerResponse<RowModel>,
@@ -246,7 +246,7 @@ export type DataTableEndpoints<RowModel extends AnyZodObject, Context extends Zo
 /**
  * Abstract interface describing the Data Table API that has to be implemented by each customer.
  */
-export interface DataTableApi<RowModel extends AnyZodObject, Context extends ZodTypeAny> {
+export interface DataTableApi<RowModel extends ZodObject, Context extends ZodTypeAny> {
     /**
      * Execute an access check for the given `action`. The `props` and `context` may be consulted
      * if necessary. This call will be _awaited_ for, and can also return synchronously.
@@ -345,7 +345,7 @@ function getTypedObjectKeys<K extends string>(obj: Record<K, any>): K[] {
  * @param context Zod definition of the context used by the implementation. Use `z.never()` to omit.
  * @param implementation Implementation of the Data Table API specific to this type.
  */
-export function createDataTableApi<RowModel extends AnyZodObject, Context extends ZodTypeAny>(
+export function createDataTableApi<RowModel extends ZodObject, Context extends ZodTypeAny>(
     rowModel: RowModel,
     context: Context,
     implementation: DataTableApi<RowModel, Context>): DataTableApiHandlers
@@ -453,7 +453,7 @@ export function createDataTableApi<RowModel extends AnyZodObject, Context extend
                     throw new Error('Cannot handle GET requests without a list handler');
 
                 await implementation.accessCheck?.(innerRequest, 'list', props);
-                return implementation.list(innerRequest, props);
+                return implementation.list(innerRequest as any, props) as any;
             }
         }, await params);
     };

@@ -4,7 +4,7 @@
 import type { ExecutableInsert } from 'ts-sql-query/expressions/insert';
 import type { ExecutableUpdate } from 'ts-sql-query/expressions/update';
 import symmetricDifference from 'set.prototype.symmetricdifference';
-import { z } from 'zod';
+import { z } from 'zod/v4';
 
 import type { Activity, Location, Timeslot } from '@lib/integrations/animecon';
 import { TaskWithParams } from '../Task';

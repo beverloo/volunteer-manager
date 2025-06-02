@@ -3,7 +3,7 @@
 
 import { NextRequest } from 'next/server';
 import { forbidden } from 'next/navigation';
-import { z } from 'zod';
+import { z } from 'zod/v4';
 
 import type { ApiDefinition, ApiRequest, ApiResponse } from '../Types';
 import { Temporal, isBefore } from '@lib/Temporal';
