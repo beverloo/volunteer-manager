@@ -1,16 +1,17 @@
 // Copyright 2025 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
+import { notFound } from 'next/navigation';
 import { z } from 'zod/v4';
 
 import { Publish } from '@lib/subscriptions';
-import { RecordLog, kLogType } from '@lib/Log';
+import { RecordLog, kLogSeverity, kLogType } from '@lib/Log';
 import { SendEmailTask } from '@lib/scheduler/tasks/SendEmailTask';
 import { Temporal } from '@lib/Temporal';
 import { determineAvailabilityStatus } from '@lib/EnvironmentContext';
 import { executeServerAction } from '@lib/serverAction';
 import { getStaticContent } from '@lib/Content';
-import db, { tEnvironments, tEvents, tEventsTeams, tTeams, tTeamsRoles, tUsersEvents } from '@lib/database';
+import db, { tEnvironments, tEvents, tEventsTeams, tRefunds, tTeams, tTeamsRoles, tUsersEvents } from '@lib/database';
 
 import { kRegistrationStatus, kShirtFit, kShirtSize, kSubscriptionType } from '@lib/database/Types';
 
@@ -225,6 +226,98 @@ export async function createApplication(eventId: number, teamId: number, formDat
         // Conclude the application process. Refreshing the page will show them the progress of
         // their in-progress application(s), even when there are multiple.
         // -----------------------------------------------------------------------------------------
+
+        return { success: true, refresh: true };
+    });
+}
+
+/**
+ * Zod type that describes the data required when creating an application.
+ */
+const kRequestRefundData = z.object({
+    ticketNumber: z.string().optional(),
+    accountIban: z.string().min(1),
+    accountName: z.string().min(1),
+});
+
+/**
+ * Server action that requests a refund on behalf of the signed in user.
+ */
+export async function requestRefund(eventId: number, formData: unknown) {
+    'use server';
+    return executeServerAction(formData, kRequestRefundData, async (data, props) => {
+        if (!props.user)
+            return { success: false, error: 'You need to be signed in to your account…' };
+
+        const dbInstance = db;
+
+        const event = await dbInstance.selectFrom(tEvents)
+            .where(tEvents.eventId.equals(eventId))
+            .select({
+                shortName: tEvents.eventShortName,
+                slug: tEvents.eventSlug,
+            })
+            .executeSelectNoneOrOne();
+
+        if (!event)
+            notFound();
+
+        // -----------------------------------------------------------------------------------------
+        // Confirm whether the signed in user has the ability to submit a refund request right now.
+        // -----------------------------------------------------------------------------------------
+
+        if (!props.access.can('event.refunds', { event: event.slug })) {
+            const availability = await dbInstance.selectFrom(tEvents)
+                .where(tEvents.eventId.equals(eventId))
+                .select({
+                    refundRequestsStart: tEvents.refundRequestsStart,
+                    refundRequestsEnd: tEvents.refundRequestsEnd,
+                })
+                .executeSelectOne();
+
+            if (!availability.refundRequestsStart || !availability.refundRequestsEnd)
+                return { success: false, error: 'Sorry, refunds are not being accepted…' };
+
+            const currentTime = Temporal.Now.zonedDateTimeISO('utc');
+            if (Temporal.ZonedDateTime.compare(currentTime, availability.refundRequestsStart) < 0)
+                return { success: false, error: 'Sorry, refunds are not being accepted yet…' };
+            if (Temporal.ZonedDateTime.compare(currentTime, availability.refundRequestsEnd) >= 0)
+                return { success: false, error: 'Sorry, refunds are not being accepted anymore…' };
+        }
+
+        // -----------------------------------------------------------------------------------------
+        // Actually submit the refund request in the database.
+        // -----------------------------------------------------------------------------------------
+
+        const affectedRows = await dbInstance.insertInto(tRefunds)
+            .set({
+                userId: props.user.userId,
+                eventId: eventId,
+
+                refundTicketNumber: data.ticketNumber,
+                refundAccountIban: data.accountIban,
+                refundAccountName: data.accountName,
+                refundRequested: dbInstance.currentZonedDateTime(),
+            })
+            .onConflictDoUpdateSet({
+                refundTicketNumber: data.ticketNumber,
+                refundAccountIban: data.accountIban,
+                refundAccountName: data.accountName,
+                refundRequested: dbInstance.currentZonedDateTime(),
+            })
+            .executeInsert();
+
+        if (!affectedRows)
+            return { success: false, error: 'Unable to store your request in the database…' };
+
+        RecordLog({
+            type: kLogType.ApplicationRefundRequest,
+            severity: kLogSeverity.Info,
+            sourceUser: props.user,
+            data: {
+                event: event.shortName,
+            },
+        });
 
         return { success: true, refresh: true };
     });

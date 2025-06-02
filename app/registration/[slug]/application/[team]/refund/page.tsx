@@ -2,53 +2,81 @@
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
 import Link from 'next/link';
-import { notFound } from 'next/navigation';
+import { notFound, unauthorized } from 'next/navigation';
 
 import { default as MuiLink } from '@mui/material/Link';
 import Box from '@mui/material/Box';
 import Collapse from '@mui/material/Collapse';
+import MonetizationOnIcon from '@mui/icons-material/MonetizationOn';
 
 import type { NextPageParams } from '@lib/NextRouterParams';
 import { type Content, getStaticContent } from '@lib/Content';
+import { FormProvider } from '@components/FormProvider';
+import { FormSubmitButton } from '@components/FormSubmitButton';
 import { Markdown } from '@components/Markdown';
 import { RefundConfirmation } from './RefundConfirmation';
 import { RefundRequest } from './RefundRequest';
 import { Temporal, formatDate } from '@lib/Temporal';
-import { contextForRegistrationPage } from '../../../contextForRegistrationPage';
+import { determineEnvironment } from '@lib/Environment';
 import { generatePortalMetadataFn } from '../../../../generatePortalMetadataFn';
-import db, { tEvents } from '@lib/database';
+import { getEnvironmentContext } from '@lib/EnvironmentContext';
+import db, { tEvents, tRefunds } from '@lib/database';
+
+import * as actions from '../../ApplicationActions';
 
 /**
  * The <EventApplicationRefundPage> component allows volunteers to request a refund for their ticket
- * after the event has finished. Availability of this page is time limited and can be configured by
- * specific event administrators.
+ * after the event has finished. Availability of this page is time limited.
  */
-export default async function EventApplicationRefundPage(props: NextPageParams<'slug'>) {
-    const context = await contextForRegistrationPage(props.params);
-    if (!context || !context.registration || !context.user || !context.event.refundEnabled)
-        notFound();  // the event does not exist, or the volunteer is not signed in
+export default async function EventApplicationRefundPage(props: NextPageParams<'slug' | 'team'>) {
+    const environment = await determineEnvironment();
+    if (!environment)
+        notFound();
 
-    const { event, registration, slug, user } = context;
+    const params = await props.params;
 
-    if (registration.refundAvailabilityWindow.status === 'pending' && !registration.refund) {
-        if (!context.access.can('event.refunds', { event: event.slug }))
-            notFound();  // the availability window has not opened yet
-    }
+    const context = await getEnvironmentContext(environment);
+    const event = context.events.find(event => event.slug === params.slug);
 
-    // TODO: Revise the following logic with availability windows in mind.
+    if (!event)
+        notFound();
 
-    // Determine the window within which volunteers can request refunds, which can be configured by
-    // refund administrators. The content of this page will depend on that.
-    const refundAvailability = await db.selectFrom(tEvents)
-        .where(tEvents.eventId.equals(event.eventId))
+    if (!context.user)
+        unauthorized();
+
+    const dbInstance = db;
+
+    // ---------------------------------------------------------------------------------------------
+    // Determine whether the signed in user already has (requested) a refund.
+    // ---------------------------------------------------------------------------------------------
+
+    const refund = await dbInstance.selectFrom(tRefunds)
+        .where(tRefunds.userId.equals(context.user.userId))
+            .and(tRefunds.eventId.equals(event.id))
+        .select({
+            ticketNumber: tRefunds.refundTicketNumber,
+            accountIban: tRefunds.refundAccountIban,
+            accountName: tRefunds.refundAccountName,
+
+            requested: dbInstance.dateTimeAsString(tRefunds.refundRequested),
+            confirmed: dbInstance.dateTimeAsString(tRefunds.refundConfirmed),
+        })
+        .executeSelectNoneOrOne() ?? undefined;
+
+    // ---------------------------------------------------------------------------------------------
+    // Determine the state of the refund mechanism within the defined availability window.
+    // ---------------------------------------------------------------------------------------------
+
+    let state: 'available' | 'too-early' | 'too-late' | 'unavailable';
+    let content: Content | undefined;
+
+    const refundAvailability = await dbInstance.selectFrom(tEvents)
+        .where(tEvents.eventId.equals(event.id))
         .select({
             refundRequestsStart: tEvents.refundRequestsStart,
             refundRequestsEnd: tEvents.refundRequestsEnd,
         })
         .executeSelectOne();
-
-    let state: 'available' | 'too-early' | 'too-late' | 'unavailable';
-    let content: Content | undefined;
 
     const contentPath = [ 'registration', 'application' ];
 
@@ -56,21 +84,21 @@ export default async function EventApplicationRefundPage(props: NextPageParams<'
         state = 'unavailable';
         content = await getStaticContent([ ...contentPath, 'refund-unavailable' ], {
             event: event.shortName,
-            firstName: user.firstName,
+            firstName: context.user.firstName,
         });
     } else {
         const { refundRequestsStart, refundRequestsEnd } = refundAvailability;
 
         const substitutions = {
             event: event.shortName,
-            firstName: user.firstName,
+            firstName: context.user.firstName,
             refundRequestsStart: formatDate(refundRequestsStart, 'dddd, MMMM D'),
             refundRequestsEnd: formatDate(refundRequestsEnd, 'dddd, MMMM D'),
         };
 
         const now = Temporal.Now.zonedDateTimeISO('UTC');
 
-        if (!!registration.refund) {
+        if (!!refund) {
             state = 'available';
             content = await getStaticContent([ ...contentPath, 'refund' ], substitutions);
         } else if (Temporal.ZonedDateTime.compare(now, refundRequestsStart) < 0) {
@@ -83,23 +111,38 @@ export default async function EventApplicationRefundPage(props: NextPageParams<'
             state = 'available';
             content = await getStaticContent([ ...contentPath, 'refund' ], substitutions);
         }
+
+        state = 'available';
+        content = await getStaticContent([ ...contentPath, 'refund' ], substitutions);
     }
+
+    // ---------------------------------------------------------------------------------------------
+
+    const action = actions.requestRefund.bind(null, event.id);
 
     return (
         <Box sx={{ p: 2 }}>
             { content && <Markdown>{content.markdown}</Markdown> }
-            <Collapse in={!!registration.refund} unmountOnExit>
-                <RefundConfirmation refund={registration.refund} />
+
+            <Collapse in={!!refund} unmountOnExit>
+                <RefundConfirmation refund={refund} />
             </Collapse>
-            { (!!registration.refund || state === 'available') &&
-                <RefundRequest eventSlug={event.slug}
-                               readOnly={state !== 'available'}
-                               refund={registration.refund} /> }
+
+            { (!!refund || state === 'available') &&
+                <FormProvider action={action} defaultValues={refund}>
+                    <RefundRequest readOnly={state !== 'available'} />
+                    { state === 'available' &&
+                        <FormSubmitButton callToAction="Request a ticket refund"
+                                          startIcon={ <MonetizationOnIcon /> } sx={{ mt: 2 }} /> }
+                </FormProvider> }
+
             <Box sx={{ pt: 2 }}>
-                <MuiLink component={Link} href={`/registration/${slug}/application`}>
+                <MuiLink component={Link}
+                         href={`/registration/${event.slug}/application/${params.team}`}>
                     « Back to your registration
                 </MuiLink>
             </Box>
+
         </Box>
     );
 }

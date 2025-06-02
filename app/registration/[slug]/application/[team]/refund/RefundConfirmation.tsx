@@ -1,11 +1,8 @@
-// Copyright 2023 Peter Beverloo & AnimeCon. All rights reserved.
+// Copyright 2025 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
-
-'use client';
 
 import Typography from '@mui/material/Typography';
 
-import type { RegistrationRefund } from '@lib/Registration';
 import { ConfirmationBox } from '../hotel/ConfirmationBox';
 import { Temporal, formatDate } from '@lib/Temporal';
 
@@ -16,7 +13,14 @@ interface RefundConfirmationProps {
     /**
      * The refund request that we're displaying a confirmation for, if any.
      */
-    refund?: RegistrationRefund;
+    refund?: {
+        ticketNumber?: string;
+        accountIban: string;
+        accountName: string;
+
+        requested: string;
+        confirmed?: string;
+    };
 }
 
 /**
