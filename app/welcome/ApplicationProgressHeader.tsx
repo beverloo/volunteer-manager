@@ -44,7 +44,7 @@ export function ApplicationProgressHeader(props: ApplicationProgressHeaderProps)
 
         applications = event.applications.map(application => ({
             ...application,
-            team: application.team.replace(/s$/, ''),
+            team: application.teamName.replace(/s$/, ''),
         }));
 
         applicationEvent = {

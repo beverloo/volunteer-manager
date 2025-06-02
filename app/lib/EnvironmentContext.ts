@@ -21,7 +21,12 @@ export type EnvironmentContextEventAvailabilityStatus =
  */
 export interface EnvironmentContextApplication {
     /**
-     * Team that the volunteer has applied to.
+     * Name of the team that the volunteer has applied to. (E.g. "Stewards")
+     */
+    teamName: string;
+
+    /**
+     * URL-safe slug of the team that the volunteer has applied to. (E.g. "stewards")
      */
     team: string;
 
@@ -195,7 +200,8 @@ async function determineEventAccess(
         .where(tUsersEvents.eventId.equals(tEvents.eventId))
             .and(tUsersEvents.userId.equals(authenticationContext.user?.userId || -1))
         .select({
-            team: tTeams.teamName,
+            teamName: tTeams.teamName,
+            team: tTeams.teamSlug,
             status: tUsersEvents.registrationStatus,
         })
         .forUseAsInlineAggregatedArrayValue();
