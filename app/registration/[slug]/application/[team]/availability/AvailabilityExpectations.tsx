@@ -21,7 +21,7 @@ import { deepmerge } from '@mui/utils';
 const kStyles: { [key: string]: SxProps<Theme> } = {
     legend: {
 
-        borderRadius: theme => theme.shape.borderRadius / 2,
+        borderRadius: theme => Number(theme.shape.borderRadius) / 2,
         height: '18px',
         width: theme => theme.spacing(4),
     },
@@ -29,7 +29,7 @@ const kStyles: { [key: string]: SxProps<Theme> } = {
     timeline: {
         border: '1px solid red',
         borderColor: 'divider',
-        borderRadius: theme => theme.shape.borderRadius / 2,
+        borderRadius: theme => Number(theme.shape.borderRadius) / 2,
         color: 'text.disabled',
     },
 

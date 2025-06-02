@@ -28,11 +28,11 @@
   "dependencies": {
     "@beverloo/volunteer-manager-timeline": "^2.0.5",
     "@google-cloud/vertexai": "^1.10.0",
-    "@mdxeditor/editor": "^3.33.0",
-    "@mui/icons-material": "^7.1.0",
-    "@mui/lab": "^7.0.0-beta.12",
-    "@mui/material": "^7.1.0",
-    "@mui/material-nextjs": "^7.1.0",
+    "@mdxeditor/editor": "^3.35.0",
+    "@mui/icons-material": "^7.1.1",
+    "@mui/lab": "^7.0.0-beta.13",
+    "@mui/material": "^7.1.1",
+    "@mui/material-nextjs": "^7.1.1",
     "@mui/x-charts-pro": "^8.5.0",
     "@mui/x-data-grid-pro": "^8.5.0",
     "@mui/x-date-pickers": "^8.5.0",
@@ -64,7 +64,7 @@
     "ts-sql-query": "^1.65.0",
     "twilio": "^5.7.0",
     "uuid": "^11.1.0",
-    "zod": "^3.25.42"
+    "zod": "^3.25.48"
   },
   "overrides": {
     "nodemailer-mock": {
@@ -96,7 +96,7 @@
     "jest-environment-jsdom": "^29.7.0",
     "jest-extended": "^5.0.3",
     "next-build-id": "^3.0.0",
-    "nodemailer-mock": "^2.0.8",
+    "nodemailer-mock": "^2.0.9",
     "ts-sql-codegen": "^3.23.1",
     "typescript": "^5.8.3",
     "whatwg-fetch": "^3.6.20"
