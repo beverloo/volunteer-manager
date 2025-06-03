@@ -1,147 +1,26 @@
 // Copyright 2023 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
-'use client';
-
 import React from 'react';
 
-import type { SxProps } from '@mui/system';
-import type { Theme } from '@mui/material/styles';
 import Box from '@mui/material/Box';
-import Divider from '@mui/material/Divider';
 import Grid from '@mui/material/Grid';
 import Stack from '@mui/material/Stack';
-import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
-import { deepmerge } from '@mui/utils';
+
+import type { EventTimeslotEntry } from './getPublicEventsForFestival';
+import { Temporal, formatDate, isAfter, isBefore } from '@lib/Temporal';
+
+import type { AvailabilityDayInfo, AvailabilityExpectation } from './AvailabilityExpectationsClient';
+import { AvailabilityExpectationDay, AvailabilityLegend } from './AvailabilityExpectationsClient';
 
 /**
- * Custom styles applied to the <AdminHeader> & related components.
+ * Returns whether `one` and `two` fall on the same day.
  */
-const kStyles: { [key: string]: SxProps<Theme> } = {
-    legend: {
-
-        borderRadius: theme => Number(theme.shape.borderRadius) / 2,
-        height: '18px',
-        width: theme => theme.spacing(4),
-    },
-
-    timeline: {
-        border: '1px solid red',
-        borderColor: 'divider',
-        borderRadius: theme => Number(theme.shape.borderRadius) / 2,
-        color: 'text.disabled',
-    },
-
-    timelineBox: {
-        flex: 1,
-        fontSize: '.75em',
-        lineHeight: '2.25em',
-        overflow: 'hidden',
-        textAlign: 'center',
-
-        '&:first-child': {
-            borderTopLeftRadius: theme => `${theme.shape.borderRadius}px`,
-            borderBottomLeftRadius: theme => `${theme.shape.borderRadius}px`,
-        },
-        '&:last-child': {
-            borderTopRightRadius: theme => `${theme.shape.borderRadius}px`,
-            borderBottomRightRadius: theme => `${theme.shape.borderRadius}px`,
-        },
-    },
-
-    available: { backgroundColor: theme => theme.palette.mode === 'dark' ? '#689F38' : '#8BC34A' },
-    avoid: { backgroundColor: theme => theme.palette.mode === 'dark' ? '#33691E' : '#DCEDC8' },
-    unavailable: { backgroundColor: theme => theme.palette.mode === 'dark' ? '#455A64' : '#B0BEC5' }
-};
-
-/**
- * The expectation for a particular hour.
- */
-export type AvailabilityExpectation = 'available' | 'avoid' | 'unavailable';
-
-/**
- * Visual label used to explain what a particular colour means.
- */
-const kAvailabilityLabel: { [k in AvailabilityExpectation]: string } = {
-    available: 'May get shifts',
-    avoid: 'We\'ll avoid',
-    unavailable: 'No shifts',
-};
-
-/**
- * Displays a component to explain what a particular colour means.
- */
-function AvailabilityLegend(props: { expectation: AvailabilityExpectation }) {
-    return (
-        <Stack direction="row" spacing={2}>
-            <Box sx={deepmerge(kStyles.legend, kStyles[props.expectation])}>
-                &nbsp;
-            </Box>
-            <Typography variant="caption">
-                {kAvailabilityLabel[props.expectation]}
-            </Typography>
-        </Stack>
-    );
-}
-
-/**
- * Visual tooltip title to explain to the volunteer what this availability colour means.
- */
-const kAvailabilityTitles: { [k in AvailabilityExpectation]: string } = {
-    available: 'We\'ll consider you when scheduling shifts',
-    avoid: 'We\'ll try to avoid scheduling you for a shift',
-    unavailable: 'You won\'t receive any shifts',
-};
-
-/**
- * Box displaying the expectation for a particular hour. Draws both the background and some styling
- * to indicate what we expect from the volunteer.
- */
-function AvailabilityExpectation(props: { expectation: AvailabilityExpectation; hour: number }) {
-    const { expectation, hour } = props;
-
-    const hourDescription = `${`0${hour}`.substr(-2)}:00–${`0${(hour + 1) % 24}`.substr(-2)}:00`;
-
-    return (
-        <Tooltip title={`${kAvailabilityTitles[expectation]} (${hourDescription})`}>
-            <Typography sx={deepmerge(kStyles.timelineBox, kStyles[expectation])}>
-                {`0${hour}`.substr(-2)}
-            </Typography>
-        </Tooltip>
-    );
-}
-
-/**
- * Information about an individual day during which we expect the volunteer to be around.
- */
-export interface AvailabilityDayInfo {
-    /**
-     * Label using which the day should be identified.
-     */
-    label: string;
-
-    /**
-     * The expectations for this particular day.
-     */
-    expectations: AvailabilityExpectation[];
-}
-
-/**
- * Representst the availability information of a singular day. The label has already been drawn,
- * this component should use the available width to give a clear overview of a 24 hour period.
- */
-function AvailabilityExpectationDay(props: { info: AvailabilityDayInfo }) {
-    return (
-        <Box>
-            <Stack direction="row" alignItems="stretch" sx={kStyles.timeline}
-                   divider={ <Divider orientation="vertical" flexItem /> }>
-                { [ ...Array(24) ].map((_, index) =>
-                    <AvailabilityExpectation hour={index} key={index}
-                                             expectation={props.info.expectations[index]} /> )}
-            </Stack>
-        </Box>
-    );
+function isSameDay(one: Temporal.ZonedDateTime, two: Temporal.ZonedDateTime) {
+    return one.year === two.year &&
+           one.month === two.month &&
+           one.day === two.day;
 }
 
 /**
@@ -149,24 +28,225 @@ function AvailabilityExpectationDay(props: { info: AvailabilityDayInfo }) {
  */
 interface AvailabilityExpectationsProps {
     /**
-     * Ordered list of the days and the volunteer's availability across the festival.
+     * Events that should be considered for the volunteer's preferences in regards to attendance.
      */
-    expectations: AvailabilityDayInfo[];
+    availabilityEvents: EventTimeslotEntry[];
+
+    /**
+     * Date and time at which the event is expected to start.
+     */
+    eventStartTime: Temporal.ZonedDateTime;
+
+    /**
+     * Date and time at which the event is expected to end.
+     */
+    eventEndTime: Temporal.ZonedDateTime;
+
+    /**
+     * Timezone in which the event will be taking place.
+     */
+    eventTimezone: string;
+
+    /**
+     * The events that the volunteer would like to attend, if any.
+     */
+    exceptionEvents?: number[];
+
+    /**
+     * Unverified availability exceptions that may be set for the volunteer.
+     */
+    exceptions?: string;
+
+    /**
+     * Preferred timing of the volunteer and their shifts. While these are guidelines, we do want to
+     * visualise them on the expectation timeline.
+     */
+    timing?: {
+        start?: number;
+        end?: number;
+    };
 }
 
 /**
- * The <AvailabilityExpectations> component renders an overview of when we expect the volunteer to
- * be around during the festival. It has three separate states: unavailable, avoid and available,
- * depending on the joint preferences communicated between the volunteer and the leads.
+ * The <AvailabilityExpectations> component fetches and then renders an overview of when we expect
+ * the volunteer to be available during the festival. It represents three separate states: avoid,
+ * available and unavailable. It will be updated whenever the volunteer's preferences change.
  */
-export function AvailabilityExpectations(props: AvailabilityExpectationsProps) {
+export async function AvailabilityExpectations(props: AvailabilityExpectationsProps) {
+    const timezone = props.eventTimezone;
+
+    const serviceTimingStart: number | undefined = props.timing?.start;
+    const serviceTimingEnd: number | undefined = props.timing?.end;
+
+    const startDateEvent = props.eventStartTime.withTimeZone(timezone);
+    const startDate = startDateEvent.with({
+        hour: 0,
+        minute: 0,
+        second: 0,
+    });
+
+    const endDateEvent = props.eventEndTime.withTimeZone(timezone);
+    const endDate = endDateEvent.with({
+        hour: 23,
+        minute: 59,
+        second: 59,
+    });
+
+    // ---------------------------------------------------------------------------------------------
+    // Determine the exceptions. These are stored in the database, but have to be parsed which can
+    // for a variety of reasons fail, not least of all developer error.
+    // ---------------------------------------------------------------------------------------------
+
+    const exceptions = new Map</* YYYY-MM-DDTH */ string, AvailabilityExpectation>;
+    if (props.exceptions && props.exceptions.length > 2) {
+        try {
+            const exceptionArray = JSON.parse(props.exceptions);
+            for (const exception of exceptionArray) {
+                if (!('start' in exception) || !('end' in exception) || !('state' in exception))
+                    continue;
+
+                const end = Temporal.ZonedDateTime.from(exception.end).withTimeZone(timezone);
+                const start =
+                    Temporal.ZonedDateTime.from(exception.start).withTimeZone(timezone).with({
+                        minute: 0,
+                    });
+
+                for (let time = start; isBefore(time, end); time = time.add({ hours: 1 }))
+                    exceptions.set(formatDate(time, 'YYYY-MM-DD[T]H'), exception.state);
+            }
+
+        } catch (error: any) {
+            console.error('Unable to parse exception information:', error);
+        }
+    }
+
+    // ---------------------------------------------------------------------------------------------
+    // Determine the timeslots that the volunteer has selected as wanting to attend.
+    // ---------------------------------------------------------------------------------------------
+
+    const selectedEvents: EventTimeslotEntry[] = [];
+    if (!!props.exceptionEvents) {
+        const exceptionEventIds = new Set(props.exceptionEvents);
+        for (const availabilityEvent of props.availabilityEvents) {
+            if (exceptionEventIds.has(availabilityEvent.id))
+                selectedEvents.push(availabilityEvent);
+        }
+    }
+
+    // ---------------------------------------------------------------------------------------------
+    // Actually determine the expectations. We do this by iterating over each of the days, then over
+    // each of the hours within those days, to determine what's going on.
+    // ---------------------------------------------------------------------------------------------
+
+    const expectations: AvailabilityDayInfo[] = [];
+    for (let date = startDate; isBefore(date, endDate); date = date.add({ days: 1 })) {
+        const dateString = formatDate(date, 'YYYY-MM-DD');
+
+        expectations.push({
+            label: formatDate(date, 'dddd, MMMM D'),
+            expectations: [ ...Array(/* hours= */ 24) ].map((_, hour) => {
+                const hourlyDateTime = date.add({ hours: hour });
+                let decidedStatus: AvailabilityExpectation = 'available';
+
+                // Consider exceptions that have been approved by the volunteering leads. When one
+                // is seen, all other processing will be moot.
+                const exception = exceptions.get(`${dateString}T${hour}`);
+                if (!!exception)
+                    return exception;
+
+                // Consider the window in which the volunteer indicated they want to help out with
+                // shifts. We'll add some grace, but otherwise will roster them out at other times.
+                if (serviceTimingStart !== undefined && serviceTimingEnd !== undefined) {
+                    if (serviceTimingEnd > serviceTimingStart) {
+                        // Case (1): The volunteer's shifts will start and end on the same day.
+                        const hoursUntilWindowStart = serviceTimingStart - hour;
+                        const hoursUntilWindowEnd = serviceTimingEnd - hour;
+
+                        if (hoursUntilWindowStart > 1)
+                            decidedStatus = 'unavailable';
+                        else if (hoursUntilWindowStart > 0)
+                            decidedStatus = 'avoid';
+
+                        if (hoursUntilWindowEnd === 0)
+                            decidedStatus = 'avoid';
+                        else if (hoursUntilWindowEnd < 0)
+                            decidedStatus = 'unavailable';
+
+                    } else {
+                        // Case (2): The volunteer's shifts will start and end on separate days.
+                        const hoursUntilWindowStart = serviceTimingStart - hour;
+
+                        if (!isSameDay(date, startDate)) {
+                            if (hour === serviceTimingEnd)
+                                decidedStatus = 'avoid';
+                            else if (hour > serviceTimingEnd && hoursUntilWindowStart > 2)
+                                decidedStatus = 'unavailable';
+                        }
+
+                        if (hour > serviceTimingEnd) {
+                            if (hoursUntilWindowStart > 1)
+                                decidedStatus = 'unavailable';
+                            else if (hoursUntilWindowStart > 0)
+                                decidedStatus = 'avoid';
+                        }
+                    }
+                }
+
+                // Consider the events that the volunteer has selected as wanting to attend. We only
+                // reduce the availability here, in other words "available" becomes "avoid", but
+                // "unavailable" remains "unavailable".
+                if (decidedStatus !== 'unavailable' && selectedEvents.length > 0) {
+                    const nextHourlyDateTime = hourlyDateTime.add({ hours: 1 });
+                    for (const eventTimeslot of selectedEvents) {
+                        if (!eventTimeslot.startTime || !eventTimeslot.endTime)
+                            continue;  // incomplete timeslot
+
+                        if (isBefore(eventTimeslot.startTime, nextHourlyDateTime) &&
+                                isAfter(eventTimeslot.endTime, hourlyDateTime)) {
+                            decidedStatus = 'avoid';
+                        }
+                    }
+                }
+
+                // We won't schedule shifts (well) before the festival's opening time without having
+                // discussed this with the volunteer.
+                if (isSameDay(date, startDate)) {
+                    const hoursUntilOpening = hourlyDateTime.until(startDateEvent, {
+                        largestUnit: 'hours'
+                    }).hours;
+
+                    if (hoursUntilOpening > 3)
+                        return 'unavailable';
+                    else if (hoursUntilOpening > 1)
+                        return 'avoid';  // always invite volunteers to the briefing
+                }
+
+                // Similarly, we won't schedule shifts after the festival has finished. Folks are
+                // welcome to stick around, but we won't count on it.
+                if (isSameDay(date, endDate)) {
+                    const hoursUntilClosure = hourlyDateTime.until(endDateEvent, {
+                        largestUnit: 'hours'
+                    }).hours;
+
+                    if (hoursUntilClosure <= 0)
+                        return 'unavailable';
+                }
+
+                // If all else fails, the volunteer will be available.
+                return decidedStatus;
+            }),
+        });
+    }
+
+    // ---------------------------------------------------------------------------------------------
+
     return (
         <Box sx={{ my: 1 }}>
             <Typography variant="h5">
                 Your availability at the festival
             </Typography>
-            <Grid container spacing={2} sx={{ my: 1 }}>
-                { props.expectations.map((info, index) =>
+            <Grid container spacing={2} sx={{ my: 2 }}>
+                { expectations.map((info, index) =>
                     <React.Fragment key={index}>
                         <Grid size={{ xs: 12, lg: 2 }}>
                             {info.label}

@@ -56,7 +56,7 @@ export function AvailabilityPreferencesForm(props: AvailabilityPreferencesFormPr
             { readOnly &&
                 <Grid size={{ xs: 12 }} sx={{ mt: -1 }}>
                     <Alert severity="warning">
-        	            We've started drafting your schedule, and your preferences have been locked
+                        We've started drafting your schedule, and your preferences have been locked
                         in. Please e-mail us for any further changes!
                     </Alert>
                 </Grid> }

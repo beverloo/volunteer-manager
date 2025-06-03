@@ -9,13 +9,14 @@ import Box from '@mui/material/Box';
 import EventNoteIcon from '@mui/icons-material/EventNote';
 
 import type { NextPageParams } from '@lib/NextRouterParams';
+import { AvailabilityExpectations } from './AvailabilityExpectations';
 import { AvailabilityPreferencesForm } from './AvailabilityPreferencesForm';
 import { FormProvider } from '@components/FormProvider';
 import { FormSubmitButton } from '@components/FormSubmitButton';
 import { Markdown } from '@components/Markdown';
 import { generatePortalMetadataFn } from '../../../../generatePortalMetadataFn';
 import { getApplicationContext } from '../getApplicationContext';
-import { getPublicEventsForFestival } from './getPublicEventsForFestival';
+import { getPublicEventsForFestival, type EventTimeslotEntry } from './getPublicEventsForFestival';
 import { getStaticContent } from '@lib/Content';
 import db, { tEvents, tRoles, tUsersEvents } from '@lib/database';
 
@@ -67,7 +68,15 @@ export default async function EventApplicationAvailabilityPage(
             .and(tUsersEvents.eventId.equals(event.id))
             .and(tUsersEvents.teamId.equals(team.id))
         .select({
+            event: {
+                startTime: tEvents.eventStartTime,
+                endTime: tEvents.eventEndTime,
+
+                festivalId: tEvents.eventFestivalId,
+                timezone: tEvents.eventTimezone,
+            },
             preferences: {
+                exceptions: tUsersEvents.availabilityExceptions,
                 preferences: tUsersEvents.preferences,
                 preferencesDietary: tUsersEvents.preferencesDietary,
                 serviceHours: tUsersEvents.preferenceHours,
@@ -80,8 +89,6 @@ export default async function EventApplicationAvailabilityPage(
             settings: {
                 exceptionEventLimit: tUsersEvents.availabilityEventLimit.valueWhenNull(
                     tRoles.roleAvailabilityEventLimit),
-                festivalId: tEvents.eventFestivalId,
-                timezone: tEvents.eventTimezone,
             },
         })
         .executeSelectOne();
@@ -106,12 +113,17 @@ export default async function EventApplicationAvailabilityPage(
     // Determine the events that the volunteer is able to select as availability exceptions.
     // ---------------------------------------------------------------------------------------------
 
+    let availabilityEvents: undefined | Array<EventTimeslotEntry>;
     let exceptionEvents: undefined | Array<{ id: number; label: string }>;
-    if (!!detailedApplicationInfo.settings.festivalId) {
-        exceptionEvents = await getPublicEventsForFestival(
-            detailedApplicationInfo.settings.festivalId,
-            detailedApplicationInfo.settings.timezone,
-            /* withTimingInfo= */ false);
+
+    if (!!detailedApplicationInfo.event.festivalId) {
+        availabilityEvents = await getPublicEventsForFestival(
+            detailedApplicationInfo.event.festivalId,
+            detailedApplicationInfo.event.timezone,
+            /* withTimingInfo= */ true);
+
+        // Filter the |availabilityEvents| down to the information we want to send to the client.
+        exceptionEvents = availabilityEvents.map(entry => ({ id: entry.id, label: entry.label }));
     }
 
     // ---------------------------------------------------------------------------------------------
@@ -126,7 +138,15 @@ export default async function EventApplicationAvailabilityPage(
         <Box sx={{ p: 2 }}>
             { content && <Markdown>{content.markdown}</Markdown> }
 
-            { /* TODO: Availability expectations */ }
+            { !!availabilityEvents &&
+                <AvailabilityExpectations
+                    availabilityEvents={availabilityEvents}
+                    eventStartTime={detailedApplicationInfo.event.startTime}
+                    eventEndTime={detailedApplicationInfo.event.endTime}
+                    eventTimezone={detailedApplicationInfo.event.timezone}
+                    exceptionEvents={defaultValues.exceptionEvents}
+                    exceptions={detailedApplicationInfo.preferences?.exceptions}
+                    timing={detailedApplicationInfo.preferences?.serviceTiming} /> }
 
             <FormProvider action={action} defaultValues={defaultValues}>
 

@@ -392,8 +392,8 @@ export async function updateAvailability(eventId: number, teamId: number, formDa
         const exceptionEvents: number[] = [ /* no exception events */ ];
         if (!!event.festivalId && data.exceptionEvents.length > 0) {
             const validEvents =
-                await getPublicEventsForFestival(event.festivalId, event.timezone,
-                                                 /* withTimingInfo= */ false);
+                await getPublicEventsForFestival(
+                    event.festivalId, event.timezone, /* withTimingInfo= */ false);
 
             const validEventIds = new Set(validEvents.map(v => v.id));
             for (const exceptionEvent of data.exceptionEvents) {
