@@ -82,6 +82,11 @@ export interface EnvironmentContextEventAccess {
      */
     teams: {
         /**
+         * Unique ID of the team as it has been represented in the database.
+         */
+        id: number;
+
+        /**
          * URL-safe slug representing this team.
          */
         slug: string;
@@ -227,6 +232,7 @@ async function determineEventAccess(
             applications: applicationsJoin,
 
             teams: dbInstance.aggregateAsArray({
+                id: tTeams.teamId,
                 slug: tTeams.teamSlug,
 
                 applicationsWindow: {
@@ -281,6 +287,7 @@ async function determineEventAccess(
                 continue;  // the |user| is not able to see any aspect of this team
 
             teams.push({
+                id: team.id,
                 slug: team.slug,
 
                 applications,

@@ -2,7 +2,6 @@
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
 import Link from 'next/link';
-import { notFound, unauthorized } from 'next/navigation';
 
 import { default as MuiLink } from '@mui/material/Link';
 import Box from '@mui/material/Box';
@@ -17,9 +16,8 @@ import { Markdown } from '@components/Markdown';
 import { RefundConfirmation } from './RefundConfirmation';
 import { RefundRequest } from './RefundRequest';
 import { Temporal, formatDate } from '@lib/Temporal';
-import { determineEnvironment } from '@lib/Environment';
 import { generatePortalMetadataFn } from '../../../../generatePortalMetadataFn';
-import { getEnvironmentContext } from '@lib/EnvironmentContext';
+import { getApplicationContext } from '../getApplicationContext';
 import db, { tEvents, tRefunds } from '@lib/database';
 
 import * as actions from '../../ApplicationActions';
@@ -29,20 +27,7 @@ import * as actions from '../../ApplicationActions';
  * after the event has finished. Availability of this page is time limited.
  */
 export default async function EventApplicationRefundPage(props: NextPageParams<'slug' | 'team'>) {
-    const environment = await determineEnvironment();
-    if (!environment)
-        notFound();
-
-    const params = await props.params;
-
-    const context = await getEnvironmentContext(environment);
-    const event = context.events.find(event => event.slug === params.slug);
-
-    if (!event)
-        notFound();
-
-    if (!context.user)
-        unauthorized();
+    const { event, team, user } = await getApplicationContext(props);
 
     const dbInstance = db;
 
@@ -51,7 +36,7 @@ export default async function EventApplicationRefundPage(props: NextPageParams<'
     // ---------------------------------------------------------------------------------------------
 
     const refund = await dbInstance.selectFrom(tRefunds)
-        .where(tRefunds.userId.equals(context.user.userId))
+        .where(tRefunds.userId.equals(user.userId))
             .and(tRefunds.eventId.equals(event.id))
         .select({
             ticketNumber: tRefunds.refundTicketNumber,
@@ -67,7 +52,7 @@ export default async function EventApplicationRefundPage(props: NextPageParams<'
     // Determine the state of the refund mechanism within the defined availability window.
     // ---------------------------------------------------------------------------------------------
 
-    let state: 'available' | 'too-early' | 'too-late' | 'unavailable';
+    let state: 'available' | 'requested' | 'too-early' | 'too-late' | 'unavailable';
     let content: Content | undefined;
 
     const refundAvailability = await dbInstance.selectFrom(tEvents)
@@ -84,14 +69,14 @@ export default async function EventApplicationRefundPage(props: NextPageParams<'
         state = 'unavailable';
         content = await getStaticContent([ ...contentPath, 'refund-unavailable' ], {
             event: event.shortName,
-            firstName: context.user.firstName,
+            firstName: user.firstName,
         });
     } else {
         const { refundRequestsStart, refundRequestsEnd } = refundAvailability;
 
         const substitutions = {
             event: event.shortName,
-            firstName: context.user.firstName,
+            firstName: user.firstName,
             refundRequestsStart: formatDate(refundRequestsStart, 'dddd, MMMM D'),
             refundRequestsEnd: formatDate(refundRequestsEnd, 'dddd, MMMM D'),
         };
@@ -99,7 +84,7 @@ export default async function EventApplicationRefundPage(props: NextPageParams<'
         const now = Temporal.Now.zonedDateTimeISO('UTC');
 
         if (!!refund) {
-            state = 'available';
+            state = 'requested';
             content = await getStaticContent([ ...contentPath, 'refund' ], substitutions);
         } else if (Temporal.ZonedDateTime.compare(now, refundRequestsStart) < 0) {
             state = 'too-early';
@@ -111,9 +96,6 @@ export default async function EventApplicationRefundPage(props: NextPageParams<'
             state = 'available';
             content = await getStaticContent([ ...contentPath, 'refund' ], substitutions);
         }
-
-        state = 'available';
-        content = await getStaticContent([ ...contentPath, 'refund' ], substitutions);
     }
 
     // ---------------------------------------------------------------------------------------------
@@ -138,7 +120,7 @@ export default async function EventApplicationRefundPage(props: NextPageParams<'
 
             <Box sx={{ pt: 2 }}>
                 <MuiLink component={Link}
-                         href={`/registration/${event.slug}/application/${params.team}`}>
+                         href={`/registration/${event.slug}/application/${team.slug}`}>
                     « Back to your registration
                 </MuiLink>
             </Box>
