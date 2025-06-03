@@ -1,4 +1,4 @@
-// Copyright 2023 Peter Beverloo & AnimeCon. All rights reserved.
+// Copyright 2025 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
 import Link from 'next/link';
@@ -15,8 +15,9 @@ import { FormSubmitButton } from '@components/FormSubmitButton';
 import { Markdown } from '@components/Markdown';
 import { generatePortalMetadataFn } from '../../../../generatePortalMetadataFn';
 import { getApplicationContext } from '../getApplicationContext';
+import { getPublicEventsForFestival } from './getPublicEventsForFestival';
 import { getStaticContent } from '@lib/Content';
-import db, { tEvents, tUsersEvents } from '@lib/database';
+import db, { tEvents, tRoles, tUsersEvents } from '@lib/database';
 
 import { kEventAvailabilityStatus } from '@lib/database/Types';
 
@@ -58,6 +59,10 @@ export default async function EventApplicationAvailabilityPage(
     // ---------------------------------------------------------------------------------------------
 
     const detailedApplicationInfo = await dbInstance.selectFrom(tUsersEvents)
+        .innerJoin(tEvents)
+            .on(tEvents.eventId.equals(tUsersEvents.eventId))
+        .innerJoin(tRoles)
+            .on(tRoles.roleId.equals(tUsersEvents.roleId))
         .where(tUsersEvents.userId.equals(user.userId))
             .and(tUsersEvents.eventId.equals(event.id))
             .and(tUsersEvents.teamId.equals(team.id))
@@ -70,9 +75,13 @@ export default async function EventApplicationAvailabilityPage(
                     start: tUsersEvents.preferenceTimingStart,
                     end: tUsersEvents.preferenceTimingEnd,
                 },
+                timeslots: tUsersEvents.availabilityTimeslots,
             },
             settings: {
-                // TODO: Maximum timeslots
+                exceptionEventLimit: tUsersEvents.availabilityEventLimit.valueWhenNull(
+                    tRoles.roleAvailabilityEventLimit),
+                festivalId: tEvents.eventFestivalId,
+                timezone: tEvents.eventTimezone,
             },
         })
         .executeSelectOne();
@@ -86,6 +95,23 @@ export default async function EventApplicationAvailabilityPage(
     if (!!detailedApplicationInfo.preferences?.serviceTiming) {
         const { start, end } = detailedApplicationInfo.preferences?.serviceTiming;
         defaultValues.serviceTiming = `${start}-${end}`;
+    }
+
+    if (!!detailedApplicationInfo.preferences?.timeslots) {
+        defaultValues.exceptionEvents =
+            detailedApplicationInfo.preferences.timeslots.split(',').map(v => parseInt(v));
+    }
+
+    // ---------------------------------------------------------------------------------------------
+    // Determine the events that the volunteer is able to select as availability exceptions.
+    // ---------------------------------------------------------------------------------------------
+
+    let exceptionEvents: undefined | Array<{ id: number; label: string }>;
+    if (!!detailedApplicationInfo.settings.festivalId) {
+        exceptionEvents = await getPublicEventsForFestival(
+            detailedApplicationInfo.settings.festivalId,
+            detailedApplicationInfo.settings.timezone,
+            /* withTimingInfo= */ false);
     }
 
     // ---------------------------------------------------------------------------------------------
@@ -104,7 +130,10 @@ export default async function EventApplicationAvailabilityPage(
 
             <FormProvider action={action} defaultValues={defaultValues}>
 
-                <AvailabilityPreferencesForm readOnly={locked} />
+                <AvailabilityPreferencesForm
+                    exceptionEventLimit={detailedApplicationInfo.settings.exceptionEventLimit}
+                    exceptionEvents={exceptionEvents}
+                    readOnly={locked} />
 
                 <FormSubmitButton callToAction="Save your preferences"
                                   startIcon={ <EventNoteIcon /> } sx={{ my: 2 }} />

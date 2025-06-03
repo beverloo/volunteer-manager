@@ -10,8 +10,10 @@ import { SendEmailTask } from '@lib/scheduler/tasks/SendEmailTask';
 import { Temporal } from '@lib/Temporal';
 import { determineAvailabilityStatus } from '@lib/EnvironmentContext';
 import { executeServerAction } from '@lib/serverAction';
+import { getPublicEventsForFestival } from './[team]/availability/getPublicEventsForFestival';
 import { getStaticContent } from '@lib/Content';
-import db, { tEnvironments, tEvents, tEventsTeams, tRefunds, tTeams, tTeamsRoles, tUsersEvents } from '@lib/database';
+import db, { tEnvironments, tEvents, tEventsTeams, tRefunds, tRoles, tTeams, tTeamsRoles,
+    tUsersEvents } from '@lib/database';
 
 import { kRegistrationStatus, kShirtFit, kShirtSize, kSubscriptionType } from '@lib/database/Types';
 
@@ -327,6 +329,7 @@ export async function requestRefund(eventId: number, formData: unknown) {
  * Zod type that describes the data required when updating availability information.
  */
 const kUpdateAvailabilityData = z.object({
+    exceptionEvents: z.array(z.number().nullish()),
     serviceHours: kServiceHoursProperty,
     serviceTiming: kServiceTimingProperty,
     preferences: z.string().optional(),
@@ -347,6 +350,8 @@ export async function updateAvailability(eventId: number, teamId: number, formDa
         const verification = await dbInstance.selectFrom(tUsersEvents)
             .innerJoin(tEvents)
                 .on(tEvents.eventId.equals(tUsersEvents.eventId))
+            .innerJoin(tRoles)
+                .on(tRoles.roleId.equals(tUsersEvents.roleId))
             .innerJoin(tTeams)
                 .on(tTeams.teamId.equals(tUsersEvents.teamId))
             .where(tUsersEvents.userId.equals(props.user.userId))
@@ -355,11 +360,14 @@ export async function updateAvailability(eventId: number, teamId: number, formDa
             .select({
                 event: {
                     availabilityStatus: tEvents.eventAvailabilityStatus,
+                    festivalId: tEvents.eventFestivalId,
                     shortName: tEvents.eventShortName,
                     slug: tEvents.eventSlug,
+                    timezone: tEvents.eventTimezone,
                 },
                 settings: {
-                    // TODO: Maximum timeslots
+                    exceptionEventLimit: tUsersEvents.availabilityEventLimit.valueWhenNull(
+                        tRoles.roleAvailabilityEventLimit),
                 },
                 team: {
                     slug: tTeams.teamSlug,
@@ -370,17 +378,42 @@ export async function updateAvailability(eventId: number, teamId: number, formDa
         if (!verification)
             notFound();
 
-        const { event, team } = verification;
+        const { event, settings, team } = verification;
 
         if (!props.access.can('event.visible', { event: event.slug, team: team.slug })) {
             if (event.availabilityStatus !== 'Available')
                 return { success: false, error: 'You are not able to share your preferences…' };
         }
 
+        // -----------------------------------------------------------------------------------------
+
         const [ serviceTimingStart, serviceTimingEnd ] = data.serviceTiming.split('-');
+
+        const exceptionEvents: number[] = [ /* no exception events */ ];
+        if (!!event.festivalId && data.exceptionEvents.length > 0) {
+            const validEvents =
+                await getPublicEventsForFestival(event.festivalId, event.timezone,
+                                                 /* withTimingInfo= */ false);
+
+            const validEventIds = new Set(validEvents.map(v => v.id));
+            for (const exceptionEvent of data.exceptionEvents) {
+                if (!exceptionEvent)
+                    continue;  // this is a nullsy value, i.e. not a real timeslot
+
+                if (!validEventIds.has(exceptionEvent))
+                    continue;  // the validity of this event cannot be confirmed
+
+                exceptionEvents.push(exceptionEvent);
+                if (exceptionEvents.length >= settings.exceptionEventLimit)
+                    break;  // the maximum number of exceptions have been created
+            }
+        }
+
+        // -----------------------------------------------------------------------------------------
 
         const affectedRows = await dbInstance.update(tUsersEvents)
             .set({
+                availabilityTimeslots: exceptionEvents.join(','),
                 preferences: data.preferences,
                 preferencesDietary: data.preferencesDietary,
                 preferenceHours: parseInt(data.serviceHours, /* radix= */ 10),
@@ -405,7 +438,7 @@ export async function updateAvailability(eventId: number, teamId: number, formDa
                 preferences: data.preferences,
                 serviceHours: data.serviceHours,
                 serviceTiming: data.serviceTiming,
-                //timeslots: validatedTimeslots,
+                timeslots: exceptionEvents,
             },
         });
 
