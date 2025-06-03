@@ -322,3 +322,93 @@ export async function requestRefund(eventId: number, formData: unknown) {
         return { success: true, refresh: true };
     });
 }
+
+/**
+ * Zod type that describes the data required when updating availability information.
+ */
+const kUpdateAvailabilityData = z.object({
+    serviceHours: kServiceHoursProperty,
+    serviceTiming: kServiceTimingProperty,
+    preferences: z.string().optional(),
+    preferencesDietary: z.string().optional(),
+});
+
+/**
+ * Server action that enables volunteers to update their availability information.
+ */
+export async function updateAvailability(eventId: number, teamId: number, formData: unknown) {
+    'use server';
+    return executeServerAction(formData, kUpdateAvailabilityData, async (data, props) => {
+        if (!props.user)
+            return { success: false, error: 'You need to be signed in to your account…' };
+
+        const dbInstance = db;
+
+        const verification = await dbInstance.selectFrom(tUsersEvents)
+            .innerJoin(tEvents)
+                .on(tEvents.eventId.equals(tUsersEvents.eventId))
+            .innerJoin(tTeams)
+                .on(tTeams.teamId.equals(tUsersEvents.teamId))
+            .where(tUsersEvents.userId.equals(props.user.userId))
+                .and(tUsersEvents.eventId.equals(eventId))
+                .and(tUsersEvents.teamId.equals(teamId))
+            .select({
+                event: {
+                    availabilityStatus: tEvents.eventAvailabilityStatus,
+                    shortName: tEvents.eventShortName,
+                    slug: tEvents.eventSlug,
+                },
+                settings: {
+                    // TODO: Maximum timeslots
+                },
+                team: {
+                    slug: tTeams.teamSlug,
+                },
+            })
+            .executeSelectNoneOrOne();
+
+        if (!verification)
+            notFound();
+
+        const { event, team } = verification;
+
+        if (!props.access.can('event.visible', { event: event.slug, team: team.slug })) {
+            if (event.availabilityStatus !== 'Available')
+                return { success: false, error: 'You are not able to share your preferences…' };
+        }
+
+        const [ serviceTimingStart, serviceTimingEnd ] = data.serviceTiming.split('-');
+
+        const affectedRows = await dbInstance.update(tUsersEvents)
+            .set({
+                preferences: data.preferences,
+                preferencesDietary: data.preferencesDietary,
+                preferenceHours: parseInt(data.serviceHours, /* radix= */ 10),
+                preferenceTimingStart: parseInt(serviceTimingStart, /* radix= */ 10),
+                preferenceTimingEnd: parseInt(serviceTimingEnd, /* radix= */ 10),
+                preferencesUpdated: dbInstance.currentZonedDateTime(),
+            })
+            .where(tUsersEvents.userId.equals(props.user.userId))
+                .and(tUsersEvents.eventId.equals(eventId))
+                .and(tUsersEvents.teamId.equals(teamId))
+            .executeUpdate();
+
+        if (!affectedRows)
+            return { success: false, error: 'Unable to save your preferences in the database…' };
+
+        RecordLog({
+            type: kLogType.ApplicationAvailabilityPreferences,
+            severity: kLogSeverity.Info,
+            sourceUser: props.user,
+            data: {
+                event: event.shortName,
+                preferences: data.preferences,
+                serviceHours: data.serviceHours,
+                serviceTiming: data.serviceTiming,
+                //timeslots: validatedTimeslots,
+            },
+        });
+
+        return { success: true, refresh: true };
+    });
+}
