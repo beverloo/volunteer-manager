@@ -2,7 +2,7 @@
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
 import Link from 'next/link';
-import { notFound } from 'next/navigation';
+import { forbidden, notFound } from 'next/navigation';
 
 import { default as MuiLink } from '@mui/material/Link';
 import Alert from '@mui/material/Alert';
@@ -10,80 +10,140 @@ import Stack from '@mui/material/Stack';
 
 import type { NextPageParams } from '@lib/NextRouterParams';
 import { AvailabilityWarning } from '../AvailabilityWarning';
+import { FormProvider } from '@components/FormProvider';
 import { HotelConfirmation } from './HotelConfirmation';
 import { HotelPreferences } from './HotelPreferences';
 import { Markdown } from '@components/Markdown';
-import { contextForRegistrationPage } from '../../../contextForRegistrationPage';
+import { Temporal, isAfter, isBefore } from '@lib/Temporal';
 import { generatePortalMetadataFn } from '../../../../generatePortalMetadataFn';
+import { getApplicationContext } from '../getApplicationContext';
 import { getHotelRoomOptions } from './getHotelRoomOptions';
 import { getStaticContent } from '@lib/Content';
+import db, { tEvents, tUsersEvents, tRoles, tHotelsPreferences, tHotelsAssignments,
+    tHotelsBookings } from '@lib/database';
+
+import * as actions from '../../ApplicationActions';
 
 /**
  * The <EventApplicationHotelsPage> component serves the ability for users to select which hotel
  * they would like to stay in during the event. Not all volunteers have the ability to make this
  * selection, as the number of available hotel rooms is limited.
  */
-export default async function EventApplicationHotelsPage(props: NextPageParams<'slug'>) {
-    const context = await contextForRegistrationPage(props.params);
-    if (!context || !context.registration || !context.user || !context.event.hotelEnabled)
-        notFound();  // the event does not exist, or the volunteer is not signed in
+export default async function EventApplicationHotelsPage(props: NextPageParams<'slug' | 'team'>) {
+    const { access, event, team, user } = await getApplicationContext(props);
 
-    const { event, registration, slug, teamSlug, user } = context;
+    const currentTime = Temporal.Now.zonedDateTimeISO('utc');
+    const dbInstance = db;
 
-    const bookings = registration.hotelBookings;
-    const eligible = registration.hotelEligible;
-    const override = context.access.can('event.hotels', { event: event.slug });
-    const enabled = registration.hotelInformationPublished || override;
+    // ---------------------------------------------------------------------------------------------
+    // Fetch some detailed information necessary to process this page, specifically settings in
+    // context of hotel allocation, and whether the user has an existing reservation (request).
+    // ---------------------------------------------------------------------------------------------
 
-    const preferences = registration.hotelPreferences;
+    const hotelAssignmentsJoin = tHotelsAssignments.forUseInLeftJoin();
+    const hotelBookingsJoin = tHotelsBookings.forUseInLeftJoin();
+    const hotelPreferencesJoin = tHotelsPreferences.forUseInLeftJoin();
 
-    if (!bookings) {
-        if (!eligible || !enabled)
-            notFound();  // the volunteer is not eligible to a hotel reservation
+    const data = await dbInstance.selectFrom(tUsersEvents)
+        .innerJoin(tEvents)
+            .on(tEvents.eventId.equals(tUsersEvents.eventId))
+        .innerJoin(tRoles)
+            .on(tRoles.roleId.equals(tUsersEvents.roleId))
+        .leftJoin(hotelPreferencesJoin)
+            .on(hotelPreferencesJoin.userId.equals(tUsersEvents.userId))
+                .and(hotelPreferencesJoin.eventId.equals(tUsersEvents.eventId))
+        .leftJoin(hotelAssignmentsJoin)
+            .on(hotelAssignmentsJoin.assignmentUserId.equals(tUsersEvents.userId))
+                .and(hotelAssignmentsJoin.eventId.equals(tUsersEvents.eventId))
+        .leftJoin(hotelBookingsJoin)
+            .on(hotelBookingsJoin.bookingId.equals(hotelAssignmentsJoin.bookingId))
+                .and(hotelBookingsJoin.bookingConfirmed.equals(/* true= */ 1))
+                .and(hotelBookingsJoin.bookingVisible.equals(/* true= */ 1))
+        .where(tUsersEvents.userId.equals(user.userId))
+            .and(tUsersEvents.eventId.equals(event.id))
+            .and(tUsersEvents.teamId.equals(team.id))
+        .select({
+            bookings: dbInstance.countDistinct(hotelBookingsJoin.bookingId),
+            preferences: {
+                checkIn: dbInstance.dateAsString(hotelPreferencesJoin.hotelDateCheckIn),
+                checkOut: dbInstance.dateAsString(hotelPreferencesJoin.hotelDateCheckOut),
+                hotelId: hotelPreferencesJoin.hotelId,
+                sharingPeople: hotelPreferencesJoin.hotelSharingPeople,
+                sharingPreferences: hotelPreferencesJoin.hotelSharingPreferences,
+            },
+            settings: {
+                availability: {
+                    start: tEvents.hotelPreferencesStart,
+                    end: tEvents.hotelPreferencesEnd,
+                },
+                detailsPublished: tEvents.hotelInformationPublished,
+                eligible: tUsersEvents.hotelEligible.valueWhenNull(tRoles.roleHotelEligible),
+                enabled: tEvents.hotelEnabled,
+            },
+        })
+        .groupBy(tUsersEvents.userId)
+        .executeSelectNoneOrOne();
 
-        if (registration.hotelAvailabilityWindow.status === 'pending' && !override)
-            notFound();  // the availability window has not opened yet
+    if (!data || !data.settings.enabled)
+        notFound();
+
+    const { bookings, preferences, settings } = data;
+
+    // ---------------------------------------------------------------------------------------------
+    // Decide whether the volunteer has the ability to access the hotel preferences page, and
+    // whether the page should be shown in read-only mode versus being fully editable.
+    // ---------------------------------------------------------------------------------------------
+
+    let locked: boolean = bookings > 0;
+
+    if (!access.can('event.hotels', { event: event.slug })) {
+        if (!settings.detailsPublished || !settings.availability?.start)
+            forbidden();  // details have not been published yet, but do tease existence
+
+        if (isBefore(currentTime, settings.availability.start))
+            forbidden();  // the availability window has not opened yet
+
+        if (!!settings.availability.end && isAfter(currentTime, settings.availability.end))
+            locked = true;  // the availability window has closed
     }
 
-    const options = await getHotelRoomOptions(event.eventId);
+    // ---------------------------------------------------------------------------------------------
+
     const content = await getStaticContent([ 'registration', 'application', 'hotel' ], {
         firstName: user.firstName,
     });
 
-    // ---------------------------------------------------------------------------------------------
-    // Logic pertaining to <HotelConfirmation>
-    // ---------------------------------------------------------------------------------------------
-    const readOnly = bookings.length > 0;
-
-    // ---------------------------------------------------------------------------------------------
-    // Data transformation for <HotelPreferences>
-    // ---------------------------------------------------------------------------------------------
-    const hotelPreferences = {
+    const defaultValues = {
+        interested: !!preferences ? 1 : 0,
         ...preferences,
-        interested: !!preferences ? (!!preferences.hotelId ? 1 : 0) : undefined,
     };
+
+    const action = actions.updateHotelPreferences.bind(null, event.id, team.id);
+    const rooms = await getHotelRoomOptions(event.id);
 
     return (
         <Stack spacing={2} sx={{ p: 2 }}>
-            { (!registration.hotelInformationPublished && !bookings) &&
+
+            { !settings.detailsPublished &&
                 <Alert severity="warning">
                     Details about the available hotel rooms have not been published yet, which may
                     result in this page appearing incomplete or broken.
                 </Alert> }
 
             { !bookings &&
-                <AvailabilityWarning override={override}
-                                     window={registration.hotelAvailabilityWindow} /> }
+                <AvailabilityWarning currentTime={currentTime} window={settings.availability} /> }
 
-            { content && <Markdown>{content.markdown}</Markdown> }
-            { bookings.length > 0 &&
-                <HotelConfirmation bookings={bookings} /> }
-            { (eligible || !!registration.hotelPreferences) &&
-                <HotelPreferences event={event.slug} team={teamSlug}
-                                  eventDate={event.startTime} hotelOptions={options}
-                                  hotelPreferences={hotelPreferences} readOnly={readOnly} /> }
+            { !!content && <Markdown>{content.markdown}</Markdown> }
 
-            <MuiLink component={Link} href={`/registration/${slug}/application`}>
+            { !!bookings && <HotelConfirmation eventId={event.id} userId={user.userId} /> }
+
+            { (!!settings.eligible || !!bookings) &&
+                <FormProvider action={action} defaultValues={defaultValues}>
+                    <HotelPreferences eventDate={event.startTime.toString()}
+                                      readOnly={locked} rooms={rooms} />
+                </FormProvider> }
+
+            <MuiLink component={Link} href={`/registration/${event.slug}/application/${team.slug}`}>
                 « Back to your registration
             </MuiLink>
         </Stack>

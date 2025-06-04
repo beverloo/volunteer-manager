@@ -5,13 +5,12 @@
 
 import { useEffect, useState } from 'react';
 
-import type { UseFormReturn } from '@proxy/react-hook-form-mui';
 import { DatePickerElement } from 'react-hook-form-mui/date-pickers';
-import { SelectElement, TextFieldElement } from '@proxy/react-hook-form-mui';
+import { SelectElement, TextFieldElement, useFormContext } from '@proxy/react-hook-form-mui';
 
-import Collapse from '@mui/material/Collapse';
 import Grid from '@mui/material/Grid';
 
+import { CollapsableGrid } from '@components/CollapsableGrid';
 import { Temporal, formatDate } from '@lib/Temporal';
 import { dayjs } from '@lib/DateTime';
 
@@ -37,46 +36,39 @@ export interface HotelPreferencesFormProps {
      * maximal selectable dates within the picker. Will be provided in a `Temporal.ZonedDateTime`
      * compatible format in UTC.
      */
-    eventDate?: string;
+    eventDate: string;
 
     /**
-     * The context within which this form is being displayed.
+     * Whether the form should be marked as read-only mode.
      */
-    form: UseFormReturn;
+    readOnly?: boolean;
 
     /**
-     * Options for hotel rooms that can be presented to the user, inclusive of their label.
+     * Hotel rooms that are available for selection.
      */
-    hotelOptions: { id: number; label: string; }[];
+    rooms: { id: number; label: string; }[];
 
     /**
      * Callback to be invoked when the value of one of the form fields has changed.
      */
     onChange?: () => void;
-
-    /**
-     * Whether the form should be marked as read-only, useful in case the hotel booking has been
-     * confirmed. Changes can only be made after that by e-mailing our team.
-     */
-    readOnly?: boolean;
 }
 
 /**
  * The <HotelPreferencesFormProps> component displays the actual form through which volunteers can
- * indicate their hotel room preferences. It will have to be saved by a higher-level component.
+ * indicate their hotel room preferences.
  */
 export function HotelPreferencesForm(props: HotelPreferencesFormProps) {
-    const { form, hotelOptions, onChange, readOnly } = props;
+    const { readOnly, rooms, onChange } = props;
 
-    const interested = form.watch('interested');
+    const { watch } = useFormContext();
+
+    const interested = watch('interested');
 
     const [ minDate, setMinDate ] = useState<dayjs.Dayjs | undefined>(undefined);
     const [ maxDate, setMaxDate ] = useState<dayjs.Dayjs | undefined>(undefined);
 
     useEffect(() => {
-        if (!props.eventDate)
-            return;
-
         const eventDateTemporal = Temporal.ZonedDateTime.from(props.eventDate);
         const eventDate = dayjs(formatDate(eventDateTemporal, 'YYYY-MM-DD[ 12:00:00]'));
         if (!eventDate.isValid())
@@ -89,14 +81,17 @@ export function HotelPreferencesForm(props: HotelPreferencesFormProps) {
 
     return (
         <>
-            <SelectElement name="interested" label="Would you like a hotel room?"
-                           options={kInterestedOptions} fullWidth size="small" required
-                           onChange={onChange} disabled={readOnly} />
-            <Collapse in={!!interested} mountOnEnter unmountOnExit>
-                <Grid container spacing={2} sx={{ mt: 1 }}>
+            <Grid size={{ xs: 12 }}>
+                <SelectElement name="interested" label="Would you like a hotel room?"
+                               options={kInterestedOptions} fullWidth size="small" required
+                               onChange={onChange} disabled={readOnly} />
+            </Grid>
+
+            <CollapsableGrid size={{ xs: 12 }} in={!!interested}>
+                <Grid container spacing={2}>
                     <Grid size={{ xs: 12 }}>
                         <SelectElement name="hotelId" label="Which room would you like?"
-                                       options={hotelOptions} fullWidth size="small" required
+                                       options={rooms} fullWidth size="small" required
                                        onChange={onChange} disabled={readOnly} />
                     </Grid>
 
@@ -124,7 +119,7 @@ export function HotelPreferencesForm(props: HotelPreferencesFormProps) {
                                            disabled={readOnly} onChange={onChange} />
                     </Grid>
                 </Grid>
-            </Collapse>
+            </CollapsableGrid>
         </>
     );
 }

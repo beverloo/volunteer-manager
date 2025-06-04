@@ -11,8 +11,8 @@ import { dayjs } from '@lib/DateTime';
 
 import Paper from '@mui/material/Paper';
 
-import type { HotelPreferencesProps } from '@app/registration/[slug]/application/[team]/hotel/HotelPreferences';
-import { HotelPreferencesForm } from '@app/registration/[slug]/application/[team]/hotel/HotelPreferencesForm';
+import { HotelPreferencesForm, type HotelPreferencesFormProps }
+    from '@app/registration/[slug]/application/[team]/hotel/HotelPreferencesForm';
 import { PaperHeader } from '@app/admin/components/PaperHeader';
 import { SubmitCollapse } from '@app/admin/components/SubmitCollapse';
 import { callApi } from '@lib/callApi';
@@ -34,12 +34,12 @@ interface ApplicationHotelPreferencesProps {
     /**
      * Options for hotel rooms that can be presented to the user, inclusive of their label.
      */
-    hotelOptions: HotelPreferencesProps['hotelOptions'];
+    hotelOptions: HotelPreferencesFormProps['rooms'];
 
     /**
      * Input to the hotel room preferences this user already expressed previously.
      */
-    hotelPreferences: HotelPreferencesProps['hotelPreferences'];
+    hotelPreferences: any;  // TODO: Convert to a Server Action
 
     /**
      * Slug of the team for which the preferences exist.
@@ -142,8 +142,8 @@ export function ApplicationHotelPreferences(props: ApplicationHotelPreferencesPr
             <PaperHeader title="Hotel preferences" permission="event.hotels"
                          onClear={handleClear} subject="hotel preferences" sx={{ mb: 2 }} />
             <FormContainer formContext={form} onSuccess={handleSubmit}>
-                <HotelPreferencesForm eventDate={eventDate} form={form as any}
-                                      hotelOptions={hotelOptions} onChange={handleChange} />
+                <HotelPreferencesForm eventDate={eventDate}
+                                      rooms={hotelOptions} onChange={handleChange} />
                 <SubmitCollapse error={error} loading={loading} open={invalidated} sx={{ mt: 2 }} />
             </FormContainer>
         </Paper>

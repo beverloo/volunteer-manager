@@ -9,7 +9,6 @@ import Alert from '@mui/material/Alert';
 import Stack from '@mui/material/Stack';
 
 import type { NextPageParams } from '@lib/NextRouterParams';
-import { AvailabilityWarning } from '../AvailabilityWarning';
 import { Markdown } from '@components/Markdown';
 import { TrainingConfirmation } from './TrainingConfirmation';
 import { TrainingPreferences } from './TrainingPreferences';
@@ -60,8 +59,8 @@ export default async function EventApplicationTrainingPage(props: NextPageParams
                     result in this page appearing incomplete or broken.
                 </Alert> }
 
-            <AvailabilityWarning override={override}
-                                 window={registration.trainingAvailabilityWindow} />
+            { /* <AvailabilityWarning override={override}
+                                      window={registration.trainingAvailabilityWindow} /> */ }
 
             { content && <Markdown>{content.markdown}</Markdown> }
             { (!!registration.training && !!registration.training.confirmed) &&

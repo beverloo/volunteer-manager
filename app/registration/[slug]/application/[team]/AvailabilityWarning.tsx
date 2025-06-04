@@ -1,30 +1,31 @@
 // Copyright 2024 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
-import { default as MuiLink } from '@mui/material/Link';
 import Alert from '@mui/material/Alert';
 
-import type { AvailabilityWindowStatus } from '@lib/isAvailabilityWindowOpen';
-import { Temporal, formatDate } from '@lib/Temporal';
+import { Temporal, formatDate, isAfter, isBefore } from '@lib/Temporal';
 
 /**
- * Number of hours prior to the availability window closing that a warning should be shown.
+ * Number of days prior to the availability window closing that a warning should be shown.
  */
-const kWindowCloseWarningHours = 14 * 24;
+const kWindowCloseWarningDays = 14;
 
 /**
  * Props accepted by the <AvailabilityWarning> component.
  */
 interface AvailabilityWarningProps {
     /**
-     * Whether the signed in user has access through an override.
+     * Current date and time on the server.
      */
-    override: boolean;
+    currentTime: Temporal.ZonedDateTime;
 
     /**
      * Status of the availability window for which we may be displaying a warning.
      */
-    window: AvailabilityWindowStatus;
+    window?: {
+        start?: Temporal.ZonedDateTime;
+        end?: Temporal.ZonedDateTime;
+    };
 }
 
 /**
@@ -33,68 +34,49 @@ interface AvailabilityWarningProps {
  * an error message in case the window has closed already.
  */
 export function AvailabilityWarning(props: AvailabilityWarningProps) {
-    switch (props.window.status) {
-        // Note: messages in the 'pending' state will only be shown to volunteering leads who have
-        // planning access to this particular part of the organisation. Regular volunteers will
-        // never see those messages, as detail pages will respond with HTTP 404 Not Found instead.
-        case 'pending': {
-            if (!!props.window.open) {
-                const windowOpenTime = Temporal.ZonedDateTime.from(props.window.open);
-                const windowOpenDate = formatDate(windowOpenTime, 'dddd, MMMM Do');
+    const { currentTime, window } = props;
 
-                return (
-                    <Alert severity="warning" sx={{ typography: 'body2' }}>
-                        Preferences cannot be shared by volunteers yet. The functionality is
-                        scheduled to become available on {windowOpenDate}.
-                    </Alert>
-                );
-            }
+    if (!window || !window.start) {
+        return (
+            <Alert severity="warning">
+                You aren't able to submit your preferences just yet. We haven't set a date for when
+                this feature will open—stay tuned!
+            </Alert>
+        );
+    }
 
-            return (
-                <Alert severity="warning">
-                    Preferences cannot be shared by volunteers yet. No date has been configured at
-                    which the functionality will become available.
-                </Alert>
-            );
-        }
+    if (isBefore(currentTime, window.start)) {
+        const windowOpenDate = formatDate(window.start, 'dddd, MMMM Do');
 
-        case 'current': {
-            if (!props.window.close)
-                return undefined;  // no need for a warning - no close date set
+        return (
+            <Alert severity="warning">
+                You aren't able to submit your preferences just yet. Please come back after{' '}
+                {windowOpenDate} for more information.
+            </Alert>
+        );
+    }
 
-            const currentTime = Temporal.Now.instant();
-
-            const windowCloseTime = Temporal.ZonedDateTime.from(props.window.close);
-            const windowCloseInstant = windowCloseTime.toInstant();
-
-            const differenceInHours = currentTime.until(windowCloseInstant, {
-                largestUnit: 'hour',
-            });
-
-            if (differenceInHours.hours > kWindowCloseWarningHours)
-                return undefined;  // no need for a warning - too far into the future
-
-            const windowCloseDate = formatDate(windowCloseTime, 'dddd, MMMM Do');
-
-            return (
-                <Alert severity="warning">
-                    Please submit your preferences soon, as they will be locked on{' '}
-                    {windowCloseDate} to allow us to proceed with planning.
-                </Alert>
-            );
-        }
-
-        case 'missed': {
-            const windowCloseTime = Temporal.ZonedDateTime.from(props.window.close);
-            const windowCloseDate = formatDate(windowCloseTime, 'dddd, MMMM Do');
-
+    if (!!window.end) {
+        const windowCloseDate = formatDate(window.end, 'dddd, MMMM Do');
+        if (isAfter(currentTime, window.end)) {
             return (
                 <Alert severity="error">
-                    The window to share your preferences closed on {windowCloseDate}. If you have
-                    any questions, please feel free to e-mail us at{' '}
-                    <MuiLink href="mailto:crew@animecon.nl">crew@animecon.nl</MuiLink>.
+                    The window to submit your preferences closed on {windowCloseDate}. If you have
+                    any questions or concerns, please send us an e-mail.
+                </Alert>
+            );
+        }
+
+        const daysUntilWindowCloseDate = currentTime.until(window.end, { largestUnit: 'days' });
+        if (daysUntilWindowCloseDate.days <= kWindowCloseWarningDays) {
+            return (
+                <Alert severity="warning">
+                    The window to submit your preferences will be closing on {windowCloseDate},
+                    which is coming up very soon.
                 </Alert>
             );
         }
     }
+
+    return <></>;
 }

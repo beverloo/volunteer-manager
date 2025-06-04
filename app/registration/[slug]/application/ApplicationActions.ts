@@ -1,21 +1,22 @@
 // Copyright 2025 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
-import { notFound } from 'next/navigation';
+import { forbidden, notFound } from 'next/navigation';
 import { z } from 'zod/v4';
 
 import { Publish } from '@lib/subscriptions';
 import { RecordLog, kLogSeverity, kLogType } from '@lib/Log';
 import { SendEmailTask } from '@lib/scheduler/tasks/SendEmailTask';
-import { Temporal } from '@lib/Temporal';
+import { isAfter, isBefore, Temporal } from '@lib/Temporal';
 import { determineAvailabilityStatus } from '@lib/EnvironmentContext';
 import { executeServerAction } from '@lib/serverAction';
 import { getPublicEventsForFestival } from './[team]/availability/getPublicEventsForFestival';
 import { getStaticContent } from '@lib/Content';
-import db, { tEnvironments, tEvents, tEventsTeams, tRefunds, tRoles, tTeams, tTeamsRoles,
+import db, { tEnvironments, tEvents, tEventsTeams, tHotelsPreferences, tRefunds, tRoles, tTeams, tTeamsRoles,
     tUsersEvents } from '@lib/database';
 
 import { kRegistrationStatus, kShirtFit, kShirtSize, kSubscriptionType } from '@lib/database/Types';
+import { kTemporalPlainDate } from '@app/api/Types';
 
 /**
  * Number of hours that the volunteer would like to help us out with.
@@ -445,3 +446,155 @@ export async function updateAvailability(eventId: number, teamId: number, formDa
         return { success: true, refresh: true };
     });
 }
+
+/**
+ * Zod type that describes the data required when updating their hotel preferences.
+ */
+const kUpdateHotelPreferences = z.object({
+    interested: z.number(),
+
+    // When interested:
+    hotelId: z.number().optional(),
+    checkIn: kTemporalPlainDate.optional(),
+    checkOut: kTemporalPlainDate.optional(),
+    sharingPeople: z.number().optional(),
+    sharingPreferences: z.string().optional(),
+});
+
+/**
+ * Server action that enables volunteers to update their hotel preferences.
+ */
+export async function updateHotelPreferences(eventId: number, teamId: number, formData: unknown) {
+    'use server';
+    return executeServerAction(formData, kUpdateHotelPreferences, async (data, props) => {
+        if (!props.user)
+            return { success: false, error: 'You need to be signed in to your account…' };
+
+        const dbInstance = db;
+
+        const verification = await dbInstance.selectFrom(tUsersEvents)
+            .innerJoin(tEvents)
+                .on(tEvents.eventId.equals(tUsersEvents.eventId))
+            .innerJoin(tRoles)
+                .on(tRoles.roleId.equals(tUsersEvents.roleId))
+            .innerJoin(tTeams)
+                .on(tTeams.teamId.equals(tUsersEvents.teamId))
+            .where(tUsersEvents.userId.equals(props.user.userId))
+                .and(tUsersEvents.eventId.equals(eventId))
+                .and(tUsersEvents.teamId.equals(teamId))
+            .select({
+                event: {
+                    shortName: tEvents.eventShortName,
+                    slug: tEvents.eventSlug,
+                },
+                settings: {
+                    availability: {
+                        start: tEvents.hotelPreferencesStart,
+                        end: tEvents.hotelPreferencesEnd,
+                    },
+                    detailsPublished: tEvents.hotelInformationPublished,
+                    eligible: tUsersEvents.hotelEligible.valueWhenNull(tRoles.roleHotelEligible),
+                },
+            })
+            .executeSelectNoneOrOne();
+
+        if (!verification)
+            notFound();
+
+        const { event, settings } = verification;
+
+        // -----------------------------------------------------------------------------------------
+        // Verify that the signed in user is able to update their preferences.
+        // -----------------------------------------------------------------------------------------
+
+        if (!props.access.can('event.hotels', { event: event.slug })) {
+            if (!settings.detailsPublished || !settings.eligible)
+                forbidden();  // the page shouldn't be accessible
+
+            const currentTime = Temporal.Now.zonedDateTimeISO('utc');
+
+            if (!!settings.availability) {
+                const { start, end } = settings.availability;
+
+                if (!start || isBefore(currentTime, start))
+                    forbidden();  // the availability window isn't open yet
+                if (!!end && isAfter(currentTime, end))
+                    forbidden();  // the availability window has closed
+            }
+        }
+
+        // -----------------------------------------------------------------------------------------
+        // Process the update. There are two options: either they're interested, in which case all
+        // appropriate fields must be set, or they're not interested, and everything will be NULL.
+        // -----------------------------------------------------------------------------------------
+
+        let update: {
+            hotelId: number | null,
+            hotelDateCheckIn: Temporal.PlainDate | null,
+            hotelDateCheckOut: Temporal.PlainDate | null,
+            hotelSharingPeople: number | null,
+            hotelSharingPreferences: string | null
+        };
+
+        if (!data.interested) {
+            update = {
+                hotelId: null,
+                hotelDateCheckIn: null,
+                hotelDateCheckOut: null,
+                hotelSharingPeople: null,
+                hotelSharingPreferences: null,
+            };
+        } else {
+            if (!data.hotelId)
+                return { success: false, error: 'You must select a hotel room…' };
+
+            if (!data.checkIn || !data.checkOut)
+                return { success: false, error: 'You must select the dates for your booking…' };
+
+            if (!data.sharingPeople || !data.sharingPreferences)
+                return { success: false, error: 'You must select who you want to share with…' };
+
+            update = {
+                hotelId: data.hotelId,
+                hotelDateCheckIn: data.checkIn,
+                hotelDateCheckOut: data.checkOut,
+                hotelSharingPeople: data.sharingPeople,
+                hotelSharingPreferences: data.sharingPreferences,
+            };
+        }
+
+        // -----------------------------------------------------------------------------------------
+        // Store the actual update in the database.
+        // -----------------------------------------------------------------------------------------
+
+        const affectedRows = await dbInstance.insertInto(tHotelsPreferences)
+            .set({
+                userId: props.user.userId,
+                eventId: eventId,
+                teamId: teamId,
+                ...update,
+                hotelPreferencesUpdated: dbInstance.currentZonedDateTime()
+            })
+            .onConflictDoUpdateSet({
+                ...update,
+                hotelPreferencesUpdated: dbInstance.currentZonedDateTime()
+            })
+            .executeInsert();
+
+        if (!affectedRows)
+            return { success: false, error: 'Unable to update your preferences in the database…' };
+
+        RecordLog({
+            type: kLogType.ApplicationHotelPreferences,
+            severity: kLogSeverity.Info,
+            sourceUser: props.user,
+            data: {
+                event: event.shortName,
+                interested: !!data.interested,
+                hotelId: data.hotelId,
+            },
+        });
+
+        return { success: true, refresh: true };
+    });
+};
