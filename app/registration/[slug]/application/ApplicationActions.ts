@@ -607,7 +607,8 @@ const kUpdateTrainingPreferences = z.object({
 /**
  * Server action that enables volunteers to update their training preferences.
  */
-export async function updateTrainingPreferences(eventId: number, teamId: number, formData: unknown) {
+export async function updateTrainingPreferences(eventId: number, teamId: number, formData: unknown)
+{
     'use server';
     return executeServerAction(formData, kUpdateTrainingPreferences, async (data, props) => {
         if (!props.user)

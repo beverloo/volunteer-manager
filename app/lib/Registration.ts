@@ -68,7 +68,7 @@ interface RegistrationDatabaseRow {
 /**
  * Availability information stored as part of the volunteer's preferences.
  */
-export interface RegistrationAvailability {
+interface RegistrationAvailability {
     /**
      * Specific preferences indicated by the volunteer, if any.
      */
@@ -172,7 +172,7 @@ interface RegistrationHotelBooking {
 /**
  * Information about the volunteer's ticket refund request, if any.
  */
-export interface RegistrationRefund {
+interface RegistrationRefund {
     /**
      * The volunteer's ticket number, when known.
      */
@@ -204,7 +204,7 @@ export interface RegistrationRefund {
  * Information about the volunteer's preferences regarding participation in the training, as well as
  * their assigned training date, if any.
  */
-export interface RegistrationTraining {
+interface RegistrationTraining {
     /**
      * Whether the volunteer's training preferences have been confirmed by a manager.
      */
@@ -249,7 +249,7 @@ export interface RegistrationTraining {
  * the volunteer eligible to express their preferences, and has the volunteer expressed their
  * preferences. It's possible for senior+ volunteers to express preferences on behalf of others.
  */
-export interface RegistrationData {
+interface RegistrationData {
     /**
      * Name of the role for which the volunteer has applied. Should only be used when they have been
      * accepted, as other statuses may not reflect this correctly.
