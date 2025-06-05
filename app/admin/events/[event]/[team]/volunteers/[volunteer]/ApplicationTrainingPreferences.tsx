@@ -113,8 +113,7 @@ export function ApplicationTrainingPreferences(props: ApplicationTrainingPrefere
             <PaperHeader title="Training preferences" permission="event.trainings"
                          onClear={handleClear} subject="training preferences" sx={{ mb: 2 }} />
             <FormContainer formContext={form} onSuccess={handleSubmit}>
-                <TrainingPreferencesForm onChange={handleChange}
-                                         trainingOptions={trainingOptions} />
+                <TrainingPreferencesForm onChange={handleChange} sessions={trainingOptions} />
                 <SubmitCollapse error={error} loading={loading} open={invalidated} sx={{ mt: 2 }} />
             </FormContainer>
         </Paper>

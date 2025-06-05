@@ -12,8 +12,8 @@ import { determineAvailabilityStatus } from '@lib/EnvironmentContext';
 import { executeServerAction } from '@lib/serverAction';
 import { getPublicEventsForFestival } from './[team]/availability/getPublicEventsForFestival';
 import { getStaticContent } from '@lib/Content';
-import db, { tEnvironments, tEvents, tEventsTeams, tHotelsPreferences, tRefunds, tRoles, tTeams, tTeamsRoles,
-    tUsersEvents } from '@lib/database';
+import db, { tEnvironments, tEvents, tEventsTeams, tHotelsPreferences, tRefunds, tRoles, tTeams,
+    tTeamsRoles, tTrainingsAssignments, tUsersEvents } from '@lib/database';
 
 import { kRegistrationStatus, kShirtFit, kShirtSize, kSubscriptionType } from '@lib/database/Types';
 import { kTemporalPlainDate } from '@app/api/Types';
@@ -477,8 +477,6 @@ export async function updateHotelPreferences(eventId: number, teamId: number, fo
                 .on(tEvents.eventId.equals(tUsersEvents.eventId))
             .innerJoin(tRoles)
                 .on(tRoles.roleId.equals(tUsersEvents.roleId))
-            .innerJoin(tTeams)
-                .on(tTeams.teamId.equals(tUsersEvents.teamId))
             .where(tUsersEvents.userId.equals(props.user.userId))
                 .and(tUsersEvents.eventId.equals(eventId))
                 .and(tUsersEvents.teamId.equals(teamId))
@@ -598,3 +596,113 @@ export async function updateHotelPreferences(eventId: number, teamId: number, fo
         return { success: true, refresh: true };
     });
 };
+
+/**
+ * Zod type that describes the data required when updating their training preferences.
+ */
+const kUpdateTrainingPreferences = z.object({
+    training: z.number(),
+});
+
+/**
+ * Server action that enables volunteers to update their training preferences.
+ */
+export async function updateTrainingPreferences(eventId: number, teamId: number, formData: unknown) {
+    'use server';
+    return executeServerAction(formData, kUpdateTrainingPreferences, async (data, props) => {
+        if (!props.user)
+            return { success: false, error: 'You need to be signed in to your account…' };
+
+        const dbInstance = db;
+
+        const verification = await dbInstance.selectFrom(tUsersEvents)
+            .innerJoin(tEvents)
+                .on(tEvents.eventId.equals(tUsersEvents.eventId))
+            .innerJoin(tRoles)
+                .on(tRoles.roleId.equals(tUsersEvents.roleId))
+            .innerJoin(tTeams)
+                .on(tTeams.teamId.equals(tUsersEvents.teamId))
+            .where(tUsersEvents.userId.equals(props.user.userId))
+                .and(tUsersEvents.eventId.equals(eventId))
+                .and(tUsersEvents.teamId.equals(teamId))
+            .select({
+                event: {
+                    shortName: tEvents.eventShortName,
+                    slug: tEvents.eventSlug,
+                },
+                settings: {
+                    availability: {
+                        start: tEvents.trainingPreferencesStart,
+                        end: tEvents.trainingPreferencesEnd,
+                    },
+                    detailsPublished: tEvents.trainingInformationPublished,
+                    eligible: tUsersEvents.trainingEligible.valueWhenNull(
+                        tRoles.roleTrainingEligible),
+                },
+            })
+            .executeSelectNoneOrOne();
+
+        if (!verification)
+            notFound();
+
+        const { event, settings } = verification;
+
+        // -----------------------------------------------------------------------------------------
+        // Verify that the signed in user is able to update their preferences.
+        // -----------------------------------------------------------------------------------------
+
+        if (!props.access.can('event.trainings', { event: event.slug })) {
+            if (!settings.detailsPublished || !settings.eligible)
+                forbidden();  // the page shouldn't be accessible
+
+            const currentTime = Temporal.Now.zonedDateTimeISO('utc');
+
+            if (!!settings.availability) {
+                const { start, end } = settings.availability;
+
+                if (!start || isBefore(currentTime, start))
+                    forbidden();  // the availability window isn't open yet
+                if (!!end && isAfter(currentTime, end))
+                    forbidden();  // the availability window has closed
+            }
+        }
+
+        // -----------------------------------------------------------------------------------------
+        // Store the actual update in the database.
+        // -----------------------------------------------------------------------------------------
+
+        let preferenceTrainingId: number | null = null;
+        if (data.training >= 1)
+            preferenceTrainingId = data.training;
+
+        const affectedRows = await dbInstance.insertInto(tTrainingsAssignments)
+            .set({
+                eventId: eventId,
+                assignmentUserId: props.user.userId,
+                assignmentExtraId: null,
+
+                preferenceTrainingId,
+                preferenceUpdated: dbInstance.currentZonedDateTime()
+            })
+            .onConflictDoUpdateSet({
+                preferenceTrainingId,
+                preferenceUpdated: dbInstance.currentZonedDateTime()
+            })
+            .executeInsert();
+
+        if (!affectedRows)
+            return { success: false, error: 'Unable to update your preferences in the database…' };
+
+        RecordLog({
+            type: kLogType.ApplicationTrainingPreferences,
+            severity: kLogSeverity.Info,
+            sourceUser: props.user,
+            data: {
+                event: event.shortName,
+                training: data.training,
+            },
+        });
+
+        return { success: true, refresh: true };
+    });
+}

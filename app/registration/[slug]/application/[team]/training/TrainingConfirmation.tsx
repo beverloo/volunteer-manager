@@ -1,12 +1,8 @@
-// Copyright 2023 Peter Beverloo & AnimeCon. All rights reserved.
+// Copyright 2025 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
-'use client';
-
-import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 
-import type { RegistrationTraining } from '@lib/Registration';
 import { ConfirmationBox } from '../hotel/ConfirmationBox';
 import { Temporal, formatDate } from '@lib/Temporal';
 
@@ -22,7 +18,11 @@ interface TrainingConfirmationProps {
     /**
      * Information about the volunteer's training participation that we're representing.
      */
-    training: RegistrationTraining;
+    training?: {
+        address?: string;
+        start: Temporal.ZonedDateTime;
+        end: Temporal.ZonedDateTime;
+    };
 }
 
 /**
@@ -32,43 +32,35 @@ interface TrainingConfirmationProps {
 export function TrainingConfirmation(props: TrainingConfirmationProps) {
     const { timezone, training } = props;
 
-    let confirmationBox: React.ReactNode = undefined;
-    if (!!training.assignedDate && !!training.assignedEndDate) {
-        const date =
-            formatDate(
-                Temporal.ZonedDateTime.from(training.assignedDate).withTimeZone(timezone),
-                'dddd, MMMM D');
-
-        const startTime =
-            formatDate(
-                Temporal.ZonedDateTime.from(training.assignedDate).withTimeZone(timezone),
-                'H:mm');
-
-        const endTime =
-            formatDate(
-                Temporal.ZonedDateTime.from(training.assignedEndDate).withTimeZone(timezone),
-                'H:mm');
-
-        const primary = `You'll be joining the training on ${date}`;
-        const secondary = training.assignedAddress ?? '';
-        const tertiary = `Please be there at ${startTime}, we'll finish around ${endTime}`;
-
-        confirmationBox = (
-            <ConfirmationBox primary={primary} secondary={secondary} tertiary={tertiary} />
-        );
-    } else {
-        confirmationBox = (
-            <ConfirmationBox primary="You'll skip the professional training this year"
-                             secondary="We look forward to seeing you at the event instead!" />
+    if (!training) {
+        return (
+            <>
+                <Typography variant="h5">
+                    Your confirmed participation
+                </Typography>
+                <ConfirmationBox primary="You'll skip the professional training this year"
+                                 secondary="We look forward to seeing you at the event instead!" />
+            </>
         );
     }
 
+    const localStartTime = training.start.withTimeZone(timezone);
+    const localEndTime = training.end.withTimeZone(timezone);
+
+    const date = formatDate(localStartTime, 'dddd, MMMM D');
+
+    const startTime = formatDate(localStartTime, 'H:mm');
+    const endTime = formatDate(localEndTime, 'H:mm');
+
     return (
-        <Box sx={{ mt: 1 }}>
+        <>
             <Typography variant="h5">
                 Your confirmed participation
             </Typography>
-            {confirmationBox}
-        </Box>
+            <ConfirmationBox
+                primary={`You'll be joining the training on ${date}`}
+                secondary={training.address}
+                tertiary={`Please be there at ${startTime}, we'll finish around ${endTime}`} />
+        </>
     );
 }

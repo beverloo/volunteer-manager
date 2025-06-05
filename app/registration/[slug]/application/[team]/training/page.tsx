@@ -1,77 +1,174 @@
-// Copyright 2023 Peter Beverloo & AnimeCon. All rights reserved.
+// Copyright 2025 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
 import Link from 'next/link';
-import { notFound } from 'next/navigation';
+import { forbidden, notFound } from 'next/navigation';
 
 import { default as MuiLink } from '@mui/material/Link';
 import Alert from '@mui/material/Alert';
+import HistoryEduIcon from '@mui/icons-material/HistoryEdu';
 import Stack from '@mui/material/Stack';
+import Typography from '@mui/material/Typography';
 
 import type { NextPageParams } from '@lib/NextRouterParams';
+import { AvailabilityWarning } from '../AvailabilityWarning';
+import { FormProvider } from '@components/FormProvider';
+import { FormSubmitButton } from '@components/FormSubmitButton';
 import { Markdown } from '@components/Markdown';
+import { Temporal, isAfter, isBefore } from '@lib/Temporal';
 import { TrainingConfirmation } from './TrainingConfirmation';
-import { TrainingPreferences } from './TrainingPreferences';
-import { contextForRegistrationPage } from '../../../contextForRegistrationPage';
+import { TrainingPreferencesForm } from './TrainingPreferencesForm';
 import { generatePortalMetadataFn } from '../../../../generatePortalMetadataFn';
+import { getApplicationContext } from '../getApplicationContext';
 import { getStaticContent } from '@lib/Content';
 import { getTrainingOptions } from './getTrainingOptions';
+import db, { tEvents, tRoles, tTrainings, tTrainingsAssignments, tUsersEvents } from '@lib/database';
+
+import * as actions from '../../ApplicationActions';
 
 /**
  * The <EventApplicationTrainingPage> component serves the ability for users to select which
  * training session they would like to participate in, if any. Not all volunteers are eligible
  * to participate in the trainings.
  */
-export default async function EventApplicationTrainingPage(props: NextPageParams<'slug'>) {
-    const context = await contextForRegistrationPage(props.params);
-    if (!context || !context.registration || !context.user || !context.event.trainingEnabled)
-        notFound();  // the event does not exist, or the volunteer is not signed in
+export default async function EventApplicationTrainingPage(props: NextPageParams<'slug' | 'team'>) {
+    const { access, event, team, user } = await getApplicationContext(props);
 
-    const { access, event, registration, slug, teamSlug, user } = context;
+    const currentTime = Temporal.Now.zonedDateTimeISO('utc');
+    const dbInstance = db;
 
-    const eligible = registration.trainingEligible;
-    const override = access.can('event.trainings', { event: event.slug });
-    const enabled = registration.trainingInformationPublished || override;
+    // ---------------------------------------------------------------------------------------------
+    // Fetch detailed information necessary to display this page, including settings in regards to
+    // the training sessions that may be organised.
+    // ---------------------------------------------------------------------------------------------
 
-    const preferences = registration.training;
+    const trainingsAssignmentsJoin = tTrainingsAssignments.forUseInLeftJoin();
+    const trainingsJoin = tTrainings.forUseInLeftJoin();
 
-    if ((!eligible || !enabled) && !(!!preferences && !!preferences.confirmed))
-        notFound();  // the volunteer is not eligible to participate in the training
+    const data = await dbInstance.selectFrom(tUsersEvents)
+        .innerJoin(tEvents)
+            .on(tEvents.eventId.equals(tUsersEvents.eventId))
+        .innerJoin(tRoles)
+            .on(tRoles.roleId.equals(tUsersEvents.roleId))
+        .leftJoin(trainingsAssignmentsJoin)
+            .on(trainingsAssignmentsJoin.eventId.equals(tUsersEvents.eventId))
+                .and(trainingsAssignmentsJoin.assignmentUserId.equals(tUsersEvents.userId))
+        .leftJoin(trainingsJoin)
+            .on(trainingsJoin.trainingId.equals(trainingsAssignmentsJoin.assignmentTrainingId))
+        .where(tUsersEvents.userId.equals(user.userId))
+            .and(tUsersEvents.eventId.equals(event.id))
+            .and(tUsersEvents.teamId.equals(team.id))
+        .select({
+            assignment: {
+                confirmed: trainingsAssignmentsJoin.assignmentConfirmed,
+                trainingId: trainingsAssignmentsJoin.assignmentTrainingId,
+                training: {
+                    address: trainingsJoin.trainingAddress,
+                    start: trainingsJoin.trainingStart,
+                    end: trainingsJoin.trainingEnd,
+                },
+            },
+            preferences: {
+                submitted: trainingsAssignmentsJoin.assignmentId.isNotNull(),
+                trainingId: trainingsAssignmentsJoin.preferenceTrainingId,
+            },
+            settings: {
+                availability: {
+                    start: tEvents.trainingPreferencesStart,
+                    end: tEvents.trainingPreferencesEnd,
+                },
+                detailsPublished: tEvents.trainingInformationPublished,
+                eligible: tUsersEvents.trainingEligible.valueWhenNull(tRoles.roleTrainingEligible),
+                enabled: tEvents.hotelEnabled,
+                timezone: tEvents.eventTimezone,
+            },
+        })
+        .executeSelectNoneOrOne();
 
-    if (registration.trainingAvailabilityWindow.status === 'pending' && !override)
-        notFound();  // the availability window has not opened yet
+    if (!data || !data.settings.enabled)
+        notFound();
 
-    const trainingOptions = await getTrainingOptions(event.eventId);
+    const { assignment, preferences, settings } = data;
+
+    // ---------------------------------------------------------------------------------------------
+    // Decide whether the volunteer has the ability to access the training preferences page, and
+    // whether the page should be shown in read-only mode versus being fully editable.
+    // ---------------------------------------------------------------------------------------------
+
+    let locked: boolean = !!assignment?.confirmed;
+
+    if (!access.can('event.trainings', { event: event.slug })) {
+        if (!settings.detailsPublished || !settings.availability?.start)
+            forbidden();  // details have not been published yet, but do tease existence
+
+        if (isBefore(currentTime, settings.availability.start))
+            forbidden();  // the availability window has not opened yet
+
+        if (!!settings.availability.end && isAfter(currentTime, settings.availability.end))
+            locked = true;  // the availability window has closed
+    }
+
+    // ---------------------------------------------------------------------------------------------
+
     const content = await getStaticContent([ 'registration', 'application', 'training' ], {
         firstName: user.firstName,
     });
 
+    const defaultValues = {
+        training: preferences?.trainingId ??
+            (preferences?.submitted ? /* skip the training= */ 0 : undefined),
+    };
+
+    const action = actions.updateTrainingPreferences.bind(null, event.id, team.id);
+    const sessions = await getTrainingOptions(event.id);
+
     // ---------------------------------------------------------------------------------------------
-    // Logic pertaining to <TrainingPreferences>
-    // ---------------------------------------------------------------------------------------------
-    const readOnly = !!preferences && !!preferences.confirmed;
 
     return (
         <Stack spacing={2} sx={{ p: 2 }}>
-            { !registration.trainingInformationPublished &&
+
+            { !settings.detailsPublished &&
                 <Alert severity="warning">
-                    Details about the training sessions have not been published yet, which may
-                    result in this page appearing incomplete or broken.
+                    Details about the available training sessions have not been published yet, which
+                    may result in this page appearing incomplete or broken.
                 </Alert> }
 
-            { /* <AvailabilityWarning override={override}
-                                      window={registration.trainingAvailabilityWindow} /> */ }
+            { !assignment?.confirmed &&
+                <AvailabilityWarning currentTime={currentTime} window={settings.availability} /> }
 
-            { content && <Markdown>{content.markdown}</Markdown> }
-            { (!!registration.training && !!registration.training.confirmed) &&
-                <TrainingConfirmation timezone={event.timezone}
-                                      training={registration.training} /> }
-            <TrainingPreferences event={event.slug} team={teamSlug}
-                                 readOnly={readOnly} training={registration.training}
-                                 trainingOptions={trainingOptions} />
-            <MuiLink component={Link} href={`/registration/${slug}/application`}>
+            { !!content && <Markdown>{content.markdown}</Markdown> }
+
+            { !!assignment?.confirmed &&
+                <TrainingConfirmation timezone={settings.timezone}
+                                      training={assignment.training}/> }
+
+            { (!!settings.eligible || !!preferences?.trainingId) &&
+                <>
+                    <Typography variant="h5">
+                        Your training preferences
+                    </Typography>
+
+                    { !!locked &&
+                        <Alert severity="warning" sx={{ mt: '8px !important' }}>
+                            { !assignment?.trainingId &&
+                                'You\'re confirmed to skip this year\'s training ' }
+                            { !!assignment?.trainingId && 'Your participation has been confirmed ' }
+                            so your preferences are now locked in. If you have any questions, just
+                            send us an email!
+                        </Alert> }
+
+                    <FormProvider action={action} defaultValues={defaultValues}>
+                        <TrainingPreferencesForm sessions={sessions} readOnly={locked} />
+                        { !locked &&
+                            <FormSubmitButton callToAction="Update my preferences" sx={{ mt: 2 }}
+                                              startIcon={ <HistoryEduIcon /> } /> }
+                    </FormProvider>
+                </> }
+
+            <MuiLink component={Link} href={`/registration/${event.slug}/application/${team.slug}`}>
                 « Back to your registration
             </MuiLink>
+
         </Stack>
     );
 }
