@@ -6,7 +6,6 @@ import { executeAction } from '../../Action';
 
 import type { NextRouteParams } from '@lib/NextRouterParams';
 import { availabilityPreferences, kAvailabilityPreferencesDefinition } from '../availabilityPreferences';
-import { hotelPreferences, kHotelPreferencesDefinition } from '../hotelPreferences';
 import { refundRequest, kRefundRequestDefinition } from '../refundRequest';
 import { trainingPreferences, kTrainingPreferencesDefinition } from '../trainingPreferences';
 
@@ -24,8 +23,6 @@ export async function POST(request: NextRequest, props: NextRouteParams<never, '
         case 'availability-preferences':
             return executeAction(
                 request, kAvailabilityPreferencesDefinition, availabilityPreferences);
-        case 'hotel-preferences':
-            return executeAction(request, kHotelPreferencesDefinition, hotelPreferences);
         case 'refund-request':
             return executeAction(request, kRefundRequestDefinition, refundRequest);
         case 'training-preferences':

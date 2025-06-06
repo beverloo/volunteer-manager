@@ -10,19 +10,22 @@ import Grid from '@mui/material/Grid';
 import ScheduleIcon from '@mui/icons-material/Schedule';
 
 import type { NextPageParams } from '@lib/NextRouterParams';
+import type { ServerAction } from '@lib/serverAction';
 import type { TimelineEvent } from '@beverloo/volunteer-manager-timeline';
+import { ApplicationParticipationForm } from '@app/registration/[slug]/application/ApplicationParticipation';
 import { ExpandableSection } from '@app/admin/components/ExpandableSection';
 import { FormGrid } from '@app/admin/components/FormGrid';
+import { FormGridSection } from '@app/admin/components/FormGridSection';
 import { generateEventMetadataFn } from '../../../generateEventMetadataFn';
 import { verifyAccessAndFetchPageInfo } from '@app/admin/events/verifyAccessAndFetchPageInfo';
 import db, { tHotelsPreferences, tRefunds, tRoles, tSchedule, tShifts, tStorage, tTeams,
     tTrainingsAssignments, tUsers, tUsersEvents } from '@lib/database';
 
 import { ApplicationAvailability } from './ApplicationAvailability';
-import { ApplicationHotelPreferences } from './ApplicationHotelPreferences';
 import { ApplicationMetadata } from './ApplicationMetadata';
 import { ApplicationRefundRequest } from './ApplicationRefundRequest';
 import { ApplicationTrainingPreferences } from './ApplicationTrainingPreferences';
+import { HotelPreferencesForm } from '@app/registration/[slug]/application/[team]/hotel/HotelPreferencesForm';
 import { VolunteerHeader } from './VolunteerHeader';
 import { VolunteerIdentity } from './VolunteerIdentity';
 import { VolunteerSchedule } from './VolunteerSchedule';
@@ -37,10 +40,6 @@ import { readUserSettings } from '@lib/UserSettings';
 import { kRegistrationStatus } from '@lib/database/Types';
 
 import * as actions from '../VolunteerActions';
-import { FormGridSection } from '@app/admin/components/FormGridSection';
-import { ApplicationParticipationForm } from '@app/registration/[slug]/application/ApplicationParticipation';
-
-type RouterParams = NextPageParams<'event' | 'team' | 'volunteer'>;
 
 /**
  * Options for a binary select box. They look better on the page than checkboxes.
@@ -55,7 +54,9 @@ const kBooleanSelectOptions = [
  * Different from the general volunteer account information page, which can only be accessed by a
  * more limited number of people.
  */
-export default async function EventVolunteerPage(props: RouterParams) {
+export default async function EventVolunteerPage(
+    props: NextPageParams<'event' | 'team' | 'volunteer'>)
+{
     const { access, user, event, team } = await verifyAccessAndFetchPageInfo(props.params);
 
     const accessScope = { event: event.slug, team: team.slug };
@@ -138,34 +139,6 @@ export default async function EventVolunteerPage(props: RouterParams) {
     let publicEvents: EventTimeslotEntry[] = [];
     if (!!event.festivalId && volunteer.actualAvailableEventLimit > 0)
         publicEvents = await getPublicEventsForFestival(event.festivalId, event.timezone);
-
-    // ---------------------------------------------------------------------------------------------
-    // Hotel preferences:
-    // ---------------------------------------------------------------------------------------------
-
-    let hotelManagement: React.ReactNode = undefined;
-    if (access.can('event.hotels', { event: event.slug }) && !!volunteer.isHotelEligible) {
-        const hotelOptions = await getHotelRoomOptions(event.id);
-        const hotelPreferences = await dbInstance.selectFrom(tHotelsPreferences)
-            .where(tHotelsPreferences.userId.equals(volunteer.userId))
-                .and(tHotelsPreferences.eventId.equals(event.id))
-                .and(tHotelsPreferences.teamId.equals(team.id))
-            .select({
-                hotelId: tHotelsPreferences.hotelId,
-                sharingPeople: tHotelsPreferences.hotelSharingPeople,
-                sharingPreferences: tHotelsPreferences.hotelSharingPreferences,
-                checkIn: dbInstance.dateAsString(tHotelsPreferences.hotelDateCheckIn),
-                checkOut: dbInstance.dateAsString(tHotelsPreferences.hotelDateCheckOut),
-            })
-            .executeSelectNoneOrOne() ?? undefined;
-
-        hotelManagement = (
-            <ApplicationHotelPreferences eventDate={event.startTime}
-                                         eventSlug={event.slug} hotelOptions={hotelOptions}
-                                         hotelPreferences={hotelPreferences}
-                                         teamSlug={team.slug} volunteerUserId={volunteer.userId} />
-        );
-    }
 
     // ---------------------------------------------------------------------------------------------
     // Refund request:
@@ -317,7 +290,33 @@ export default async function EventVolunteerPage(props: RouterParams) {
     // Section: Hotel preferences
     // ---------------------------------------------------------------------------------------------
 
-    // TODO
+    let hotelAction: ServerAction | undefined;
+    let hotelClearAction: ServerAction | undefined;
+    let hotelDefaultValues: Record<string, any> | undefined;
+    let hotelRooms: undefined | { id: number; label: string }[];
+
+    if (access.can('event.hotels', { event: event.slug }) && !!volunteer.isHotelEligible) {
+        hotelAction = actions.updateHotelPreferences.bind(null, user.userId, event.id, team.id);
+        hotelClearAction = actions.clearHotelPreferences.bind(null, user.userId, event.id, team.id);
+
+        hotelDefaultValues = await dbInstance.selectFrom(tHotelsPreferences)
+            .where(tHotelsPreferences.userId.equals(volunteer.userId))
+                .and(tHotelsPreferences.eventId.equals(event.id))
+                .and(tHotelsPreferences.teamId.equals(team.id))
+            .select({
+                hotelId: tHotelsPreferences.hotelId,
+                sharingPeople: tHotelsPreferences.hotelSharingPeople,
+                sharingPreferences: tHotelsPreferences.hotelSharingPreferences,
+                checkIn: dbInstance.dateAsString(tHotelsPreferences.hotelDateCheckIn),
+                checkOut: dbInstance.dateAsString(tHotelsPreferences.hotelDateCheckOut),
+            })
+            .executeSelectNoneOrOne() ?? { /* no default values */ };
+
+        if (typeof hotelDefaultValues.hotelId !== 'undefined')
+            hotelDefaultValues.interested = !!hotelDefaultValues.hotelId ? 1 : 0;
+
+        hotelRooms = await getHotelRoomOptions(event.id)
+    }
 
     // ---------------------------------------------------------------------------------------------
     // Section: Refund request
@@ -393,11 +392,25 @@ export default async function EventVolunteerPage(props: RouterParams) {
             <ApplicationAvailability event={event} events={publicEvents} step={availabilityStep}
                                      team={team.slug} readOnly={readOnly} volunteer={volunteer} />
 
-            {hotelManagement}
+            { /* ------------------------------------------------------------------------------ */ }
+
+            { !!hotelAction &&
+                <FormGridSection action={hotelAction} defaultValues={hotelDefaultValues}
+                                 title="Hotel preferences" permission="event.hotels">
+                    <HotelPreferencesForm eventDate={event.startTime}
+                                          readOnly={readOnly}
+                                          rooms={hotelRooms!} />
+                </FormGridSection> }
+
+            { /* ------------------------------------------------------------------------------ */ }
 
             {refundRequest}
 
+            { /* ------------------------------------------------------------------------------ */ }
+
             {trainingManagement}
+
+            { /* ------------------------------------------------------------------------------ */ }
 
             { canAccessOverrides &&
                 <ApplicationMetadata event={event.slug} team={team.slug} volunteer={volunteer} /> }

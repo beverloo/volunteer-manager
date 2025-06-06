@@ -15,7 +15,6 @@ import type { FinancialInsightsDefinition } from '@app/api/admin/event/finance/i
 import type { GeneratePromptDefinition } from '@app/api/ai/generatePrompt';
 import type { GetScheduleDefinition } from '@app/api/admin/event/schedule/getSchedule';
 import type { HelpRequestDefinition } from '@app/api/display/help-request/route';
-import type { HotelPreferencesDefinition } from '@app/api/event/hotelPreferences';
 import type { HotelsDefinition } from '@app/api/event/hotels/[event]/route';
 import type { ListPasskeysDefinition } from '@app/api/auth/passkeys/listPasskeys';
 import type { PasswordChangeDefinition } from '@app/api/auth/passwordChange';
@@ -194,7 +193,6 @@ export type ApiEndpoints = {
         '/api/display/help-request': HelpRequestDefinition,
         '/api/error': ErrorDefinition,
         '/api/event/availability-preferences': AvailabilityPreferencesDefinition,
-        '/api/event/hotel-preferences': HotelPreferencesDefinition,
         '/api/event/refund-request': RefundRequestDefinition,
         '/api/event/schedule/feedback': SubmitFeedbackDefinition,
         '/api/event/training-preferences': TrainingPreferencesDefinition,

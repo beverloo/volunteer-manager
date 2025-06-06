@@ -47,11 +47,6 @@ export interface HotelPreferencesFormProps {
      * Hotel rooms that are available for selection.
      */
     rooms: { id: number; label: string; }[];
-
-    /**
-     * Callback to be invoked when the value of one of the form fields has changed.
-     */
-    onChange?: () => void;
 }
 
 /**
@@ -59,7 +54,7 @@ export interface HotelPreferencesFormProps {
  * indicate their hotel room preferences.
  */
 export function HotelPreferencesForm(props: HotelPreferencesFormProps) {
-    const { readOnly, rooms, onChange } = props;
+    const { readOnly, rooms } = props;
 
     const { watch } = useFormContext();
 
@@ -84,7 +79,7 @@ export function HotelPreferencesForm(props: HotelPreferencesFormProps) {
             <Grid size={{ xs: 12 }}>
                 <SelectElement name="interested" label="Would you like a hotel room?"
                                options={kInterestedOptions} fullWidth size="small" required
-                               onChange={onChange} disabled={readOnly} />
+                               disabled={readOnly} />
             </Grid>
 
             <CollapsableGrid size={{ xs: 12 }} in={!!interested}>
@@ -92,31 +87,31 @@ export function HotelPreferencesForm(props: HotelPreferencesFormProps) {
                     <Grid size={{ xs: 12 }}>
                         <SelectElement name="hotelId" label="Which room would you like?"
                                        options={rooms} fullWidth size="small" required
-                                       onChange={onChange} disabled={readOnly} />
+                                       disabled={readOnly} />
                     </Grid>
 
                     <Grid size={{ xs: 6 }}>
                         <TextFieldElement name="sharingPeople" label="For how many people?"
                                           fullWidth size="small" required type="number"
-                                          disabled={readOnly} onChange={onChange} />
+                                          disabled={readOnly} />
                     </Grid>
                     <Grid size={{ xs: 6 }}>
                         <TextFieldElement name="sharingPreferences" label="Sharing preferences?"
                                           fullWidth size="small" required
-                                          disabled={readOnly} onChange={onChange} />
+                                          disabled={readOnly} />
                     </Grid>
 
                     <Grid size={{ xs: 6 }}>
                         <DatePickerElement name="checkIn" label="Check in" textReadOnly
                                            inputProps={{ fullWidth: true, size: 'small' }}
                                            minDate={minDate} maxDate={maxDate} required
-                                           disabled={readOnly} onChange={onChange} />
+                                           disabled={readOnly} />
                     </Grid>
                     <Grid size={{ xs: 6 }}>
                         <DatePickerElement name="checkOut" label="Check out" textReadOnly
                                            inputProps={{ fullWidth: true, size: 'small' }}
                                            minDate={minDate} maxDate={maxDate} required
-                                           disabled={readOnly} onChange={onChange} />
+                                           disabled={readOnly} />
                     </Grid>
                 </Grid>
             </CollapsableGrid>
