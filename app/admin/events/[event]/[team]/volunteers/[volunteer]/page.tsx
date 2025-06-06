@@ -3,12 +3,15 @@
 
 import { notFound } from 'next/navigation';
 
+import { TextareaAutosizeElement } from '@proxy/react-hook-form-mui';
+
 import EditNoteIcon from '@mui/icons-material/EditNote';
 import ScheduleIcon from '@mui/icons-material/Schedule';
 
 import type { NextPageParams } from '@lib/NextRouterParams';
 import type { TimelineEvent } from '@beverloo/volunteer-manager-timeline';
 import { ExpandableSection } from '@app/admin/components/ExpandableSection';
+import { FormGrid } from '@app/admin/components/FormGrid';
 import { generateEventMetadataFn } from '../../../generateEventMetadataFn';
 import { verifyAccessAndFetchPageInfo } from '@app/admin/events/verifyAccessAndFetchPageInfo';
 import db, { tHotelsPreferences, tRefunds, tRoles, tSchedule, tShifts, tStorage, tTeams,
@@ -22,7 +25,6 @@ import { ApplicationRefundRequest } from './ApplicationRefundRequest';
 import { ApplicationTrainingPreferences } from './ApplicationTrainingPreferences';
 import { VolunteerHeader } from './VolunteerHeader';
 import { VolunteerIdentity } from './VolunteerIdentity';
-import { VolunteerNotes } from './VolunteerNotes';
 import { VolunteerSchedule } from './VolunteerSchedule';
 import { getHotelRoomOptions } from '@app/registration/[slug]/application/[team]/hotel/getHotelRoomOptions';
 import { getTrainingOptions } from '@app/registration/[slug]/application/[team]/training/getTrainingOptions';
@@ -33,6 +35,8 @@ import { readSetting } from '@lib/Settings';
 import { readUserSettings } from '@lib/UserSettings';
 
 import { kRegistrationStatus } from '@lib/database/Types';
+
+import * as actions from '../VolunteerActions';
 
 type RouterParams = NextPageParams<'event' | 'team' | 'volunteer'>;
 
@@ -236,14 +240,30 @@ export default async function EventVolunteerPage(props: RouterParams) {
     }
 
     // ---------------------------------------------------------------------------------------------
+    // TODO TODO TODO TODO TODO
 
-    const availabilityStep = await readSetting('availability-time-step-minutes');
     const settings = await readUserSettings(user.userId, [
         'user-admin-volunteers-expand-notes',
         'user-admin-volunteers-expand-shifts',
     ]);
 
+    // ---------------------------------------------------------------------------------------------
+    // Section: Notes about this volunteer.
+    // ---------------------------------------------------------------------------------------------
+
+    const notesAction = actions.updateNotes.bind(null, user.userId, event.id, team.id);
     const notesExpanded = !!settings['user-admin-volunteers-expand-notes'];
+
+    const notesDefaultValues = {
+        notes: volunteer.registrationNotes,
+    };
+
+    // ---------------------------------------------------------------------------------------------
+
+    const availabilityStep = await readSetting('availability-time-step-minutes');
+
+
+
     const scheduleExpanded = !!settings['user-admin-volunteers-expand-shifts'];
 
     const scheduleSubTitle = `${schedule.length} shift${schedule.length !== 1 ? 's' : ''}`;
@@ -256,33 +276,47 @@ export default async function EventVolunteerPage(props: RouterParams) {
 
     return (
         <>
+
             <VolunteerHeader canAccessAccountInformation={canAccessAccountInformation}
                              canUpdateApplications={canUpdateApplications}
                              canUpdateParticipation={canUpdateParticipation}
                              canUpdateWithoutNotification={canUpdateWithoutNotification}
                              event={event} team={team} volunteer={volunteer} user={user} />
+
             <VolunteerIdentity event={event.slug} teamId={team.id} userId={volunteer.userId}
                                contactInfo={contactInfo} volunteer={volunteer} />
+
             <ExpandableSection icon={ <EditNoteIcon color="info" /> } title="Notes"
                                defaultExpanded={notesExpanded}
                                setting="user-admin-volunteers-expand-notes">
-                <VolunteerNotes event={event.slug} team={team.slug} volunteer={volunteer} />
+                <FormGrid action={notesAction} defaultValues={notesDefaultValues}>
+                    <TextareaAutosizeElement name="notes" fullWidth size="small"
+                                             slotProps={{ input: { readOnly } }} />
+                </FormGrid>
             </ExpandableSection>
+
             { !!schedule.length &&
                 <ExpandableSection icon={ <ScheduleIcon color="info" /> } title="Schedule"
                                    subtitle={scheduleSubTitle} defaultExpanded={scheduleExpanded}
                                    setting="user-admin-volunteers-expand-shifts">
                     <VolunteerSchedule event={event} schedule={schedule} />
                 </ExpandableSection> }
+
             <ApplicationPreferences event={event.slug} team={team.slug} readOnly={readOnly}
                                     volunteer={volunteer} />
+
             <ApplicationAvailability event={event} events={publicEvents} step={availabilityStep}
                                      team={team.slug} readOnly={readOnly} volunteer={volunteer} />
+
             {hotelManagement}
+
             {refundRequest}
+
             {trainingManagement}
+
             { canAccessOverrides &&
                 <ApplicationMetadata event={event.slug} team={team.slug} volunteer={volunteer} /> }
+
         </>
     );
 }

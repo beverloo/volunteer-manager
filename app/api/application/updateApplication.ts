@@ -89,12 +89,6 @@ export const kUpdateApplicationDefinition = z.object({
         }).optional(),
 
         //------------------------------------------------------------------------------------------
-        // Update type (3): Notes
-        //------------------------------------------------------------------------------------------
-
-        notes: z.string().optional(),
-
-        //------------------------------------------------------------------------------------------
         // Update type (4): Application status
         //------------------------------------------------------------------------------------------
 
@@ -221,39 +215,6 @@ export async function updateApplication(request: Request, props: ActionProps): P
                 .and(tUsersEvents.eventId.equals(eventId))
                 .and(tUsersEvents.teamId.equals(teamId))
             .executeUpdate(/* min= */ 0, /* max= */ 1);
-    }
-
-    //----------------------------------------------------------------------------------------------
-    // Update type (3): Application notes
-    //----------------------------------------------------------------------------------------------
-
-    if (typeof request.notes === 'string') {
-        executeAccessCheck(props.authenticationContext, {
-            check: 'admin-event',
-            event: request.event,
-        });
-
-        affectedRows = await db.update(tUsersEvents)
-            .set({
-                registrationNotes: !!request.notes.length ? request.notes : undefined,
-            })
-            .where(tUsersEvents.userId.equals(request.userId))
-                .and(tUsersEvents.eventId.equals(eventId))
-                .and(tUsersEvents.teamId.equals(teamId))
-            .executeUpdate();
-
-        skipLog = true;
-
-        RecordLog({
-            type: kLogType.EventVolunteerNotes,
-            severity: kLogSeverity.Info,
-            sourceUser: props.user,
-            targetUser: request.userId,
-            data: {
-                event: requestContext.event,
-                notes: request.notes,
-            },
-        });
     }
 
     //----------------------------------------------------------------------------------------------
