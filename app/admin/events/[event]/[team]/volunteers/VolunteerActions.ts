@@ -594,22 +594,20 @@ export async function updateTrainingPreferences(
             })
             .executeInsert();
 
-        console.log(affectedRows);
-
         if (!affectedRows)
             return { success: false, error: 'Unable to update the preferences in the database…' };
-/*
+
         RecordLog({
             type: kLogType.AdminUpdateTrainingPreferences,
             severity: kLogSeverity.Warning,
             sourceUser: props.user,
-            targetUser: request.adminOverrideUserId,
+            targetUser: userId,
             data: {
                 event: event.shortName,
-                training: request.preferences.training,
+                training: data.training,
             },
         });
-*/
+
         return { success: true };
     });
 }

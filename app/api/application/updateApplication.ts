@@ -100,7 +100,6 @@ export async function updateApplication(request: Request, props: ActionProps): P
     const { eventId, teamId, username } = requestContext;
 
     let affectedRows: number = 0;
-    let skipLog: boolean = false;
 
     //----------------------------------------------------------------------------------------------
     // Update type (4): Application status
@@ -193,7 +192,7 @@ export async function updateApplication(request: Request, props: ActionProps): P
 
     // ---------------------------------------------------------------------------------------------
 
-    if (!!affectedRows && !skipLog) {
+    if (!!affectedRows) {
         RecordLog({
             type: kLogType.AdminUpdateTeamVolunteer,
             severity: kLogSeverity.Info,
