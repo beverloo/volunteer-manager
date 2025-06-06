@@ -8,6 +8,7 @@ import { RecordLog, kLogSeverity, kLogType } from '@lib/Log';
 import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
 import { executeServerAction } from '@lib/serverAction';
 import db, { tEvents, tTeams, tUsersEvents } from '@lib/database';
+import { kShirtFit, kShirtSize } from '@lib/database/Types';
 
 /**
  * Returns context, sourced from the database, for a volunteer action with the following properties.
@@ -47,13 +48,65 @@ async function getContextForVolunteerAction(userId: number, eventId: number, tea
 const kNoDataRequired = z.object({ /* no parameters */ });
 
 /**
+ * Zod type that describes the data required for updating an application.
+ */
+const kUpdateApplicationData = z.object({
+    credits: z.number().optional(),
+    socials: z.number().optional(),
+    tshirtFit: z.enum(kShirtFit),
+    tshirtSize: z.enum(kShirtSize),
+});
+
+/**
  * Server action that updates the information associated with an application.
  */
-export async function updateApplication(formData: unknown) {
+export async function updateApplication(
+    userId: number, eventId: number, teamId: number, formData: unknown)
+{
     'use server';
-    return executeServerAction(formData, kNoDataRequired, async (data, props) => {
-        // TODO: Implement this server action.
-        return { success: false, error: 'Not yet implemented' };
+    return executeServerAction(formData, kUpdateApplicationData, async (data, props) => {
+        const { event, team } = await getContextForVolunteerAction(userId, eventId, teamId);
+
+        executeAccessCheck(props.authenticationContext, {
+            check: 'admin-event',
+            event: event.slug,
+            permission: {
+                permission: 'event.volunteers.information',
+                operation: 'update',
+                scope: {
+                    event: event.slug,
+                    team: team.slug,
+                },
+            },
+        });
+
+        const affectedRows = await db.update(tUsersEvents)
+            .set({
+                shirtFit: data.tshirtFit,
+                shirtSize: data.tshirtSize,
+                includeCredits: data.credits ? 1 : 0,
+                includeSocials: data.socials ? 1 : 0,
+            })
+            .where(tUsersEvents.userId.equals(userId))
+                .and(tUsersEvents.eventId.equals(eventId))
+                .and(tUsersEvents.teamId.equals(teamId))
+            .executeUpdate();
+
+        if (!affectedRows)
+            return { success: false, error: 'Unable to store the information in the database…' };
+
+        RecordLog({
+            type: kLogType.AdminUpdateTeamVolunteer,
+            severity: kLogSeverity.Info,
+            sourceUser: props.user,
+            targetUser: userId,
+            data: {
+                event: event.shortName,
+                eventId, teamId,
+            },
+        });
+
+        return { success: true };
     });
 }
 
@@ -123,18 +176,18 @@ export async function updateNotes(
 
         if (!affectedRows)
             return { success: false, error: 'Unable to store the notes in the database…' };
-/*
+
         RecordLog({
             type: kLogType.EventVolunteerNotes,
             severity: kLogSeverity.Info,
             sourceUser: props.user,
             targetUser: userId,
             data: {
-                event: event.slug,
+                event: event.shortName,
                 notes: data.notes,
             },
         });
-*/
+
         return { success: true };
     });
 }

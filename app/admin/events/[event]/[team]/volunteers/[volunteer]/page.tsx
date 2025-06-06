@@ -3,9 +3,10 @@
 
 import { notFound } from 'next/navigation';
 
-import { TextareaAutosizeElement } from '@proxy/react-hook-form-mui';
+import { SelectElement, TextareaAutosizeElement } from '@proxy/react-hook-form-mui';
 
 import EditNoteIcon from '@mui/icons-material/EditNote';
+import Grid from '@mui/material/Grid';
 import ScheduleIcon from '@mui/icons-material/Schedule';
 
 import type { NextPageParams } from '@lib/NextRouterParams';
@@ -20,7 +21,6 @@ import db, { tHotelsPreferences, tRefunds, tRoles, tSchedule, tShifts, tStorage,
 import { ApplicationAvailability } from './ApplicationAvailability';
 import { ApplicationHotelPreferences } from './ApplicationHotelPreferences';
 import { ApplicationMetadata } from './ApplicationMetadata';
-import { ApplicationPreferences } from './ApplicationPreferences';
 import { ApplicationRefundRequest } from './ApplicationRefundRequest';
 import { ApplicationTrainingPreferences } from './ApplicationTrainingPreferences';
 import { VolunteerHeader } from './VolunteerHeader';
@@ -37,8 +37,18 @@ import { readUserSettings } from '@lib/UserSettings';
 import { kRegistrationStatus } from '@lib/database/Types';
 
 import * as actions from '../VolunteerActions';
+import { FormGridSection } from '@app/admin/components/FormGridSection';
+import { ApplicationParticipationForm } from '@app/registration/[slug]/application/ApplicationParticipation';
 
 type RouterParams = NextPageParams<'event' | 'team' | 'volunteer'>;
+
+/**
+ * Options for a binary select box. They look better on the page than checkboxes.
+ */
+const kBooleanSelectOptions = [
+    { id: 1, label: 'Yes' },
+    { id: 0, label: 'No' },
+];
 
 /**
  * Displays information about an individual volunteer and their participation in a particular event.
@@ -248,7 +258,7 @@ export default async function EventVolunteerPage(props: RouterParams) {
     ]);
 
     // ---------------------------------------------------------------------------------------------
-    // Section: Notes about this volunteer.
+    // Section: Notes
     // ---------------------------------------------------------------------------------------------
 
     const notesAction = actions.updateNotes.bind(null, user.userId, event.id, team.id);
@@ -259,10 +269,20 @@ export default async function EventVolunteerPage(props: RouterParams) {
     };
 
     // ---------------------------------------------------------------------------------------------
+    // Section: Preferences
+    // ---------------------------------------------------------------------------------------------
+
+    const preferencesAction = actions.updateApplication.bind(null, user.userId, event.id, team.id);
+    const preferencesDefaultValues = {
+        credits: volunteer.credits,
+        socials: volunteer.socials,
+        tshirtFit: volunteer.tshirtFit,
+        tshirtSize: volunteer.tshirtSize,
+    };
+
+    // ---------------------------------------------------------------------------------------------
 
     const availabilityStep = await readSetting('availability-time-step-minutes');
-
-
 
     const scheduleExpanded = !!settings['user-admin-volunteers-expand-shifts'];
 
@@ -286,6 +306,8 @@ export default async function EventVolunteerPage(props: RouterParams) {
             <VolunteerIdentity event={event.slug} teamId={team.id} userId={volunteer.userId}
                                contactInfo={contactInfo} volunteer={volunteer} />
 
+            { /* -- Notes: -------------------------------------------------------------------- */ }
+
             <ExpandableSection icon={ <EditNoteIcon color="info" /> } title="Notes"
                                defaultExpanded={notesExpanded}
                                setting="user-admin-volunteers-expand-notes">
@@ -295,6 +317,8 @@ export default async function EventVolunteerPage(props: RouterParams) {
                 </FormGrid>
             </ExpandableSection>
 
+            { /* ------------------------------------------------------------------------------ */ }
+
             { !!schedule.length &&
                 <ExpandableSection icon={ <ScheduleIcon color="info" /> } title="Schedule"
                                    subtitle={scheduleSubTitle} defaultExpanded={scheduleExpanded}
@@ -302,8 +326,24 @@ export default async function EventVolunteerPage(props: RouterParams) {
                     <VolunteerSchedule event={event} schedule={schedule} />
                 </ExpandableSection> }
 
-            <ApplicationPreferences event={event.slug} team={team.slug} readOnly={readOnly}
-                                    volunteer={volunteer} />
+            { /* -- Preferences: -------------------------------------------------------------- */ }
+
+            <FormGridSection action={preferencesAction} defaultValues={preferencesDefaultValues}
+                             title="Preferences">
+                <ApplicationParticipationForm readOnly={readOnly} />
+                <Grid size={{ xs: 6 }}>
+                    <SelectElement name="credits" label="Include on the credit reel?"
+                                   options={kBooleanSelectOptions} size="small" fullWidth
+                                   slotProps={{ input: { readOnly } }} />
+                </Grid>
+                <Grid size={{ xs: 6 }}>
+                    <SelectElement name="socials" label="Include on WhatsApp/social channels?"
+                                   options={kBooleanSelectOptions} size="small" fullWidth
+                                   slotProps={{ input: { readOnly } }} />
+                </Grid>
+            </FormGridSection>
+
+            { /* ------------------------------------------------------------------------------ */ }
 
             <ApplicationAvailability event={event} events={publicEvents} step={availabilityStep}
                                      team={team.slug} readOnly={readOnly} volunteer={volunteer} />

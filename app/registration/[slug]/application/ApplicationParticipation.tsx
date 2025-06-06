@@ -119,11 +119,6 @@ interface ApplicationParticipationFormProps {
      * Whether the form should be in read-only mode.
      */
     readOnly?: boolean;
-
-    /**
-     * Callback to be invoked when the value of one of the form fields has changed.
-     */
-    onChange?: () => void;
 }
 
 /**
@@ -132,18 +127,19 @@ interface ApplicationParticipationFormProps {
  * between the registration front-end and the application management section for admins.
  */
 export function ApplicationParticipationForm(props: ApplicationParticipationFormProps) {
-    const { readOnly, onChange } = props;
+    const { readOnly } = props;
+
     return (
         <>
             <Grid size={{ xs: 6 }}>
                 <SelectElement name="tshirtSize" label="T-shirt size" required
                                options={kTShirtSizeOptions} fullWidth size="small"
-                               disabled={readOnly} onChange={onChange} />
+                               slotProps={{ input: { readOnly } }} />
             </Grid>
             <Grid size={{ xs: 6 }}>
                 <SelectElement name="tshirtFit" label="T-shirt fit" required
                                options={kTShirtFitOptions} fullWidth size="small"
-                               disabled={readOnly} onChange={onChange} />
+                               slotProps={{ input: { readOnly } }} />
             </Grid>
         </>
     );
