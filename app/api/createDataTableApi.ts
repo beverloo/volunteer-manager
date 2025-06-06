@@ -382,7 +382,7 @@ export function createDataTableApi<RowModel extends ZodObject, Context extends Z
     });
 
     const DELETE: DataTableApiHandler = async(request, { params }) => {
-        return executeAction(request, deleteInterface, async (innerRequest, props) => {
+        return executeAction(request, deleteInterface, async (innerRequest: any, props) => {
             if (!implementation.delete)
                 throw new Error('Cannot handle DELETE requests without a delete handler');
 
@@ -441,7 +441,7 @@ export function createDataTableApi<RowModel extends ZodObject, Context extends Z
     });
 
     const GET: DataTableApiHandler = async(request, { params }) => {
-        return executeAction(request, getInterface, async (innerRequest, props) => {
+        return executeAction(request, getInterface, async (innerRequest: any, props) => {
             if ('id' in innerRequest) {
                 if (!implementation.get)
                     throw new Error('Cannot handle GET(:id) requests without a get handler');
@@ -476,7 +476,7 @@ export function createDataTableApi<RowModel extends ZodObject, Context extends Z
     });
 
     const POST: DataTableApiHandler = async(request, { params }) => {
-        return executeAction(request, postInterface, async (innerRequest, props) => {
+        return executeAction(request, postInterface, async (innerRequest: any, props) => {
             if (!implementation.create)
                 throw new Error('Cannot handle POST requests without a create handler');
 
@@ -515,7 +515,7 @@ export function createDataTableApi<RowModel extends ZodObject, Context extends Z
     });
 
     const PUT: DataTableApiHandler = async(request, { params }) => {
-        return executeAction(request, putInterface, async (innerRequest, props) => {
+        return executeAction(request, putInterface, async (innerRequest: any, props) => {
             if ('order' in innerRequest) {
                 if (!implementation.reorder)
                     throw new Error('Cannot handle PUT requests without an reorder handler');
