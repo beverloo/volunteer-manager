@@ -204,8 +204,8 @@ export function checkPermission(
 
 /**
  * Executes the given `access` check. The `type` determines what should be checked for, optionally
- * with additional parameters, and permissions can always be checked for. A HTTP 404 Not Found error
- * will be thrown when the access check fails.
+ * with additional parameters, and permissions can always be checked for. A HTTP 401 Unauthorized or
+ * HTTP 403 Forbidden error will be thrown when the access check fails.
  *
  * @note Access checks can be done inline when requiring an authentication context to exist.
  */

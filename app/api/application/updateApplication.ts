@@ -35,60 +35,6 @@ export const kUpdateApplicationDefinition = z.object({
         userId: z.coerce.number(),
 
         //------------------------------------------------------------------------------------------
-        // Update type (1): Application data
-        //------------------------------------------------------------------------------------------
-
-        data: z.object({
-            /**
-             * Whether the volunteer would like their name to be included in the credit reel.
-             */
-            credits: z.boolean(),
-
-            /**
-             * Whether the volunteer would like to join our social media channels.
-             */
-            socials: z.boolean(),
-
-            /**
-             * Fit for the t-shirt that the volunteer would like to receive as a thank you.
-             */
-            tshirtFit: z.enum(kShirtFit),
-
-            /**
-             * Size of the t-shirt that the volunteer would like to receive as a thank you.
-             */
-            tshirtSize: z.enum(kShirtSize),
-
-        }).optional(),
-
-        //------------------------------------------------------------------------------------------
-        // Update type (2): Application metadata
-        //------------------------------------------------------------------------------------------
-
-        metadata: z.object({
-            /**
-             * The date on which this volunteer created their application. May be NULL.
-             */
-            registrationDate: kTemporalZonedDateTime.optional(),
-
-            /**
-             * The number of events the volunteer can indicate they really want to attend.
-             */
-            availabilityEventLimit: z.number().min(0).max(100).optional(),
-
-            /**
-             * Whether this volunteer is eligible for a hotel room beyond conventional rules.
-             */
-            hotelEligible: z.number().optional(),
-
-            /**
-             * Whether this volunteer is eligible to join the training beyond conventional rules.
-             */
-            trainingEligible: z.number().optional(),
-
-        }).optional(),
-
-        //------------------------------------------------------------------------------------------
         // Update type (4): Application status
         //------------------------------------------------------------------------------------------
 
@@ -155,37 +101,6 @@ export async function updateApplication(request: Request, props: ActionProps): P
 
     let affectedRows: number = 0;
     let skipLog: boolean = false;
-
-    //----------------------------------------------------------------------------------------------
-    // Update type (1): Application data
-    //----------------------------------------------------------------------------------------------
-
-    if (request.data) {
-        executeAccessCheck(props.authenticationContext, {
-            check: 'admin-event',
-            event: request.event,
-            permission: {
-                permission: 'event.volunteers.information',
-                operation: 'update',
-                scope: {
-                    event: request.event,
-                    team: request.team,
-                },
-            },
-        });
-
-        affectedRows = await db.update(tUsersEvents)
-            .set({
-                shirtFit: request.data.tshirtFit as any,
-                shirtSize: request.data.tshirtSize as any,
-                includeCredits: request.data.credits ? 1 : 0,
-                includeSocials: request.data.socials ? 1 : 0,
-            })
-            .where(tUsersEvents.userId.equals(request.userId))
-                .and(tUsersEvents.eventId.equals(eventId))
-                .and(tUsersEvents.teamId.equals(teamId))
-            .executeUpdate(/* min= */ 0, /* max= */ 1);
-    }
 
     //----------------------------------------------------------------------------------------------
     // Update type (2): Application metadata

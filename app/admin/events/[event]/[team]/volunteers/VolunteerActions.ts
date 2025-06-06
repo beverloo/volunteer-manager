@@ -11,7 +11,7 @@ import { executeServerAction } from '@lib/serverAction';
 import db, { tEvents, tHotelsPreferences, tTeams, tUsersEvents } from '@lib/database';
 
 import { kShirtFit, kShirtSize } from '@lib/database/Types';
-import { kTemporalPlainDate } from '@app/api/Types';
+import { kTemporalPlainDate, kTemporalZonedDateTime } from '@app/api/Types';
 
 /**
  * Returns context, sourced from the database, for a volunteer action with the following properties.
@@ -59,6 +59,17 @@ export async function clearHotelPreferences(
     'use server';
     return executeServerAction(formData, kNoDataRequired, async (data, props) => {
         const { event } = await getContextForVolunteerAction(userId, eventId, teamId);
+
+        executeAccessCheck(props.authenticationContext, {
+            check: 'admin-event',
+            event: event.slug,
+            permission: {
+                permission: 'event.hotels',
+                scope: {
+                    event: event.slug,
+                },
+            },
+        });
 
         const affectedRows = await db.deleteFrom(tHotelsPreferences)
             .where(tHotelsPreferences.userId.equals(userId))
@@ -183,6 +194,12 @@ export async function updateHotelPreferences(
         executeAccessCheck(props.authenticationContext, {
             check: 'admin-event',
             event: event.slug,
+            permission: {
+                permission: 'event.hotels',
+                scope: {
+                    event: event.slug,
+                },
+            },
         });
 
         let update: {
@@ -254,13 +271,79 @@ export async function updateHotelPreferences(
 }
 
 /**
+ * Zod type that describes the data required to update a volunteer's metadata.
+ */
+const kUpdateMetadataData = z.object({
+    availabilityEventLimit: z.number().min(0).max(32).optional(),
+    hotelEligible: z.number().optional(),
+    registrationDate: kTemporalZonedDateTime.optional(),
+    trainingEligible: z.number().optional(),
+});
+
+/**
  * Server action that updates the metadata associated with a volunteer.
  */
-export async function updateMetadata(formData: unknown) {
+export async function updateMetadata(
+    userId: number, eventId: number, teamId: number, formData: unknown)
+{
     'use server';
-    return executeServerAction(formData, kNoDataRequired, async (data, props) => {
-        // TODO: Implement this server action.
-        return { success: false, error: 'Not yet implemented' };
+    return executeServerAction(formData, kUpdateMetadataData, async (data, props) => {
+        const { event, team } = await getContextForVolunteerAction(userId, eventId, teamId);
+
+        executeAccessCheck(props.authenticationContext, {
+            check: 'admin-event',
+            event: event.slug,
+            permission: {
+                permission: 'event.volunteers.overrides',
+                scope: {
+                    event: event.slug,
+                    team: team.slug,
+                },
+            },
+        });
+
+        let availabilityEventLimit: number | null = null;
+        if (typeof data.availabilityEventLimit === 'number')
+            availabilityEventLimit = data.availabilityEventLimit;
+
+        let hotelEligible: number | null = null;
+        if ([ 0, 1 ].includes(data.hotelEligible ?? -1))
+            hotelEligible = !!data.hotelEligible ? 1 : 0;
+
+        const registrationDate = data.registrationDate ?? null;
+
+        let trainingEligible: number | null = null;
+        if ([ 0, 1 ].includes(data.trainingEligible ?? -1))
+            trainingEligible = !!data.trainingEligible ? 1 : 0;
+
+
+        const affectedRows = await db.update(tUsersEvents)
+            .set({
+                availabilityEventLimit,
+                hotelEligible,
+                trainingEligible,
+                registrationDate,
+            })
+            .where(tUsersEvents.userId.equals(userId))
+                .and(tUsersEvents.eventId.equals(eventId))
+                .and(tUsersEvents.teamId.equals(teamId))
+            .executeUpdate();
+
+        if (!affectedRows)
+            return { success: false, error: 'Unable to update the information in the database…' };
+
+        RecordLog({
+            type: kLogType.AdminUpdateTeamVolunteer,
+            severity: kLogSeverity.Info,
+            sourceUser: props.user,
+            targetUser: userId,
+            data: {
+                event: event.shortName,
+                eventId, teamId,
+            },
+        });
+
+        return { success: true, refresh: true };
     });
 }
 

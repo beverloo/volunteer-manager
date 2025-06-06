@@ -3,7 +3,8 @@
 
 import { notFound } from 'next/navigation';
 
-import { SelectElement, TextareaAutosizeElement } from '@proxy/react-hook-form-mui';
+import { DateTimePickerElement, SelectElement, TextFieldElement, TextareaAutosizeElement }
+    from '@proxy/react-hook-form-mui';
 
 import EditNoteIcon from '@mui/icons-material/EditNote';
 import Grid from '@mui/material/Grid';
@@ -23,7 +24,6 @@ import db, { tHotelsPreferences, tRefunds, tRoles, tSchedule, tShifts, tStorage,
     tTrainingsAssignments, tUsers, tUsersEvents } from '@lib/database';
 
 import { ApplicationAvailability } from './ApplicationAvailability';
-import { ApplicationMetadata } from './ApplicationMetadata';
 import { ApplicationRefundRequest } from './ApplicationRefundRequest';
 import { ApplicationTrainingPreferences } from './ApplicationTrainingPreferences';
 import { HotelPreferencesForm } from '@app/registration/[slug]/application/[team]/hotel/HotelPreferencesForm';
@@ -48,6 +48,15 @@ import * as actions from '../VolunteerActions';
 const kBooleanSelectOptions = [
     { id: 1, label: 'Yes' },
     { id: 0, label: 'No' },
+];
+
+/**
+ * Options for a tri-state binary select box. They look better on the page than checkboxes.
+ */
+const kTriBooleanSelectOptions = [
+    { id: 2, label: '(default)' },
+    { id: 1, label: 'Eligible' },
+    { id: 0, label: 'Not eligible' },
 ];
 
 /**
@@ -196,7 +205,6 @@ export default async function EventVolunteerPage(
     const availabilityStep = await readSetting('availability-time-step-minutes');
 
     const canAccessAccountInformation = access.can('volunteer.account.information', 'read');
-    const canAccessOverrides = access.can('event.volunteers.overrides', accessScope);
     const canUpdateApplications = access.can('event.applications', 'update', accessScope);
     const canUpdateParticipation = access.can('event.volunteers.participation', accessScope);
     const canUpdateWithoutNotification = access.can('volunteer.silent');
@@ -335,7 +343,18 @@ export default async function EventVolunteerPage(
     // Section: Metadata
     // ---------------------------------------------------------------------------------------------
 
-    // TODO
+    let metadataAction: ServerAction | undefined;
+    let metadataDefaultValues: Record<string, any> | undefined;
+
+    if (access.can('event.volunteers.overrides', accessScope)) {
+        metadataAction = actions.updateMetadata.bind(null, user.userId, event.id, team.id);
+        metadataDefaultValues = {
+            availabilityEventLimit: volunteer.availabilityEventLimit,
+            hotelEligible: volunteer.hotelEligible ?? /* default= */ 2,
+            registrationDate: volunteer.registrationDate,
+            trainingEligible: volunteer.trainingEligible ?? /* default= */ 2,
+        };
+    }
 
     // ---------------------------------------------------------------------------------------------
 
@@ -420,8 +439,28 @@ export default async function EventVolunteerPage(
 
             { /* ------------------------------------------------------------------------------ */ }
 
-            { canAccessOverrides &&
-                <ApplicationMetadata event={event.slug} team={team.slug} volunteer={volunteer} /> }
+            { !!metadataAction &&
+                <FormGridSection action={metadataAction} defaultValues={metadataDefaultValues}
+                                 title="Application information"
+                                 permission="event.volunteers.overrides">
+                    <Grid size={{ xs: 6 }}>
+                        <DateTimePickerElement name="registrationDate" label="Registration date"
+                                               inputProps={{ fullWidth: true, size: 'small' }} />
+                    </Grid>
+                    <Grid size={{ xs: 6 }}>
+                        <TextFieldElement name="availabilityEventLimit" type="number"
+                                          label="Availability event limit override"
+                                          fullWidth size="small" />
+                    </Grid>
+                    <Grid size={{ xs: 6 }}>
+                        <SelectElement name="hotelEligible" label="Hotel eligibility override"
+                                       options={kTriBooleanSelectOptions} fullWidth size="small" />
+                    </Grid>
+                    <Grid size={{ xs: 6 }}>
+                        <SelectElement name="trainingEligible" label="Training eligibility override"
+                                       options={kTriBooleanSelectOptions} fullWidth size="small" />
+                    </Grid>
+                </FormGridSection> }
 
         </>
     );
