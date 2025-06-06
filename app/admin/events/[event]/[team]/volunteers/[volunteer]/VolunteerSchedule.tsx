@@ -5,7 +5,6 @@
 
 import { useRouter } from 'next/navigation';
 
-import type { PageInfo } from '@app/admin/events/verifyAccessAndFetchPageInfo';
 import { Temporal } from '@lib/Temporal';
 import { Timeline, type TimelineEvent } from '@app/admin/components/Timeline';
 
@@ -16,7 +15,11 @@ interface VolunteerScheduleProps {
     /**
      * Information about the event this volunteer will participate in.
      */
-    event: PageInfo['event'];
+    event: {
+        startTime: string;
+        endTime: string;
+        timezone: string;
+    };
 
     /**
      * The schedule that should be displayed for this volunteer. It's immutable.

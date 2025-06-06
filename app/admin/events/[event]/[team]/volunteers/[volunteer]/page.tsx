@@ -129,45 +129,7 @@ export default async function EventVolunteerPage(props: RouterParams) {
     // Schedule:
     // ---------------------------------------------------------------------------------------------
 
-    const schedule: TimelineEvent[] = [];
-    const scheduledShifts = await dbInstance.selectFrom(tSchedule)
-        .innerJoin(tShifts)
-            .on(tShifts.shiftId.equals(tSchedule.shiftId))
-        .innerJoin(tTeams)
-            .on(tTeams.teamId.equals(tShifts.teamId))
-        .where(tSchedule.eventId.equals(event.id))
-            .and(tSchedule.userId.equals(volunteer.userId))
-            .and(tSchedule.shiftId.isNotNull())
-            .and(tSchedule.scheduleDeleted.isNull())
-        .select({
-            id: tSchedule.scheduleId,
-            start: tSchedule.scheduleTimeStart,
-            end: tSchedule.scheduleTimeEnd,
-            title: tShifts.shiftName,
 
-            shiftId: tSchedule.shiftId,
-            shiftTeam: tTeams.teamSlug,
-        })
-        .executeSelectMany();
-
-    if (!!scheduledShifts.length && !!event.festivalId) {
-        const shifts = await getShiftsForEvent(event.id, event.festivalId);
-        const shiftMap = new Map(shifts.map(shift => ([ shift.id, shift.colour ])));
-
-        for (const scheduledShift of scheduledShifts) {
-            schedule.push({
-                id: scheduledShift.id,
-                start: scheduledShift.start.toString({ timeZoneName: 'never' }),
-                end: scheduledShift.end.toString({ timeZoneName: 'never' }),
-                color: shiftMap.get(scheduledShift.shiftId!),
-                title: scheduledShift.title,
-
-                // Private data to enable double clicking on shift entries:
-                animeConShiftId: scheduledShift.shiftId!,
-                animeConShiftTeam: scheduledShift.shiftTeam,
-            });
-        }
-    }
 
     // ---------------------------------------------------------------------------------------------
     // Availability preferences:
@@ -257,6 +219,18 @@ export default async function EventVolunteerPage(props: RouterParams) {
         'user-admin-volunteers-expand-shifts',
     ]);
 
+    const availabilityStep = await readSetting('availability-time-step-minutes');
+
+    const canAccessAccountInformation = access.can('volunteer.account.information', 'read');
+    const canAccessOverrides = access.can('event.volunteers.overrides', accessScope);
+    const canUpdateApplications = access.can('event.applications', 'update', accessScope);
+    const canUpdateParticipation = access.can('event.volunteers.participation', accessScope);
+    const canUpdateWithoutNotification = access.can('volunteer.silent');
+
+    // TODO TODO TODO TODO TODO
+    // ---------------------------------------------------------------------------------------------
+
+
     // ---------------------------------------------------------------------------------------------
     // Section: Notes
     // ---------------------------------------------------------------------------------------------
@@ -267,6 +241,59 @@ export default async function EventVolunteerPage(props: RouterParams) {
     const notesDefaultValues = {
         notes: volunteer.registrationNotes,
     };
+
+    // ---------------------------------------------------------------------------------------------
+    // Section: Schedule
+    // ---------------------------------------------------------------------------------------------
+
+    const schedule: TimelineEvent[] = [];
+    const scheduledShifts = await dbInstance.selectFrom(tSchedule)
+        .innerJoin(tShifts)
+            .on(tShifts.shiftId.equals(tSchedule.shiftId))
+        .innerJoin(tTeams)
+            .on(tTeams.teamId.equals(tShifts.teamId))
+        .where(tSchedule.eventId.equals(event.id))
+            .and(tSchedule.userId.equals(volunteer.userId))
+            .and(tSchedule.shiftId.isNotNull())
+            .and(tSchedule.scheduleDeleted.isNull())
+        .select({
+            id: tSchedule.scheduleId,
+            start: tSchedule.scheduleTimeStart,
+            end: tSchedule.scheduleTimeEnd,
+            title: tShifts.shiftName,
+
+            shiftId: tSchedule.shiftId,
+            shiftTeam: tTeams.teamSlug,
+        })
+        .executeSelectMany();
+
+    if (!!scheduledShifts.length && !!event.festivalId) {
+        const shifts = await getShiftsForEvent(event.id, event.festivalId);
+        const shiftMap = new Map(shifts.map(shift => ([ shift.id, shift.colour ])));
+
+        for (const scheduledShift of scheduledShifts) {
+            schedule.push({
+                id: scheduledShift.id,
+                start: scheduledShift.start.toString({ timeZoneName: 'never' }),
+                end: scheduledShift.end.toString({ timeZoneName: 'never' }),
+                color: shiftMap.get(scheduledShift.shiftId!),
+                title: scheduledShift.title,
+
+                // Private data to enable double clicking on shift entries:
+                animeConShiftId: scheduledShift.shiftId!,
+                animeConShiftTeam: scheduledShift.shiftTeam,
+            });
+        }
+    }
+
+    const scheduleEvent = {
+        startTime: event.startTime,
+        endTime: event.endTime,
+        timezone: event.timezone,
+    };
+
+    const scheduleExpanded = !!settings['user-admin-volunteers-expand-shifts'];
+    const scheduleSubtitle = `${schedule.length} shift${schedule.length !== 1 ? 's' : ''}`;
 
     // ---------------------------------------------------------------------------------------------
     // Section: Preferences
@@ -281,18 +308,36 @@ export default async function EventVolunteerPage(props: RouterParams) {
     };
 
     // ---------------------------------------------------------------------------------------------
+    // Section: Availability
+    // ---------------------------------------------------------------------------------------------
 
-    const availabilityStep = await readSetting('availability-time-step-minutes');
+    // TODO
 
-    const scheduleExpanded = !!settings['user-admin-volunteers-expand-shifts'];
+    // ---------------------------------------------------------------------------------------------
+    // Section: Hotel preferences
+    // ---------------------------------------------------------------------------------------------
 
-    const scheduleSubTitle = `${schedule.length} shift${schedule.length !== 1 ? 's' : ''}`;
+    // TODO
 
-    const canAccessAccountInformation = access.can('volunteer.account.information', 'read');
-    const canAccessOverrides = access.can('event.volunteers.overrides', accessScope);
-    const canUpdateApplications = access.can('event.applications', 'update', accessScope);
-    const canUpdateParticipation = access.can('event.volunteers.participation', accessScope);
-    const canUpdateWithoutNotification = access.can('volunteer.silent');
+    // ---------------------------------------------------------------------------------------------
+    // Section: Refund request
+    // ---------------------------------------------------------------------------------------------
+
+    // TODO
+
+    // ---------------------------------------------------------------------------------------------
+    // Section: Training preferences
+    // ---------------------------------------------------------------------------------------------
+
+    // TODO:
+
+    // ---------------------------------------------------------------------------------------------
+    // Section: Metadata
+    // ---------------------------------------------------------------------------------------------
+
+    // TODO
+
+    // ---------------------------------------------------------------------------------------------
 
     return (
         <>
@@ -317,13 +362,13 @@ export default async function EventVolunteerPage(props: RouterParams) {
                 </FormGrid>
             </ExpandableSection>
 
-            { /* ------------------------------------------------------------------------------ */ }
+            { /* -- Schedule: ----------------------------------------------------------------- */ }
 
             { !!schedule.length &&
                 <ExpandableSection icon={ <ScheduleIcon color="info" /> } title="Schedule"
-                                   subtitle={scheduleSubTitle} defaultExpanded={scheduleExpanded}
+                                   subtitle={scheduleSubtitle} defaultExpanded={scheduleExpanded}
                                    setting="user-admin-volunteers-expand-shifts">
-                    <VolunteerSchedule event={event} schedule={schedule} />
+                    <VolunteerSchedule event={scheduleEvent} schedule={schedule} />
                 </ExpandableSection> }
 
             { /* -- Preferences: -------------------------------------------------------------- */ }
