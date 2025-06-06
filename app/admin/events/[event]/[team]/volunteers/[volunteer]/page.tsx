@@ -16,6 +16,7 @@ import { ApplicationParticipationForm } from '@app/registration/[slug]/applicati
 import { ExpandableSection } from '@app/admin/components/ExpandableSection';
 import { FormGrid } from '@app/admin/components/FormGrid';
 import { FormGridSection } from '@app/admin/components/FormGridSection';
+import { SectionClearAction } from '@app/admin/components/SectionClearAction';
 import { generateEventMetadataFn } from '../../../generateEventMetadataFn';
 import { verifyAccessAndFetchPageInfo } from '@app/admin/events/verifyAccessAndFetchPageInfo';
 import db, { tHotelsPreferences, tRefunds, tRoles, tSchedule, tShifts, tStorage, tTeams,
@@ -396,7 +397,14 @@ export default async function EventVolunteerPage(
 
             { !!hotelAction &&
                 <FormGridSection action={hotelAction} defaultValues={hotelDefaultValues}
-                                 title="Hotel preferences" permission="event.hotels">
+                                 title="Hotel preferences" permission="event.hotels"
+                                 headerAction={
+                                     !!hotelClearAction
+                                         ? <SectionClearAction action={hotelClearAction}
+                                                               subject="hotel preferences"
+                                                               title="Clear hotel preferences" />
+                                         : undefined
+                                 } >
                     <HotelPreferencesForm eventDate={event.startTime}
                                           readOnly={readOnly}
                                           rooms={hotelRooms!} />

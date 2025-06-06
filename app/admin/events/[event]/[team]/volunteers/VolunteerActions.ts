@@ -58,8 +58,27 @@ export async function clearHotelPreferences(
 {
     'use server';
     return executeServerAction(formData, kNoDataRequired, async (data, props) => {
-        // TODO: Implement this server action.
-        return { success: false, error: 'Not yet implemented' };
+        const { event } = await getContextForVolunteerAction(userId, eventId, teamId);
+
+        const affectedRows = await db.deleteFrom(tHotelsPreferences)
+            .where(tHotelsPreferences.userId.equals(userId))
+                .and(tHotelsPreferences.eventId.equals(eventId))
+            .executeDelete();
+
+        if (!affectedRows)
+            return { success: false, error: 'Unable to remove the preferences from the database…' };
+
+        RecordLog({
+            type: kLogType.AdminClearHotelPreferences,
+            severity: kLogSeverity.Warning,
+            sourceUser: props.user,
+            targetUser: userId,
+            data: {
+                event: event.shortName,
+            },
+        });
+
+        return { success: true, refresh: true };
     });
 }
 
@@ -206,7 +225,7 @@ export async function updateHotelPreferences(
             .set({
                 userId: props.user!.userId,
                 eventId: eventId,
-                teamId: teamId,
+                teamId: teamId,  // TODO: remove the team association
                 ...update,
                 hotelPreferencesUpdated: dbInstance.currentZonedDateTime()
             })
