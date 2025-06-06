@@ -3,6 +3,7 @@
 
 import Alert from '@mui/material/Alert';
 import Box from '@mui/material/Box';
+import Grid from '@mui/material/Grid';
 import Typography from '@mui/material/Typography';
 
 import { RefundRequestForm } from './RefundRequestForm';
@@ -43,7 +44,9 @@ export function RefundRequest(props: RefundRequestProps) {
                     you purchased it. Double check that the information you enter is correct.
                 </Typography> }
 
-            <RefundRequestForm readOnly={readOnly} requireTicketNumber />
+            <Grid container spacing={2}>
+                <RefundRequestForm readOnly={readOnly} requireTicketNumber />
+            </Grid>
 
         </Box>
     );

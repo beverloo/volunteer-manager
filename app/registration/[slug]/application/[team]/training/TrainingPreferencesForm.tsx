@@ -8,11 +8,6 @@ import { SelectElement } from '@proxy/react-hook-form-mui';
  */
 interface TrainingPreferencesFormProps {
     /**
-     * Callback to be invoked when the value of one of the form fields has changed.
-     */
-    onChange?: () => void;
-
-    /**
      * Whether the form should be marked as read-only, useful in case their participation has been
      * confirmed. Changes can only be made after that by e-mailing our team.
      */
@@ -31,7 +26,7 @@ interface TrainingPreferencesFormProps {
  * preferences on behalf of volunteers.
  */
 export function TrainingPreferencesForm(props: TrainingPreferencesFormProps) {
-    const { onChange, readOnly } = props;
+    const { readOnly } = props;
 
     const sessions = [
         { id: 0, label: 'I would like to skip the training this year' },
@@ -41,6 +36,6 @@ export function TrainingPreferencesForm(props: TrainingPreferencesFormProps) {
     return (
         <SelectElement name="training" label="Would you like to participate?"
                        options={sessions} fullWidth size="small" required
-                       onChange={onChange} disabled={readOnly} />
+                       disabled={readOnly} />
     );
 }

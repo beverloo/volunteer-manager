@@ -21,7 +21,6 @@ import type { PasswordChangeDefinition } from '@app/api/auth/passwordChange';
 import type { PasswordResetDefinition } from '@app/api/auth/passwordReset';
 import type { PasswordResetRequestDefinition } from '@app/api/auth/passwordResetRequest';
 import type { PasswordResetVerifyDefinition } from '@app/api/auth/passwordResetVerify';
-import type { RefundRequestDefinition } from '@app/api/event/refundRequest';
 import type { RegisterActivateDefinition } from '@app/api/auth/registerActivate';
 import type { RegisterDefinition } from '@app/api/auth/register';
 import type { RegisterPasskeyDefinition } from '@app/api/auth/passkeys/registerPasskey';
@@ -34,7 +33,6 @@ import type { SignInPasswordDefinition } from '@app/api/auth/signInPassword';
 import type { SignInPasswordUpdateDefinition } from '@app/api/auth/signInPasswordUpdate';
 import type { SignOutDefinition } from '@app/api/auth/signOut';
 import type { SubmitFeedbackDefinition } from '@app/api/event/schedule/submitFeedback';
-import type { TrainingPreferencesDefinition } from '@app/api/event/trainingPreferences';
 import type { TrainingsDefinition } from '@app/api/event/trainings/[event]/route';
 import type { UpdateAccountDefinition } from '@app/api/auth/updateAccount';
 import type { UpdateAiSettingsDefinition } from '@app/api/ai/updateSettings';
@@ -193,9 +191,7 @@ export type ApiEndpoints = {
         '/api/display/help-request': HelpRequestDefinition,
         '/api/error': ErrorDefinition,
         '/api/event/availability-preferences': AvailabilityPreferencesDefinition,
-        '/api/event/refund-request': RefundRequestDefinition,
         '/api/event/schedule/feedback': SubmitFeedbackDefinition,
-        '/api/event/training-preferences': TrainingPreferencesDefinition,
         '/api/exports': ExportsDefinition,
         '/api/nardo': NardoEndpoints['create'],
         '/api/nardo/personalised': NardoPersonalisedEndpoints['create'],

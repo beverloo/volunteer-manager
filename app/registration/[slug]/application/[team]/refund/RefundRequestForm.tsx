@@ -10,11 +10,6 @@ import Grid from '@mui/material/Grid';
  */
 interface RefundRequestFormProps {
     /**
-     * Callback to be invoked when the value of one of the form fields has changed.
-     */
-    onChange?: () => void;
-
-    /**
      * Whether the form should be marked as read-only, useful in case their refund has been issued.
      */
     readOnly?: boolean;
@@ -30,26 +25,24 @@ interface RefundRequestFormProps {
  * ticket refund. This form is shared between the registration portal and the administration area.
  */
 export function RefundRequestForm(props: RefundRequestFormProps) {
-    const { onChange, readOnly } = props;
+    const { readOnly } = props;
 
     return (
-        <Grid container spacing={2}>
+        <>
             <Grid size={{ xs: 12 }}>
                 <TextFieldElement name="ticketNumber" label="What was your ticket number?"
                                   fullWidth size="small"
-                                  slotProps={{ input: { readOnly } }} onChange={onChange}
+                                  slotProps={{ input: { readOnly } }}
                                   required={!!props.requireTicketNumber} />
             </Grid>
             <Grid size={{ xs: 12, md: 6 }}>
                 <TextFieldElement name="accountIban" label="Bank account IBAN" required
-                                  fullWidth size="small" slotProps={{ input: { readOnly } }}
-                                  onChange={onChange} />
+                                  fullWidth size="small" slotProps={{ input: { readOnly } }} />
             </Grid>
             <Grid size={{ xs: 12, md: 6 }}>
                 <TextFieldElement name="accountName" label="Bank account holder name" required
-                                  fullWidth size="small" slotProps={{ input: { readOnly } }}
-                                  onChange={onChange} />
+                                  fullWidth size="small" slotProps={{ input: { readOnly } }} />
             </Grid>
-        </Grid>
+        </>
     );
 }

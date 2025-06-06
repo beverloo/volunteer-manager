@@ -8,7 +8,7 @@ import type { Temporal } from '@lib/Temporal';
 import { RecordLog, kLogSeverity, kLogType } from '@lib/Log';
 import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
 import { executeServerAction } from '@lib/serverAction';
-import db, { tEvents, tHotelsPreferences, tTeams, tUsersEvents } from '@lib/database';
+import db, { tEvents, tHotelsPreferences, tRefunds, tTeams, tTrainingsAssignments, tUsersEvents } from '@lib/database';
 
 import { kShirtFit, kShirtSize } from '@lib/database/Types';
 import { kTemporalPlainDate, kTemporalZonedDateTime } from '@app/api/Types';
@@ -76,18 +76,101 @@ export async function clearHotelPreferences(
                 .and(tHotelsPreferences.eventId.equals(eventId))
             .executeDelete();
 
-        if (!affectedRows)
-            return { success: false, error: 'Unable to remove the preferences from the database…' };
+        if (!!affectedRows) {
+            RecordLog({
+                type: kLogType.AdminClearHotelPreferences,
+                severity: kLogSeverity.Warning,
+                sourceUser: props.user,
+                targetUser: userId,
+                data: {
+                    event: event.shortName,
+                },
+            });
+        }
 
-        RecordLog({
-            type: kLogType.AdminClearHotelPreferences,
-            severity: kLogSeverity.Warning,
-            sourceUser: props.user,
-            targetUser: userId,
-            data: {
-                event: event.shortName,
+        return { success: true, refresh: true };
+    });
+}
+
+/**
+ * Server action that clears the refund request associated with a volunteer.
+ */
+export async function clearRefundPreferences(
+    userId: number, eventId: number, teamId: number, formData: unknown)
+{
+    'use server';
+    return executeServerAction(formData, kNoDataRequired, async (data, props) => {
+        const { event } = await getContextForVolunteerAction(userId, eventId, teamId);
+
+        executeAccessCheck(props.authenticationContext, {
+            check: 'admin-event',
+            event: event.slug,
+            permission: {
+                permission: 'event.refunds',
+                scope: {
+                    event: event.slug,
+                },
             },
         });
+
+        const affectedRows = await db.deleteFrom(tRefunds)
+            .where(tRefunds.userId.equals(userId))
+                .and(tRefunds.eventId.equals(eventId))
+            .executeDelete();
+
+        if (!!affectedRows) {
+            RecordLog({
+                type: kLogType.AdminClearRefundRequest,
+                severity: kLogSeverity.Warning,
+                sourceUser: props.user,
+                targetUser: userId,
+                data: {
+                    event: event.shortName,
+                },
+            });
+        }
+
+        return { success: true, refresh: true };
+    });
+}
+
+/**
+ * Server action that clears the training preferences associated with a volunteer.
+ */
+export async function clearTrainingPreferences(
+    userId: number, eventId: number, teamId: number, formData: unknown)
+{
+    'use server';
+    return executeServerAction(formData, kNoDataRequired, async (data, props) => {
+        const { event } = await getContextForVolunteerAction(userId, eventId, teamId);
+
+        executeAccessCheck(props.authenticationContext, {
+            check: 'admin-event',
+            event: event.slug,
+            permission: {
+                permission: 'event.trainings',
+                scope: {
+                    event: event.slug,
+                },
+            },
+        });
+
+        const affectedRows = await db.deleteFrom(tTrainingsAssignments)
+            .where(tTrainingsAssignments.assignmentUserId.equals(userId))
+                .and(tTrainingsAssignments.eventId.equals(eventId))
+            .executeDelete();
+
+        if (!!affectedRows) {
+            RecordLog({
+                type: kLogType.AdminClearTrainingPreferences,
+                severity: kLogSeverity.Warning,
+                sourceUser: props.user,
+                targetUser: userId,
+                data: {
+                    event: event.shortName,
+                },
+            });
+        }
 
         return { success: true, refresh: true };
     });
@@ -397,23 +480,136 @@ export async function updateNotes(
 }
 
 /**
+ * Zod type that describes the data required to update a volunteer's refund request.
+ */
+const kUpdateRefundPreferencesData = z.object({
+    ticketNumber: z.string().optional(),
+    accountIban: z.string().min(1),
+    accountName: z.string().min(1),
+});
+
+/**
  * Server action that updates the refund preferences of a volunteer.
  */
-export async function updateRefundPreferences(formData: unknown) {
+export async function updateRefundPreferences(
+    userId: number, eventId: number, teamId: number, formData: unknown)
+{
     'use server';
-    return executeServerAction(formData, kNoDataRequired, async (data, props) => {
-        // TODO: Implement this server action.
-        return { success: false, error: 'Not yet implemented' };
+    return executeServerAction(formData, kUpdateRefundPreferencesData, async (data, props) => {
+        const { event } = await getContextForVolunteerAction(userId, eventId, teamId);
+
+        executeAccessCheck(props.authenticationContext, {
+            check: 'admin-event',
+            event: event.slug,
+            permission: {
+                permission: 'event.refunds',
+                scope: {
+                    event: event.slug,
+                },
+            },
+        });
+
+        const dbInstance = db;
+        const affectedRows = await dbInstance.insertInto(tRefunds)
+            .set({
+                userId,
+                eventId,
+
+                refundTicketNumber: data.ticketNumber,
+                refundAccountIban: data.accountIban,
+                refundAccountName: data.accountName,
+                refundRequested: dbInstance.currentZonedDateTime(),
+            })
+            .onConflictDoUpdateSet({
+                refundTicketNumber: data.ticketNumber,
+                refundAccountIban: data.accountIban,
+                refundAccountName: data.accountName,
+                refundRequested: dbInstance.currentZonedDateTime(),
+            })
+            .executeInsert();
+
+        if (!affectedRows)
+            return { success: false, error: 'Unable to store the request in the database…' };
+
+        RecordLog({
+            type: kLogType.ApplicationRefundRequest,
+            severity: kLogSeverity.Info,
+            sourceUser: props.user,
+            data: {
+                event: event.shortName,
+            },
+        });
+
+        return { success: true };
     });
 }
 
 /**
+ * Zod type that describes the data required to update a volunteer's training preferences.
+ */
+const kUpdateTrainingPreferencesData = z.object({
+    training: z.number(),
+});
+
+/**
  * Server action that updates the training preferences of a volunteer.
  */
-export async function updateTrainingPreferences(formData: unknown) {
+export async function updateTrainingPreferences(
+    userId: number, eventId: number, teamId: number, formData: unknown)
+{
     'use server';
-    return executeServerAction(formData, kNoDataRequired, async (data, props) => {
-        // TODO: Implement this server action.
-        return { success: false, error: 'Not yet implemented' };
+    return executeServerAction(formData, kUpdateTrainingPreferencesData, async (data, props) => {
+        const { event } = await getContextForVolunteerAction(userId, eventId, teamId);
+
+        executeAccessCheck(props.authenticationContext, {
+            check: 'admin-event',
+            event: event.slug,
+            permission: {
+                permission: 'event.trainings',
+                scope: {
+                    event: event.slug,
+                },
+            },
+        });
+
+        let preferenceTrainingId: number | null = null;
+        if (data.training >= 1)
+            preferenceTrainingId = data.training;
+
+        console.log(preferenceTrainingId);
+
+        const dbInstance = db;
+        const affectedRows = await dbInstance.insertInto(tTrainingsAssignments)
+            .set({
+                eventId,
+                assignmentUserId: userId,
+                assignmentExtraId: null,
+
+                preferenceTrainingId,
+                preferenceUpdated: dbInstance.currentZonedDateTime()
+            })
+            .onConflictDoUpdateSet({
+                preferenceTrainingId,
+                preferenceUpdated: dbInstance.currentZonedDateTime()
+            })
+            .executeInsert();
+
+        console.log(affectedRows);
+
+        if (!affectedRows)
+            return { success: false, error: 'Unable to update the preferences in the database…' };
+/*
+        RecordLog({
+            type: kLogType.AdminUpdateTrainingPreferences,
+            severity: kLogSeverity.Warning,
+            sourceUser: props.user,
+            targetUser: request.adminOverrideUserId,
+            data: {
+                event: event.shortName,
+                training: request.preferences.training,
+            },
+        });
+*/
+        return { success: true };
     });
 }

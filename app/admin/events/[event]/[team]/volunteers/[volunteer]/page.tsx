@@ -17,15 +17,15 @@ import { ApplicationParticipationForm } from '@app/registration/[slug]/applicati
 import { ExpandableSection } from '@app/admin/components/ExpandableSection';
 import { FormGrid } from '@app/admin/components/FormGrid';
 import { FormGridSection } from '@app/admin/components/FormGridSection';
+import { RefundRequestForm } from '@app/registration/[slug]/application/[team]/refund/RefundRequestForm';
 import { SectionClearAction } from '@app/admin/components/SectionClearAction';
+import { TrainingPreferencesForm } from '@app/registration/[slug]/application/[team]/training/TrainingPreferencesForm';
 import { generateEventMetadataFn } from '../../../generateEventMetadataFn';
 import { verifyAccessAndFetchPageInfo } from '@app/admin/events/verifyAccessAndFetchPageInfo';
 import db, { tHotelsPreferences, tRefunds, tRoles, tSchedule, tShifts, tStorage, tTeams,
     tTrainingsAssignments, tUsers, tUsersEvents } from '@lib/database';
 
 import { ApplicationAvailability } from './ApplicationAvailability';
-import { ApplicationRefundRequest } from './ApplicationRefundRequest';
-import { ApplicationTrainingPreferences } from './ApplicationTrainingPreferences';
 import { HotelPreferencesForm } from '@app/registration/[slug]/application/[team]/hotel/HotelPreferencesForm';
 import { VolunteerHeader } from './VolunteerHeader';
 import { VolunteerIdentity } from './VolunteerIdentity';
@@ -137,64 +137,6 @@ export default async function EventVolunteerPage(
                       : undefined;
 
     // ---------------------------------------------------------------------------------------------
-    // Schedule:
-    // ---------------------------------------------------------------------------------------------
-
-
-
-    // ---------------------------------------------------------------------------------------------
-    // Availability preferences:
-    // ---------------------------------------------------------------------------------------------
-
-    let publicEvents: EventTimeslotEntry[] = [];
-    if (!!event.festivalId && volunteer.actualAvailableEventLimit > 0)
-        publicEvents = await getPublicEventsForFestival(event.festivalId, event.timezone);
-
-    // ---------------------------------------------------------------------------------------------
-    // Refund request:
-    // ---------------------------------------------------------------------------------------------
-
-    let refundRequest: React.ReactNode = undefined;
-    if (access.can('event.refunds', { event: event.slug })) {
-        const refund = await db.selectFrom(tRefunds)
-            .where(tRefunds.userId.equals(volunteer.userId))
-                .and(tRefunds.eventId.equals(event.id))
-            .select({
-                ticketNumber: tRefunds.refundTicketNumber,
-                accountIban: tRefunds.refundAccountIban,
-                accountName: tRefunds.refundAccountName,
-            })
-            .executeSelectNoneOrOne() ?? undefined;
-
-        refundRequest = (
-            <ApplicationRefundRequest eventSlug={event.slug} refund={refund}
-                                      volunteerUserId={volunteer.userId} />
-        );
-    }
-
-    // ---------------------------------------------------------------------------------------------
-    // Training preferences:
-    // ---------------------------------------------------------------------------------------------
-
-    let trainingManagement: React.ReactNode = undefined;
-    if (access.can('event.trainings', { event: event.slug }) && !!volunteer.isTrainingEligible) {
-        const trainingOptions = await getTrainingOptions(event.id);
-        const training = await db.selectFrom(tTrainingsAssignments)
-            .where(tTrainingsAssignments.eventId.equals(event.id))
-                .and(tTrainingsAssignments.assignmentUserId.equals(volunteer.userId))
-            .select({
-                preference: tTrainingsAssignments.preferenceTrainingId,
-            })
-            .executeSelectNoneOrOne() ?? undefined;
-
-        trainingManagement = (
-            <ApplicationTrainingPreferences eventSlug={event.slug} teamSlug={team.slug}
-                                            trainingOptions={trainingOptions} training={training}
-                                            volunteerUserId={volunteer.userId} />
-        );
-    }
-
-    // ---------------------------------------------------------------------------------------------
     // TODO TODO TODO TODO TODO
 
     const settings = await readUserSettings(user.userId, [
@@ -217,7 +159,7 @@ export default async function EventVolunteerPage(
     // Section: Notes
     // ---------------------------------------------------------------------------------------------
 
-    const notesAction = actions.updateNotes.bind(null, user.userId, event.id, team.id);
+    const notesAction = actions.updateNotes.bind(null, volunteer.userId, event.id, team.id);
     const notesExpanded = !!settings['user-admin-volunteers-expand-notes'];
 
     const notesDefaultValues = {
@@ -281,7 +223,9 @@ export default async function EventVolunteerPage(
     // Section: Preferences
     // ---------------------------------------------------------------------------------------------
 
-    const preferencesAction = actions.updateApplication.bind(null, user.userId, event.id, team.id);
+    const preferencesAction =
+        actions.updateApplication.bind(null, volunteer.userId, event.id, team.id);
+
     const preferencesDefaultValues = {
         credits: volunteer.credits,
         socials: volunteer.socials,
@@ -293,7 +237,12 @@ export default async function EventVolunteerPage(
     // Section: Availability
     // ---------------------------------------------------------------------------------------------
 
+    let publicEvents: EventTimeslotEntry[] = [];
+    if (!!event.festivalId && volunteer.actualAvailableEventLimit > 0)
+        publicEvents = await getPublicEventsForFestival(event.festivalId, event.timezone);
+
     // TODO
+
 
     // ---------------------------------------------------------------------------------------------
     // Section: Hotel preferences
@@ -305,8 +254,10 @@ export default async function EventVolunteerPage(
     let hotelRooms: undefined | { id: number; label: string }[];
 
     if (access.can('event.hotels', { event: event.slug }) && !!volunteer.isHotelEligible) {
-        hotelAction = actions.updateHotelPreferences.bind(null, user.userId, event.id, team.id);
-        hotelClearAction = actions.clearHotelPreferences.bind(null, user.userId, event.id, team.id);
+        hotelAction =
+            actions.updateHotelPreferences.bind(null, volunteer.userId, event.id, team.id);
+        hotelClearAction =
+            actions.clearHotelPreferences.bind(null, volunteer.userId, event.id, team.id);
 
         hotelDefaultValues = await dbInstance.selectFrom(tHotelsPreferences)
             .where(tHotelsPreferences.userId.equals(volunteer.userId))
@@ -331,13 +282,56 @@ export default async function EventVolunteerPage(
     // Section: Refund request
     // ---------------------------------------------------------------------------------------------
 
-    // TODO
+    let refundAction: ServerAction | undefined;
+    let refundClearAction: ServerAction | undefined;
+    let refundDefaultValues: Record<string, any> | undefined;
+
+    if (access.can('event.refunds', { event: event.slug })) {
+        refundAction =
+            actions.updateRefundPreferences.bind(null, volunteer.userId, event.id, team.id);
+        refundClearAction =
+            actions.clearRefundPreferences.bind(null, volunteer.userId, event.id, team.id);
+
+        refundDefaultValues = await db.selectFrom(tRefunds)
+            .where(tRefunds.userId.equals(volunteer.userId))
+                .and(tRefunds.eventId.equals(event.id))
+            .select({
+                ticketNumber: tRefunds.refundTicketNumber,
+                accountIban: tRefunds.refundAccountIban,
+                accountName: tRefunds.refundAccountName,
+            })
+            .executeSelectNoneOrOne() ?? { /* no default values */ };
+    }
 
     // ---------------------------------------------------------------------------------------------
     // Section: Training preferences
     // ---------------------------------------------------------------------------------------------
 
-    // TODO:
+    let trainingAction: ServerAction | undefined;
+    let trainingClearAction: ServerAction | undefined;
+    let trainingDefaultValues: Record<string, any> | undefined;
+    let trainingSessions: undefined | { id: number; label: string }[];
+
+    if (access.can('event.trainings', { event: event.slug }) && !!volunteer.isTrainingEligible) {
+        const detailedInfo = await db.selectFrom(tTrainingsAssignments)
+            .where(tTrainingsAssignments.eventId.equals(event.id))
+                .and(tTrainingsAssignments.assignmentUserId.equals(volunteer.userId))
+            .select({
+                training: tTrainingsAssignments.preferenceTrainingId,
+            })
+            .executeSelectNoneOrOne() ?? undefined;
+
+        trainingAction =
+            actions.updateTrainingPreferences.bind(null, volunteer.userId, event.id, team.id);
+        trainingClearAction =
+            actions.clearTrainingPreferences.bind(null, volunteer.userId, event.id, team.id);
+
+        trainingDefaultValues = { training: null };
+        if (!!detailedInfo)
+            trainingDefaultValues.training = detailedInfo.training ?? /* none= */ 0;
+
+        trainingSessions = await getTrainingOptions(event.id);
+    }
 
     // ---------------------------------------------------------------------------------------------
     // Section: Metadata
@@ -347,7 +341,7 @@ export default async function EventVolunteerPage(
     let metadataDefaultValues: Record<string, any> | undefined;
 
     if (access.can('event.volunteers.overrides', accessScope)) {
-        metadataAction = actions.updateMetadata.bind(null, user.userId, event.id, team.id);
+        metadataAction = actions.updateMetadata.bind(null, volunteer.userId, event.id, team.id);
         metadataDefaultValues = {
             availabilityEventLimit: volunteer.availabilityEventLimit,
             hotelEligible: volunteer.hotelEligible ?? /* default= */ 2,
@@ -423,7 +417,7 @@ export default async function EventVolunteerPage(
                                                                subject="hotel preferences"
                                                                title="Clear hotel preferences" />
                                          : undefined
-                                 } >
+                                 }>
                     <HotelPreferencesForm eventDate={event.startTime}
                                           readOnly={readOnly}
                                           rooms={hotelRooms!} />
@@ -431,11 +425,33 @@ export default async function EventVolunteerPage(
 
             { /* ------------------------------------------------------------------------------ */ }
 
-            {refundRequest}
+            { !!refundAction &&
+                <FormGridSection action={refundAction} defaultValues={refundDefaultValues}
+                                 title="Refund request" permission="event.refunds"
+                                 headerAction={
+                                     !!refundClearAction
+                                         ? <SectionClearAction action={refundClearAction}
+                                                               subject="refund request"
+                                                               title="Clear refund request" />
+                                         : undefined
+                                 }>
+                    <RefundRequestForm />
+                </FormGridSection> }
 
             { /* ------------------------------------------------------------------------------ */ }
 
-            {trainingManagement}
+            { !!trainingAction &&
+                <FormGridSection action={trainingAction} defaultValues={trainingDefaultValues}
+                                 title="Training preferences" permission="event.trainings"
+                                 headerAction={
+                                     !!trainingClearAction
+                                         ? <SectionClearAction action={trainingClearAction}
+                                                               subject="training preferences"
+                                                               title="Clear training preferences" />
+                                         : undefined
+                                 }>
+                    <TrainingPreferencesForm sessions={trainingSessions!} />
+                </FormGridSection> }
 
             { /* ------------------------------------------------------------------------------ */ }
 

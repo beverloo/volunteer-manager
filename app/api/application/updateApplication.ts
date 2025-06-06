@@ -10,8 +10,8 @@ import { SendEmailTask } from '@lib/scheduler/tasks/SendEmailTask';
 import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
 import db, { tEvents, tEventsTeams, tTeams, tUsersEvents, tUsers } from '@lib/database';
 
-import { kRegistrationStatus, kShirtFit, kShirtSize } from '@lib/database/Types';
-import { kTemporalZonedDateTime, type ApiDefinition, type ApiRequest, type ApiResponse }
+import { kRegistrationStatus } from '@lib/database/Types';
+import { type ApiDefinition, type ApiRequest, type ApiResponse }
     from '../Types';
 
 /**
@@ -101,36 +101,6 @@ export async function updateApplication(request: Request, props: ActionProps): P
 
     let affectedRows: number = 0;
     let skipLog: boolean = false;
-
-    //----------------------------------------------------------------------------------------------
-    // Update type (2): Application metadata
-    //----------------------------------------------------------------------------------------------
-
-    if (request.metadata) {
-        executeAccessCheck(props.authenticationContext, {
-            check: 'admin-event',
-            event: request.event,
-            permission: {
-                permission: 'event.volunteers.overrides',
-                scope: {
-                    event: request.event,
-                    team: request.team,
-                },
-            },
-        });
-
-        affectedRows = await db.update(tUsersEvents)
-            .set({
-                availabilityEventLimit: request.metadata.availabilityEventLimit,
-                hotelEligible: request.metadata.hotelEligible,
-                trainingEligible: request.metadata.trainingEligible,
-                registrationDate: request.metadata.registrationDate,
-            })
-            .where(tUsersEvents.userId.equals(request.userId))
-                .and(tUsersEvents.eventId.equals(eventId))
-                .and(tUsersEvents.teamId.equals(teamId))
-            .executeUpdate(/* min= */ 0, /* max= */ 1);
-    }
 
     //----------------------------------------------------------------------------------------------
     // Update type (4): Application status

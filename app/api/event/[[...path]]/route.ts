@@ -6,8 +6,6 @@ import { executeAction } from '../../Action';
 
 import type { NextRouteParams } from '@lib/NextRouterParams';
 import { availabilityPreferences, kAvailabilityPreferencesDefinition } from '../availabilityPreferences';
-import { refundRequest, kRefundRequestDefinition } from '../refundRequest';
-import { trainingPreferences, kTrainingPreferencesDefinition } from '../trainingPreferences';
 
 /**
  * The /api/event endpoint exposes APIs related to a particular event such as participation
@@ -23,10 +21,6 @@ export async function POST(request: NextRequest, props: NextRouteParams<never, '
         case 'availability-preferences':
             return executeAction(
                 request, kAvailabilityPreferencesDefinition, availabilityPreferences);
-        case 'refund-request':
-            return executeAction(request, kRefundRequestDefinition, refundRequest);
-        case 'training-preferences':
-            return executeAction(request, kTrainingPreferencesDefinition, trainingPreferences);
     }
 
     return NextResponse.json({ success: false }, { status: 404 });
