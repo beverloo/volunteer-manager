@@ -7,7 +7,7 @@ import { Temporal } from '@lib/Temporal';
  * Status of a given availability window. Includes both the actual status, and a stringified version
  * of the
  */
-export type AvailabilityWindowStatus =
+type AvailabilityWindowStatus =
     { status: 'pending'; open?: string; } |
     { status: 'current'; close?: string; } |
     { status: 'missed'; close: string; };
@@ -15,7 +15,7 @@ export type AvailabilityWindowStatus =
 /**
  * Type definition for the contents of an availability window, including its override.
  */
-export type AvailabilityWindow = {
+type AvailabilityWindow = {
     /**
      * Moment at which the availability window opens, if any.
      */
