@@ -107,6 +107,11 @@ export function FormProvider(props: React.PropsWithChildren<FormProviderProps>) 
                 try {
                     cachedTimezone ??= Temporal.Now.timeZoneId();  // default to the local timezone
 
+                    // TODO: Figure out why |kTemporalZonedDateTimeRegexp| fires on any value that
+                    // may contain a timestamp, as opposed to just on real timestamps. Ugh.
+                    if (value.startsWith('['))
+                        continue;
+
                     const zonedDateTime = Temporal.ZonedDateTime.from(value);
                     const localDateTime = zonedDateTime.withTimeZone(cachedTimezone);
 

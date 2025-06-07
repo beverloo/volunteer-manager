@@ -6,7 +6,6 @@
 import { SelectElement } from '@proxy/react-hook-form-mui';
 import { useCallback, useState } from 'react';
 
-import type { PageInfo } from '@app/admin/events/verifyAccessAndFetchPageInfo';
 import type { TimelineEventMutation } from '@beverloo/volunteer-manager-timeline';
 import { SettingDialog } from '@app/admin/components/SettingDialog';
 import { Temporal } from '@lib/Temporal';
@@ -62,7 +61,11 @@ interface AvailabilityTimelineImplProps {
     /**
      * The event for which the timeline is being shown.
      */
-    event: PageInfo['event'];
+    event: {
+        startTime: string;
+        endTime: string;
+        timezone: string;
+    };
 
     /**
      * Whether the timeline should be displayed in a read-only manner.

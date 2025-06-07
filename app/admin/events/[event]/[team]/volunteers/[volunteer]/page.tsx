@@ -26,7 +26,6 @@ import { verifyAccessAndFetchPageInfo } from '@app/admin/events/verifyAccessAndF
 import db, { tHotelsPreferences, tRefunds, tRoles, tSchedule, tShifts, tStorage, tTeams,
     tTrainingsAssignments, tUsers, tUsersEvents } from '@lib/database';
 
-import { ApplicationAvailability } from './ApplicationAvailability';
 import { HotelPreferencesForm } from '@app/registration/[slug]/application/[team]/hotel/HotelPreferencesForm';
 import { VolunteerHeader } from './VolunteerHeader';
 import { VolunteerIdentity } from './VolunteerIdentity';
@@ -139,24 +138,15 @@ export default async function EventVolunteerPage(
         contactAccess ? { username: volunteer.username, phoneNumber: volunteer.phoneNumber }
                       : undefined;
 
-    // ---------------------------------------------------------------------------------------------
-    // TODO TODO TODO TODO TODO
-
     const settings = await readUserSettings(user.id, [
         'user-admin-volunteers-expand-notes',
         'user-admin-volunteers-expand-shifts',
     ]);
 
-    const availabilityStep = await readSetting('availability-time-step-minutes');
-
     const canAccessAccountInformation = access.can('volunteer.account.information', 'read');
     const canUpdateApplications = access.can('event.applications', 'update', accessScope);
     const canUpdateParticipation = access.can('event.volunteers.participation', accessScope);
     const canUpdateWithoutNotification = access.can('volunteer.silent');
-
-    // TODO TODO TODO TODO TODO
-    // ---------------------------------------------------------------------------------------------
-
 
     // ---------------------------------------------------------------------------------------------
     // Section: Notes
@@ -244,6 +234,7 @@ export default async function EventVolunteerPage(
         null, volunteer.userId, event.id, team.id);
 
     const availabilityDefaultValues: Record<string, any> = {
+        exceptions: volunteer.availabilityExceptions,
         preferences: volunteer.preferences,
         preferencesDietary: volunteer.preferencesDietary,
         serviceHours: `${volunteer.serviceHours}`,
@@ -259,9 +250,17 @@ export default async function EventVolunteerPage(
             volunteer.availabilityTimeslots.split(',').map(v => parseInt(v));
     }
 
+    const availabilityEvent = {
+        startTime: event.startTime,
+        endTime: event.endTime,
+        timezone: event.timezone,
+    };
+
     let availabilityEvents: EventTimeslotEntry[] = [];
     if (!!event.festivalId && volunteer.actualAvailableEventLimit > 0)
         availabilityEvents = await getPublicEventsForFestival(event.festivalId, event.timezone);
+
+    const availabilityStep = await readSetting('availability-time-step-minutes');
 
     // TODO: Exceptions
 
@@ -426,15 +425,13 @@ export default async function EventVolunteerPage(
 
             <FormGridSection action={availabilityAction} defaultValues={availabilityDefaultValues}
                              title="Availability preferences">
-                <AvailabilityPreferences exceptionEventLimit={volunteer.actualAvailableEventLimit}
+                <AvailabilityPreferences event={availabilityEvent}
+                                         exceptionEventLimit={volunteer.actualAvailableEventLimit}
                                          exceptionEvents={availabilityEvents}
-                                         readOnly={readOnly} />
+                                         exceptions={volunteer.availabilityExceptions}
+                                         readOnly={readOnly}
+                                         step={availabilityStep} />
             </FormGridSection>
-
-
-
-            <ApplicationAvailability event={event} events={availabilityEvents} step={availabilityStep}
-                                     team={team.slug} readOnly={readOnly} volunteer={volunteer} />
 
             { /* ------------------------------------------------------------------------------ */ }
 

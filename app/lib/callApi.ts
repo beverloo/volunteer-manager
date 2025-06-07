@@ -1,7 +1,6 @@
 // Copyright 2023 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
-import type { AvailabilityPreferencesDefinition } from '@app/api/event/availabilityPreferences';
 import type { ConfirmIdentityDefinition } from '@app/api/auth/confirmIdentity';
 import type { CreateChallengeDefinition } from '@app/api/auth/passkeys/createChallenge';
 import type { CreateEventDefinition } from '@app/api/admin/createEvent';
@@ -190,7 +189,6 @@ export type ApiEndpoints = {
         '/api/auth/update-avatar': UpdateAvatarDefinition,
         '/api/display/help-request': HelpRequestDefinition,
         '/api/error': ErrorDefinition,
-        '/api/event/availability-preferences': AvailabilityPreferencesDefinition,
         '/api/event/schedule/feedback': SubmitFeedbackDefinition,
         '/api/exports': ExportsDefinition,
         '/api/nardo': NardoEndpoints['create'],

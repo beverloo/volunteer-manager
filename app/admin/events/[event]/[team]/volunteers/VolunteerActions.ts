@@ -248,7 +248,7 @@ export async function updateApplication(
  */
 const kUpdateAvailabilityPreferenceData = z.object({
     exceptionEvents: z.array(z.number().nullish()),
-    // TODO: exceptions
+    exceptions: z.string().optional(),
     serviceHours: kServiceHoursProperty,
     serviceTiming: kServiceTimingProperty,
     preferences: z.string().optional(),
@@ -298,9 +298,33 @@ export async function updateAvailability(
             }
         }
 
+        let exceptions: string | undefined;
+        if (!!data.exceptions && data.exceptions.length > 2) {
+            try {
+                const kExceptionType = z.array(z.object({
+                    start: kTemporalZonedDateTime,
+                    end: kTemporalZonedDateTime,
+                    state: z.enum([ 'available', 'avoid', 'unavailable' ]),
+                }));
+
+                const parsedExceptions = JSON.parse(data.exceptions);
+                const validatedExceptions = kExceptionType.parse(parsedExceptions);
+
+                exceptions = JSON.stringify(validatedExceptions.map(exception => ({
+                    ...exception,
+                    start: exception.start.toString(),
+                    end: exception.end.toString(),
+                })));
+
+            } catch (error) {
+                return { success: false, error: 'Unable to validate the availability exceptions…' };
+            }
+        }
+
         const dbInstance = db;
         const affectedRows = await dbInstance.update(tUsersEvents)
             .set({
+                availabilityExceptions: exceptions,
                 availabilityTimeslots: exceptionEvents.join(','),
                 preferences: data.preferences,
                 preferencesDietary: data.preferencesDietary,
@@ -316,7 +340,7 @@ export async function updateAvailability(
 
         if (!affectedRows)
             return { success: false, error: 'Unable to save their preferences in the database…' };
-
+/*
         RecordLog({
             type: kLogType.AdminUpdateAvailabilityPreferences,
             severity: kLogSeverity.Warning,
@@ -330,7 +354,7 @@ export async function updateAvailability(
                 timeslots: exceptionEvents,
             },
         });
-
+*/
         return { success: true, refresh: true };
     });
 }
