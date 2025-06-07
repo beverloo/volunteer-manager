@@ -234,7 +234,6 @@ do {
                 { field: [ 'logs', 'log_severity' ], type: 'LogSeverity' },
                 { field: [ 'outbox_twilio', 'outbox_type' ], type: 'TwilioOutboxType' },
                 { field: [ 'retention', 'retention_status' ], type: 'RetentionStatus' },
-                { field: [ 'roles', 'role_badge' ], type: 'RoleBadge' },
                 { field: [ 'schedule_logs', 'mutation' ], type: 'Mutation' },
                 { field: [ 'shifts', 'shift_demand_overlap' ], type: 'ShiftDemandOverlap' },
                 { field: [ 'storage', 'file_type' ], type: 'FileType' },

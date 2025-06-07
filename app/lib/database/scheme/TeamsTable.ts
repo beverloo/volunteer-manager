@@ -31,10 +31,6 @@ export class TeamsTable extends Table<DBConnection, 'TeamsTable'> {
     teamFlagManagesFirstAid = this.columnWithDefaultValue('team_flag_manages_first_aid', 'int');
     teamFlagManagesSecurity = this.columnWithDefaultValue('team_flag_manages_security', 'int');
     teamFlagRequestConfirmation = this.columnWithDefaultValue('team_flag_request_confirmation', 'int');
-    //teamRequestConfirmation = this.columnWithDefaultValue('team_request_confirmation', 'int');
-    //teamManagesFaq = this.columnWithDefaultValue('team_manages_faq', 'int');
-    //teamManagesFirstAid = this.columnWithDefaultValue('team_manages_first_aid', 'int');
-    //teamManagesSecurity = this.columnWithDefaultValue('team_manages_security', 'int');
     teamColourDarkTheme = this.column('team_colour_dark_theme', 'string');
     teamColourLightTheme = this.column('team_colour_light_theme', 'string');
     teamDeleted = this.optionalColumnWithDefaultValue<ZonedDateTime>('team_deleted', 'customLocalDateTime', 'dateTime', TemporalTypeAdapter);
