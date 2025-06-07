@@ -88,7 +88,7 @@ export async function clearHotelPreferences(
             });
         }
 
-        return { success: true, refresh: true };
+        return { success: true, clear: true };
     });
 }
 
@@ -130,7 +130,7 @@ export async function clearRefundPreferences(
             });
         }
 
-        return { success: true, refresh: true };
+        return { success: true, clear: true };
     });
 }
 
@@ -172,7 +172,7 @@ export async function clearTrainingPreferences(
             });
         }
 
-        return { success: true, refresh: true };
+        return { success: true, clear: true };
     });
 }
 

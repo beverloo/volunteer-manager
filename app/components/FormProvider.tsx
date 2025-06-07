@@ -165,6 +165,11 @@ export function FormProvider(props: React.PropsWithChildren<FormProviderProps>) 
                     keepValues: true,
                 });
 
+                if (!!result.clear) {
+                    for (const field of Object.keys(form.getValues()))
+                        form.setValue(field, /* clear= */ '');
+                }
+
                 if (!!result.redirect)
                     router.push(result.redirect);
 

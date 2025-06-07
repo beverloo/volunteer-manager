@@ -4,6 +4,7 @@
 'use client';
 
 import { useCallback, useState } from 'react';
+import { useFormContext } from '@components/proxy/react-hook-form-mui';
 
 import ClearIcon from '@mui/icons-material/Clear';
 import DialogContentText from '@mui/material/DialogContentText';
@@ -42,20 +43,27 @@ interface SectionClearActionProps {
 export function SectionClearAction(props: SectionClearActionProps) {
     const { action, subject, title } = props;
 
+    const form = useFormContext();
+
     const [ confirmationOpen, setConfirmationOpen ] = useState<boolean>(false);
 
     const handleCommit = useCallback(async () => {
         try {
             const result = await action(new FormData);
             if (!result.success)
-                return { error: result.error || 'yo' };
+                return { error: result.error || 'Unable to clear the data on the server…' };
+
+            if (!!result.clear && !!form) {
+                for (const field of Object.keys(form.getValues()))
+                    form.setValue(field, /* clear= */ '');
+            }
 
             return true;
 
         } catch (error: any) {
             return { error: error.message };
         }
-    }, [ action ]);
+    }, [ action, form ]);
 
     return (
         <>

@@ -55,6 +55,11 @@ export type ServerActionResult = {
     success: true,
 
     /**
+     * Whether the form that the action is serving, if any, should be cleared of any and all values.
+     */
+    clear?: boolean;
+
+    /**
      * Optional message that can be presented to the user.
      */
     message?: string;
