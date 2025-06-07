@@ -56,16 +56,10 @@ export function PersonalisedAdviceDataTable() {
             },
         },
         {
-            field: 'input',
-            headerName: 'Input',
-            sortable: true,
-            flex: 2,
-        },
-        {
             field: 'output',
-            headerName: 'Output',
+            headerName: 'Advice',
             sortable: true,
-            flex: 2,
+            flex: 3,
         }
     ];
 
