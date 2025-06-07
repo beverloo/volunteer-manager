@@ -340,7 +340,7 @@ export async function updateAvailability(
 
         if (!affectedRows)
             return { success: false, error: 'Unable to save their preferences in the database…' };
-/*
+
         RecordLog({
             type: kLogType.AdminUpdateAvailabilityPreferences,
             severity: kLogSeverity.Warning,
@@ -354,7 +354,7 @@ export async function updateAvailability(
                 timeslots: exceptionEvents,
             },
         });
-*/
+
         return { success: true, refresh: true };
     });
 }
