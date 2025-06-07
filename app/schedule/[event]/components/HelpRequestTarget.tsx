@@ -8,7 +8,7 @@ import SecurityOutlinedIcon from '@mui/icons-material/SecurityOutlined';
 
 import { type DisplayHelpRequestTarget, kDisplayHelpRequestTarget } from '@lib/database/Types';
 
-import { kHelpRequestColours } from '@app/admin/organisation/displays/HelpRequestColours';
+import { kHelpRequestColours } from '@app/admin/organisation/displays/requests/HelpRequestColours';
 
 /**
  * Icon to use for each of the request targets. Will be drawn in white.

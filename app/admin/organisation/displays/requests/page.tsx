@@ -1,12 +1,21 @@
-// Copyright 2024 Peter Beverloo & AnimeCon. All rights reserved.
+// Copyright 2025 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
-import { notFound } from 'next/navigation';
+import { HelpRequestTable } from './HelpRequestTable';
+import { createGenerateMetadataFn } from '@app/admin/lib/generatePageMetadata';
+import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
 
 /**
- * The display request page provides detailed access to an individual help request, however, when
- * the ID is missing we have no ability to show anything at all. Display a HTTP 404 error instead.
+ * The <DisplaysPage> component hosts a data table that shows the physical displays that have
+ * recently checked in, and allows them to be provisioned and configured.
  */
-export default async function DisplayRequestsPage() {
-    notFound();
+export default async function HelpRequestsPage() {
+    await requireAuthenticationContext({
+        check: 'admin',
+        permission: 'organisation.displays',
+    });
+
+    return <HelpRequestTable />;
 }
+
+export const generateMetadata = createGenerateMetadataFn('Help Requests', 'Organisation');

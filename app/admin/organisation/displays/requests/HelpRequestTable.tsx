@@ -38,7 +38,7 @@ export function HelpRequestTable() {
                     'YYYY-MM-DD HH:mm:ss');
 
                 return (
-                    <MuiLink component={Link} href={`./displays/requests/${params.row.id}`}>
+                    <MuiLink component={Link} href={`./requests/${params.row.id}`}>
                         {label}
                     </MuiLink>
                 );

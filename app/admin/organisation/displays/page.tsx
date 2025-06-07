@@ -1,13 +1,8 @@
-// Copyright 2024 Peter Beverloo & AnimeCon. All rights reserved.
+// Copyright 2025 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
-
-import TabletIcon from '@mui/icons-material/Tablet';
 
 import type { DisplayTableEventOption, DisplayTableLocationOption } from './DisplaysTable';
 import { DisplaysTable } from './DisplaysTable';
-import { HelpRequestTable } from './HelpRequestTable';
-import { Section } from '@app/admin/components/Section';
-import { SectionIntroduction } from '@app/admin/components/SectionIntroduction';
 import { createGenerateMetadataFn } from '../../lib/generatePageMetadata';
 import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
 import db, { tEvents, tActivitiesLocations } from '@lib/database';
@@ -46,26 +41,7 @@ export default async function DisplaysPage() {
         .orderBy('label', 'asc')
         .executeSelectMany();
 
-    return (
-        <>
-            <Section icon={ <TabletIcon color="primary" /> } title="Display configuration">
-                <SectionIntroduction>
-                    We distribute <strong>physical displays</strong> during the festival to help
-                    busy areas self-manage their volunteers. They automatically register with the
-                    Volunteer Manager, and can be provisioned and controlled through this interface.
-                    Updates can take a few minutes to propagate.
-                </SectionIntroduction>
-                <DisplaysTable events={events} locations={locations} />
-            </Section>
-            <Section title="Help requests">
-                <SectionIntroduction>
-                    Locations to whom displays are issued have the ability to request help through
-                    the user interface. Such requests are dealt with in the schedule tool.
-                </SectionIntroduction>
-                <HelpRequestTable />
-            </Section>
-        </>
-    );
+    return <DisplaysTable events={events} locations={locations} />;
 }
 
 export const generateMetadata = createGenerateMetadataFn('Displays', 'Organisation');

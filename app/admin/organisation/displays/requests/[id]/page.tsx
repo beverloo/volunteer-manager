@@ -6,17 +6,17 @@ import { notFound } from 'next/navigation';
 
 import { default as MuiLink } from '@mui/material/Link';
 import Alert from '@mui/material/Alert';
-import Paper from '@mui/material/Paper';
+import Divider from '@mui/material/Divider';
+import Grid from '@mui/material/Grid';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
-import TableContainer from '@mui/material/TableContainer';
 import TableRow from '@mui/material/TableRow';
+import Typography from '@mui/material/Typography';
 
 import type { NextPageParams } from '@lib/NextRouterParams';
+import { BackButtonGrid } from '@app/admin/components/BackButtonGrid';
 import { LocalDateTime } from '@app/admin/components/LocalDateTime';
-import { Section } from '@app/admin/components/Section';
-import { SectionIntroduction } from '@app/admin/components/SectionIntroduction';
 import { createGenerateMetadataFn } from '../../../../lib/generatePageMetadata';
 import { formatDuration } from '@lib/Temporal';
 import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
@@ -87,14 +87,13 @@ export default async function DisplayRequestPage(props: NextPageParams<'id'>) {
     const accountBaseUrl = '/admin/organisation/accounts/';
 
     return (
-        <>
-            <Section title="Help request" subtitle={`#${request.id}`}>
-                <SectionIntroduction>
-                    This page contains detailed information about an individual help request. The
-                    request can be modified in the schedule app for the associated event.
-                </SectionIntroduction>
-            </Section>
-            <TableContainer component={Paper}>
+        <Grid container spacing={2}>
+            <BackButtonGrid href="/admin/organisation/displays/requests">
+                Back to help requests
+            </BackButtonGrid>
+
+            <Grid size={{ xs: 12 }} sx={{ mt: -1 }}><Divider /></Grid>
+            <Grid size={{ xs: 12 }} sx={{ mt: -2 }}>
                 <Table>
                     <TableBody>
                         <TableRow>
@@ -107,34 +106,44 @@ export default async function DisplayRequestPage(props: NextPageParams<'id'>) {
                             </TableCell>
                         </TableRow>
                         <TableRow>
-                            <TableCell component="th" scope="row">
+                            <TableCell width="25%" component="th" scope="row">
                                 Received from display
                             </TableCell>
-                            <TableCell>{request.display}</TableCell>
+                            <TableCell>
+                                {request.display}
+                            </TableCell>
                         </TableRow>
                         <TableRow>
-                            <TableCell component="th" scope="row">
+                            <TableCell width="25%" component="th" scope="row">
                                 Received for event
                             </TableCell>
-                            <TableCell>{request.event}</TableCell>
+                            <TableCell>
+                                {request.event}
+                            </TableCell>
                         </TableRow>
                         <TableRow>
-                            <TableCell component="th" scope="row">
+                            <TableCell width="25%" component="th" scope="row">
                                 Request target
                             </TableCell>
-                            <TableCell>{request.target}</TableCell>
+                            <TableCell>
+                                {request.target}
+                            </TableCell>
                         </TableRow>
                     </TableBody>
                 </Table>
-            </TableContainer>
+            </Grid>
+
             { !request.acknowledgedBy &&
-                <Paper>
+                <Grid size={{ xs: 12 }}>
                     <Alert severity="warning">
                         This request has not been acknowledged yet.
                     </Alert>
-                </Paper> }
+                </Grid> }
             { !!request.acknowledgedBy &&
-                <TableContainer component={Paper}>
+                <Grid size={{ xs: 12 }}>
+                    <Typography variant="h6" sx={{ mt: -1 }}>
+                        Acknowledgement
+                    </Typography>
                     <Table>
                         <TableBody>
                             <TableRow>
@@ -149,7 +158,7 @@ export default async function DisplayRequestPage(props: NextPageParams<'id'>) {
                             </TableRow>
                             <TableRow>
                                 <TableCell component="th" scope="row">
-                                    By
+                                    Volunteer
                                 </TableCell>
                                 <TableCell>
                                     <MuiLink
@@ -163,15 +172,19 @@ export default async function DisplayRequestPage(props: NextPageParams<'id'>) {
                             </TableRow>
                         </TableBody>
                     </Table>
-                </TableContainer> }
+                </Grid> }
+
             { !request.closedBy &&
-                <Paper>
+                <Grid size={{ xs: 12 }}>
                     <Alert severity="warning">
                         This request has not been closed yet.
                     </Alert>
-                </Paper> }
+                </Grid> }
             { !!request.closedBy &&
-                <TableContainer component={Paper}>
+                <Grid size={{ xs: 12 }}>
+                    <Typography variant="h6" sx={{ mt: -1 }}>
+                        Resolution
+                    </Typography>
                     <Table>
                         <TableBody>
                             <TableRow>
@@ -186,7 +199,7 @@ export default async function DisplayRequestPage(props: NextPageParams<'id'>) {
                             </TableRow>
                             <TableRow>
                                 <TableCell component="th" scope="row">
-                                    By
+                                    Volunteer
                                 </TableCell>
                                 <TableCell>
                                     <MuiLink component={Link}
@@ -205,8 +218,9 @@ export default async function DisplayRequestPage(props: NextPageParams<'id'>) {
                             </TableRow>
                         </TableBody>
                     </Table>
-                </TableContainer> }
-        </>
+                </Grid> }
+
+        </Grid>
     );
 }
 
