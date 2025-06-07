@@ -1,6 +1,8 @@
 // Copyright 2025 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
+import crypto from 'crypto';
+
 import type { Environment } from './Environment';
 import type { RegistrationStatus } from './database/Types';
 import { Temporal, isBefore } from '@lib/Temporal';
@@ -85,6 +87,11 @@ export interface EnvironmentContextEventAccess {
          * Unique ID of the team as it has been represented in the database.
          */
         id: number;
+
+        /**
+         * Private invite key through which volunteers can directly apply to join this team.
+         */
+        inviteKey: string;
 
         /**
          * URL-safe slug representing this team.
@@ -233,6 +240,7 @@ async function determineEventAccess(
 
             teams: dbInstance.aggregateAsArray({
                 id: tTeams.teamId,
+                key: tTeams.teamInviteKey,
                 slug: tTeams.teamSlug,
 
                 applicationsWindow: {
@@ -290,6 +298,8 @@ async function determineEventAccess(
                 id: team.id,
                 slug: team.slug,
 
+                inviteKey: generateInviteKey(event.slug, team.key),
+
                 applications,
                 registration,
                 schedule,
@@ -303,4 +313,14 @@ async function determineEventAccess(
     }
 
     return events;
+}
+
+/**
+ * Generates a private invite key specific to the `event` and the given `key`. The result must be
+ * stable and deterministic given the same input values, as it may be shared externally.
+ */
+export function generateInviteKey(event: string, key: string): string {
+    return crypto.createHash('shake256', { outputLength: 8 })
+        .update(`${event}${key}`)
+        .digest('hex');
 }

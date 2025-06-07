@@ -2,7 +2,9 @@
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
 import { Temporal } from '@lib/Temporal';
-import { determineAvailabilityStatus } from './EnvironmentContext';
+import { determineAvailabilityStatus, generateInviteKey } from './EnvironmentContext';
+
+import { nanoid } from './nanoid';
 
 describe('EnvironmentContext', () => {
 
@@ -75,6 +77,42 @@ describe('EnvironmentContext', () => {
                 end: endUndefined,
                 override: true,  // <-- future becomes override
             })).toBe('override');
+        }
+    });
+
+    it('is able to generate unique invite keys', () => {
+        const kEnabled = false;
+        const kIterations = 100;
+
+        const benchmarkStart = process.hrtime.bigint();
+
+        // Confirm stability of the generated invite keys:
+        for (let iteration = 0; iteration < kIterations; ++iteration) {
+            const [ event, key ] = [ nanoid(8), nanoid(8) ];
+            expect(generateInviteKey(event, key)).toEqual(generateInviteKey(event, key));
+        }
+
+        // Confirm that keys with different input values generate different results:
+        for (let iteration = 0; iteration < kIterations; ++iteration) {
+            const [ event, key ] = [ nanoid(8), nanoid(8) ];
+            expect(generateInviteKey('fauxEvent', key)).not.toEqual(generateInviteKey(event, key));
+            expect(generateInviteKey(event, 'fauxKey')).not.toEqual(generateInviteKey(event, key));
+            expect(generateInviteKey(event, key)).not.toEqual(generateInviteKey(key, event));
+        }
+
+        const iterations = kIterations * 8;
+
+        const benchmarkEnd = process.hrtime.bigint();
+        const benchmarkTime = benchmarkEnd - benchmarkStart;
+        const benchmarkTimeMs = Number(benchmarkTime / 10_000n);
+
+        if (kEnabled) {
+            console.log('generateInviteKey benchmark:');
+            console.log('-- Iterations: ', iterations);
+            console.log('-- Time taken (total):', benchmarkTimeMs / 100, 'ms');
+            console.log('-- Time taken (call):', benchmarkTimeMs / iterations / 100, 'ms');
+
+            expect(false).toBeTrue();  // force a fail to see benchmark output
         }
     });
 });
