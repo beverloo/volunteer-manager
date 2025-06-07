@@ -51,9 +51,6 @@ const kCreateApplicationData = z.object({
 export async function createApplication(eventId: number, teamId: number, formData: unknown) {
     'use server';
     return executeServerAction(formData, kCreateApplicationData, async (data, props) => {
-        if (!props.user)
-            return { success: false, error: 'You need to be signed in to your account…' };
-
         const dbInstance = db;
 
         // -----------------------------------------------------------------------------------------
@@ -249,9 +246,6 @@ const kRequestRefundData = z.object({
 export async function requestRefund(eventId: number, formData: unknown) {
     'use server';
     return executeServerAction(formData, kRequestRefundData, async (data, props) => {
-        if (!props.user)
-            return { success: false, error: 'You need to be signed in to your account…' };
-
         const dbInstance = db;
 
         const event = await dbInstance.selectFrom(tEvents)
@@ -343,9 +337,6 @@ const kUpdateAvailabilityData = z.object({
 export async function updateAvailability(eventId: number, teamId: number, formData: unknown) {
     'use server';
     return executeServerAction(formData, kUpdateAvailabilityData, async (data, props) => {
-        if (!props.user)
-            return { success: false, error: 'You need to be signed in to your account…' };
-
         const dbInstance = db;
 
         const verification = await dbInstance.selectFrom(tUsersEvents)
@@ -467,9 +458,6 @@ const kUpdateHotelPreferences = z.object({
 export async function updateHotelPreferences(eventId: number, teamId: number, formData: unknown) {
     'use server';
     return executeServerAction(formData, kUpdateHotelPreferences, async (data, props) => {
-        if (!props.user)
-            return { success: false, error: 'You need to be signed in to your account…' };
-
         const dbInstance = db;
 
         const verification = await dbInstance.selectFrom(tUsersEvents)
@@ -611,9 +599,6 @@ export async function updateTrainingPreferences(eventId: number, teamId: number,
 {
     'use server';
     return executeServerAction(formData, kUpdateTrainingPreferences, async (data, props) => {
-        if (!props.user)
-            return { success: false, error: 'You need to be signed in to your account…' };
-
         const dbInstance = db;
 
         const verification = await dbInstance.selectFrom(tUsersEvents)

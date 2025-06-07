@@ -259,7 +259,7 @@ export async function impersonate(userId: number, formData: unknown) {
         const { user: impersonatedUser } = await authenticateUser({ type: 'userId', userId });
 
         const impersonatedUserSessionToken = await getUserSessionToken(userId);
-        const userSessionToken = await getUserSessionToken(props.user!.id);
+        const userSessionToken = await getUserSessionToken(props.user.id);
 
         if (!impersonatedUser || !impersonatedUserSessionToken || !userSessionToken)
             notFound();
@@ -268,7 +268,7 @@ export async function impersonate(userId: number, formData: unknown) {
             id: impersonatedUser.id,
             token: impersonatedUserSessionToken,
             parent: {
-                id: props.user!.id,
+                id: props.user.id,
                 token: userSessionToken,
             },
         }, await cookies());

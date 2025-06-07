@@ -2,6 +2,7 @@
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
 import { headers } from 'next/headers';
+import { unauthorized } from 'next/navigation';
 
 import type { ZodObject, ZodRawShape, z } from 'zod/v4';
 import type { $ZodArrayDef, $ZodNullableDef, $ZodOptionalDef, $ZodPipeDef, $ZodTypeDef } from 'zod/v4/core';
@@ -15,9 +16,25 @@ import { getAuthenticationContextFromHeaders, type AuthenticationContext }
 import { kAuthType } from './database/Types';
 
 /**
+ * Type description for the information available regarding the signed in user, if any.
+ */
+type ServerActionUserProp<AllowVisitors extends boolean> =
+    AllowVisitors extends false ? {
+        /**
+         * User descriptor when the visitor is signed in to an account.
+         */
+        user: User;
+    } : {
+        /**
+         * User descriptor for the signed in to account.
+         */
+        user?: User;
+    };
+
+/**
  * Type definition for the props that will be made available to a server action implementation.
  */
-type ServerActionProps = {
+type ServerActionProps<AllowVisitors extends boolean> = ServerActionUserProp<AllowVisitors> & {
     /**
      * Access control management for this user. Lives off the `authenticationContext`, but pulled to
      * the top-level as it's an object that will frequently be accessed.
@@ -38,11 +55,6 @@ type ServerActionProps = {
      * IP address of the source of the request.
      */
     ip?: string;
-
-    /**
-     * User descriptor when the visitor is signed in to an account.
-     */
-    user?: User;
 };
 
 /**
@@ -107,8 +119,10 @@ export type PartialServerAction<T> = (param: T, formData: unknown) => Promise<Se
  * Type definition that represents a React server action. When the action does not return any value
  * success will be assumed, whereas exceptions will be represented as a failure.
  */
-export type ServerActionImplementation<T extends ZodObject<ZodRawShape>> =
-    (data: z.output<T>, props: ServerActionProps) => Promise<ServerActionResult | undefined | void>;
+export type ServerActionImplementation<T extends ZodObject<ZodRawShape>,
+                                       AllowVisitors extends boolean> =
+    (data: z.output<T>, props: ServerActionProps<AllowVisitors>) =>
+        Promise<ServerActionResult | undefined | void>;
 
 /**
  * Basic types that the `coerceZodType` function can coerce string values to.
@@ -222,12 +236,16 @@ export function formatZodError(error: ZodError): string {
  * given `formData`, either a `FormData` instance or a POD object) and output across our system. The
  * input will be strongly validated, and the user will be authenticated.
  *
+ * Authentication users are required, unless the `allowVisitor` argument is set to `true`.
+ *
  * This function must only be called in asynchronous functions that have a 'use server' declaration
  * as the first statement in their body, per the rules of React's Server Actions. Furthermore, React
  * takes care of version skew and common attack types, which we build upon with further validation.
  */
-export async function executeServerAction<T extends ZodObject<ZodRawShape>>(
-    formData: unknown, scheme: T, action: ServerActionImplementation<T>, userForTesting?: User)
+export async function executeServerAction<T extends ZodObject<ZodRawShape>,
+                                          AllowVisitors extends boolean = false>(
+    formData: unknown, scheme: T, action: ServerActionImplementation<T, AllowVisitors>,
+    allowVisitors?: AllowVisitors, userForTesting?: User)
         : Promise<ServerActionResult>
 {
     try {
@@ -263,12 +281,15 @@ export async function executeServerAction<T extends ZodObject<ZodRawShape>>(
 
                 } : await getAuthenticationContextFromHeaders(requestHeaders);
 
-        const props: ServerActionProps = {
+        if (!allowVisitors && !authenticationContext.user)
+            unauthorized();
+
+        const props: ServerActionProps<AllowVisitors> = {
             access: authenticationContext.access,
             authenticationContext,
             host: requestHeaders.get('host') ?? 'animecon.team',
             ip: requestHeaders.get('x-forwarded-for') ?? undefined,
-            user: authenticationContext.user,
+            user: authenticationContext.user!,
         };
 
         // -----------------------------------------------------------------------------------------

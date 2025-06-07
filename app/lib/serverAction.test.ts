@@ -24,7 +24,7 @@ describe('serverAction', () => {
     // Wrapper function around `executeServerAction` that encapsulates the necessary information in
     // an asynchronous closure, that can be invoked multiple times for testing purposes.
     function serverAction<T extends ZodObject<ZodRawShape>>(
-        scheme: T, action: ServerActionImplementation<T>)
+        scheme: T, action: ServerActionImplementation<T, false>)
     {
         const user: User = {
             id: 101,
@@ -34,7 +34,8 @@ describe('serverAction', () => {
             nameOrFirstName: 'John',
         };
 
-        return async (formData: unknown) => executeServerAction(formData, scheme, action, user);
+        return async (formData: unknown) =>
+            executeServerAction(formData, scheme, action, /* allowVisitor= */ undefined, user);
     }
 
     it('should reject invalid form data types', async () => {

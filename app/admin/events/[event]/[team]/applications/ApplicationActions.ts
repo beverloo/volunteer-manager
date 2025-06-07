@@ -1,7 +1,7 @@
 // Copyright 2025 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
-import { forbidden, notFound, unauthorized } from 'next/navigation';
+import { forbidden, notFound } from 'next/navigation';
 import { z } from 'zod/v4';
 
 import { Publish } from '@lib/subscriptions';
@@ -65,9 +65,6 @@ export async function decideApplication(
                 scope: { event, team },
             },
         });
-
-        if (!props.user)
-            unauthorized();
 
         const eventId = await getEventId(event);
         const teamId = await getTeamId(team);
