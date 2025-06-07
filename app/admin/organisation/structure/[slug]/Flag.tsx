@@ -40,7 +40,7 @@ export function Flag(props: FlagProps) {
 
     const handleClick = useCallback(() => {
         setValue(props.field, !getValues(props.field), { shouldDirty: true });
-    }, [ setValue ]);
+    }, [ getValues, props.field, setValue ]);
 
     return (
         <ListItemButton onClick={handleClick} sx={{ py: 0 }}>
