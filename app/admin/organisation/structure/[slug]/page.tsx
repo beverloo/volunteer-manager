@@ -70,6 +70,7 @@ export default async function TeamPage(props: NextPageParams<'slug'>) {
             flagManagesFaq: tTeams.teamFlagManagesFaq.equals(/* true= */ 1),
             flagManagesFirstAid: tTeams.teamFlagManagesFirstAid.equals(/* true= */ 1),
             flagManagesSecurity: tTeams.teamFlagManagesSecurity.equals(/* true= */ 1),
+            flagProgramRequests: tTeams.teamFlagProgramRequests.equals(/* true= */ 1),
             flagRequestConfirmation: tTeams.teamFlagRequestConfirmation.equals(/* true= */ 1),
 
             enabled: tTeams.teamDeleted.isNull(),
@@ -112,6 +113,11 @@ export default async function TeamPage(props: NextPageParams<'slug'>) {
         {
             field: 'flagEnableScheduling',
             title: 'Enable volunteer scheduling tools',
+        },
+        {
+            field: 'flagProgramRequests',
+            title: 'Handles incoming program requests',
+            description: 'Displays this team on the program help request overview',
         },
         {
             field: 'flagManagesContent',

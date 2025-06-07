@@ -1861,6 +1861,10 @@ tables:
     type: tinyint(1) unsigned
     nullable: false
     default: "0"
+  - name: team_flag_program_requests
+    type: tinyint(1) unsigned
+    nullable: false
+    default: "0"
   - name: team_flag_request_confirmation
     type: tinyint(1) unsigned
     nullable: false
@@ -1909,6 +1913,7 @@ tables:
       `team_flag_manages_faq` tinyint(1) unsigned NOT NULL DEFAULT 0,
       `team_flag_manages_first_aid` tinyint(1) unsigned NOT NULL DEFAULT 0,
       `team_flag_manages_security` tinyint(1) unsigned NOT NULL DEFAULT 0,
+      `team_flag_program_requests` tinyint(1) unsigned NOT NULL DEFAULT 0,
       `team_flag_request_confirmation` tinyint(1) unsigned NOT NULL DEFAULT 0,
       `team_colour_dark_theme` varchar(16) NOT NULL,
       `team_colour_light_theme` varchar(16) NOT NULL,

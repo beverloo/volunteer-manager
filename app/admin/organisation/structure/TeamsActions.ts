@@ -402,10 +402,12 @@ const kUpdateTeamData = z.object({
     defaultRoleId: z.number(),
     availableRoleIds: z.array(z.number()),
 
+    flagEnableScheduling: z.boolean(),
     flagManagesContent: z.boolean(),
     flagManagesFaq: z.boolean(),
     flagManagesFirstAid: z.boolean(),
     flagManagesSecurity: z.boolean(),
+    flagProgramRequests: z.boolean(),
     flagRequestConfirmation: z.boolean(),
 });
 
@@ -437,10 +439,12 @@ export async function updateTeam(teamId: number, formData: unknown) {
                     teamPlural: data.plural,
                     teamTitle: data.title,
 
+                    teamFlagEnableScheduling: !!data.flagEnableScheduling ? 1 : 0,
                     teamFlagManagesContent: !!data.flagManagesContent ? 1 : 0,
                     teamFlagManagesFaq: !!data.flagManagesFaq ? 1 : 0,
                     teamFlagManagesFirstAid: !!data.flagManagesFirstAid ? 1 : 0,
                     teamFlagManagesSecurity: !!data.flagManagesSecurity ? 1 : 0,
+                    teamFlagProgramRequests: !!data.flagProgramRequests ? 1 : 0,
                     teamFlagRequestConfirmation: !!data.flagRequestConfirmation ? 1 : 0,
                 })
                 .where(tTeams.teamId.equals(teamId))

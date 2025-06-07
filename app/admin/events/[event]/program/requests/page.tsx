@@ -24,6 +24,7 @@ export default async function ProgramRequestsPage(props: NextPageParams<'event'>
     const teams = await db.selectFrom(tEventsTeams)
         .innerJoin(tTeams)
             .on(tTeams.teamId.equals(tEventsTeams.teamId))
+                .and(tTeams.teamFlagProgramRequests.equals(/* true= */ 1))
         .where(tEventsTeams.eventId.equals(event.id))
             .and(tEventsTeams.enableTeam.equals(/* true = */ 1))
         .select({

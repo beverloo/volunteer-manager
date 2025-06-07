@@ -30,6 +30,7 @@ export class TeamsTable extends Table<DBConnection, 'TeamsTable'> {
     teamFlagManagesFaq = this.columnWithDefaultValue('team_flag_manages_faq', 'int');
     teamFlagManagesFirstAid = this.columnWithDefaultValue('team_flag_manages_first_aid', 'int');
     teamFlagManagesSecurity = this.columnWithDefaultValue('team_flag_manages_security', 'int');
+    teamFlagProgramRequests = this.columnWithDefaultValue('team_flag_program_requests', 'int');
     teamFlagRequestConfirmation = this.columnWithDefaultValue('team_flag_request_confirmation', 'int');
     teamColourDarkTheme = this.column('team_colour_dark_theme', 'string');
     teamColourLightTheme = this.column('team_colour_light_theme', 'string');
