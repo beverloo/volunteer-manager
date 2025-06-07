@@ -3,13 +3,14 @@
 
 import { notFound } from 'next/navigation';
 
-import { AutocompleteElement, CheckboxElement, SelectElement, TextareaAutosizeElement,
-    TextFieldElement } from '@components/proxy/react-hook-form-mui';
+import { AutocompleteElement, SelectElement, TextareaAutosizeElement, TextFieldElement }
+    from '@components/proxy/react-hook-form-mui';
 
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import Divider from '@mui/material/Divider';
 import Grid from '@mui/material/Grid';
 import KeyIcon from '@mui/icons-material/Key';
+import List from '@mui/material/List';
 import RemoveCircleOutlineIcon from '@mui/icons-material/RemoveCircleOutline';
 import Stack from '@mui/material/Stack';
 
@@ -18,6 +19,7 @@ import { AutocompleteElementWithDisabledOptions } from '@app/admin/components/Au
 import { BackButtonGrid } from '@app/admin/components/BackButtonGrid';
 import { ColorInput } from '@app/admin/components/ColorInput';
 import { ConfirmationButton } from '@app/admin/components/ConfirmationButton';
+import { Flag, type FlagProps } from './Flag';
 import { FormGrid } from '@app/admin/components/FormGrid';
 import { createGenerateMetadataFn } from '@app/admin/lib/generatePageMetadata';
 import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
@@ -76,6 +78,8 @@ export default async function TeamPage(props: NextPageParams<'slug'>) {
     if (!team)
         notFound();
 
+    // ---------------------------------------------------------------------------------------------
+
     const roles = await db.selectFrom(tRoles)
         .select({
             id: tRoles.roleId,
@@ -98,6 +102,41 @@ export default async function TeamPage(props: NextPageParams<'slug'>) {
         .orderBy(tEnvironments.environmentTitle, 'asc')
         .executeSelectMany();
 
+    // ---------------------------------------------------------------------------------------------
+    // Determine the flags available for this team. Each flag must be fetched from the database, and
+    // will be shown as a list item with a checkbox that can be appropriately toggled.
+    // ---------------------------------------------------------------------------------------------
+
+    const kFlags: FlagProps[] = [
+        {
+            field: 'flagManagesContent',
+            title: 'Manages landing page content',
+            description: '',
+        },
+        {
+            field: 'flagManagesFirstAid',
+            title: 'Manages the First Aid team',
+            description: '',
+        },
+        {
+            field: 'flagManagesFaq',
+            title: 'Manages the Knowledge Base',
+            description: '',
+        },
+        {
+            field: 'flagManagesSecurity',
+            title: 'Manages the Security team',
+            description: '',
+        },
+        {
+            field: 'flagRequestConfirmation',
+            title: 'Request for confirmation in the application approve message?',
+            description: 'Asks the volunteer to confirm receipt of the e-mail message',
+        }
+    ];
+
+    // ---------------------------------------------------------------------------------------------
+
     const readOnly = false;  // should we support this?
 
     const backButtonSize = canDisableTeam ? 6 : 12;
@@ -106,6 +145,8 @@ export default async function TeamPage(props: NextPageParams<'slug'>) {
     const enableTeamFn = actions.toggleTeamEnabled.bind(null, team.id, /* enabled= */ true);
     const resetTeamKeyFn = actions.resetTeamKey.bind(null, team.id);
     const updateTeamFn = actions.updateTeam.bind(null, team.id);
+
+    // ---------------------------------------------------------------------------------------------
 
     return (
         <FormGrid action={updateTeamFn} defaultValues={team}>
@@ -200,26 +241,10 @@ export default async function TeamPage(props: NextPageParams<'slug'>) {
                 <Divider />
             </Grid>
 
-            <Grid size={{ xs: 12 }} sx={{ my: -1 }}>
-                <CheckboxElement name="flagManagesContent" label="Manages landing page content"
-                                 size="small" readOnly={!!readOnly} />
-            </Grid>
-            <Grid size={{ xs: 12 }} sx={{ my: -1 }}>
-                <CheckboxElement name="flagManagesFirstAid" label="Manages the First Aid team"
-                                 size="small" readOnly={!!readOnly} />
-            </Grid>
-            <Grid size={{ xs: 12 }} sx={{ my: -1 }}>
-                <CheckboxElement name="flagManagesFaq" label="Manages the Knowledge Base"
-                                 size="small" readOnly={!!readOnly} />
-            </Grid>
-            <Grid size={{ xs: 12 }} sx={{ my: -1 }}>
-                <CheckboxElement name="flagManagesSecurity" label="Manages the Security team"
-                                 size="small" readOnly={!!readOnly} />
-            </Grid>
-            <Grid size={{ xs: 12 }} sx={{ my: -1 }}>
-                <CheckboxElement
-                    name="flagRequestConfirmation" size="small" readOnly={!!readOnly}
-                    label="Request for confirmation in the application approve message?" />
+            <Grid size={{ xs: 12 }} sx={{ mt: -1, mb: -1 }}>
+                <List disablePadding>
+                    { kFlags.map(entry => <Flag key={entry.field} {...entry} /> )}
+                </List>
             </Grid>
 
         </FormGrid>
