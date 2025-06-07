@@ -1,16 +1,26 @@
 // Copyright 2025 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
+import { notFound } from 'next/navigation';
 import { z } from 'zod/v4';
 
 import { RecordLog, kLogType } from '@lib/Log';
 import { executeServerAction } from '@lib/serverAction';
 import { clearEnvironmentCache } from '@lib/Environment';
 import { clearPageMetadataCache } from '@app/admin/lib/generatePageMetadata';
+import { nanoid } from '@lib/nanoid';
 import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
 import db, { tEnvironments, tTeams, tTeamsRoles } from '@lib/database';
 
 import { kEnvironmentPurpose } from '@lib/database/Types';
+
+/**
+ * Utility function that generates a team's key, used for invitations. These have a fixed size, and
+ * should be generated from a cryptographically secure PRNG.
+ */
+function generateTeamKey(): string {
+    return nanoid(/* size= */ 16);
+}
 
 /**
  * Zod type that describes that no data is expected.
@@ -125,6 +135,7 @@ export async function createTeam(formData: unknown) {
                 teamDescription: data.title,
                 teamEnvironment: existingEnvironment,
                 teamEnvironmentId: data.environment,
+                teamInviteKey: generateTeamKey(),
                 teamColourDarkTheme: '#ff0000',
                 teamColourLightTheme: '#ff0000',
             })
@@ -225,6 +236,48 @@ export async function deleteEnvironment(environmentId: number, formData: unknown
             success: true,
             redirect: '/admin/organisation/structure/environments',
         };
+    });
+}
+
+/**
+ * Server action that regenerates a team's invite key.
+ */
+export async function resetTeamKey(teamId: number, formData: unknown) {
+    'use server';
+    return executeServerAction(formData, kNoDataRequired, async (data, props) => {
+        await requireAuthenticationContext({
+            check: 'admin',
+            permission: 'root',  // only admin (& root) can reset keys
+        });
+
+        const dbInstance = db;
+        const teamName = await dbInstance.selectFrom(tTeams)
+            .where(tTeams.teamId.equals(teamId))
+            .selectOneColumn(tTeams.teamName)
+            .executeSelectNoneOrOne();
+
+        if (!teamName)
+            notFound();
+
+        const affectedRows = await db.update(tTeams)
+            .set({
+                teamInviteKey: generateTeamKey(),
+            })
+            .where(tTeams.teamId.equals(teamId))
+            .executeUpdate();
+
+        if (!affectedRows)
+            return { success: false, error: 'Unable to store the newly generated key…' };
+
+        RecordLog({
+            type: kLogType.AdminTeamResetKey,
+            sourceUser: props.user,
+            data: {
+                team: teamName,
+            },
+        });
+
+        return { success: true };
     });
 }
 

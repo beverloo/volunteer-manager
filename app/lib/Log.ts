@@ -79,6 +79,7 @@ export const kLogType = {
     AdminSubscriptionUpdate: 'admin-subscription-update',
     AdminTeamCreate: 'admin-team-create',
     AdminTeamEnable: 'admin-team-enable',
+    AdminTeamResetKey: 'admin-team-reset-key',
     AdminUpdateActivation: 'admin-update-activation',
     AdminUpdateAiSetting: 'admin-update-ai-settings',
     AdminUpdateAvailabilityPreferences: 'admin-update-availability-preferences',

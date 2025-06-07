@@ -225,6 +225,9 @@ const kLogMessageFormatter: {
     [kLogType.AdminTeamEnable]: (source, target, { action, team }) => {
         return `${action} the ${team} team`;
     },
+    [kLogType.AdminTeamResetKey]: (source, target, { team }) => {
+        return `Reset the key of the ${team} team`;
+    },
     [kLogType.AdminUpdateActivation]: (source, target, data) => {
         return data.activated ? `Activated the account of ${target?.name}`
                               : `Deactivated their account of ${target?.name}`;

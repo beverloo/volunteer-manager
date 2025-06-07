@@ -9,7 +9,9 @@ import { AutocompleteElement, CheckboxElement, SelectElement, TextareaAutosizeEl
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import Divider from '@mui/material/Divider';
 import Grid from '@mui/material/Grid';
+import KeyIcon from '@mui/icons-material/Key';
 import RemoveCircleOutlineIcon from '@mui/icons-material/RemoveCircleOutline';
+import Stack from '@mui/material/Stack';
 
 import type { NextPageParams } from '@lib/NextRouterParams';
 import { AutocompleteElementWithDisabledOptions } from '@app/admin/components/AutocompleteElementWithDisabledOptions';
@@ -33,7 +35,8 @@ export default async function TeamPage(props: NextPageParams<'slug'>) {
         permission: 'organisation.teams',
     });
 
-    const canDisableTeam = access.can('root');  // only root can disabl teams
+    const canDisableTeam = access.can('root');  // only root can disable teams
+    const canResetInviteKey = access.can('admin');  // only admin (& root) can reset invite keys
 
     const teamsRolesDefaultJoin = tTeamsRoles.forUseInLeftJoinAs('trdj');
     const teamsRolesJoin = tTeamsRoles.forUseInLeftJoinAs('trj');
@@ -101,6 +104,7 @@ export default async function TeamPage(props: NextPageParams<'slug'>) {
 
     const disableTeamFn = actions.toggleTeamEnabled.bind(null, team.id, /* enabled= */ false);
     const enableTeamFn = actions.toggleTeamEnabled.bind(null, team.id, /* enabled= */ true);
+    const resetTeamKeyFn = actions.resetTeamKey.bind(null, team.id);
     const updateTeamFn = actions.updateTeam.bind(null, team.id);
 
     return (
@@ -109,24 +113,34 @@ export default async function TeamPage(props: NextPageParams<'slug'>) {
             <BackButtonGrid href="/admin/organisation/structure" size={backButtonSize}>
                 Back to teams
             </BackButtonGrid>
-            { (canDisableTeam && !!team.enabled) &&
+            { (canResetInviteKey || canDisableTeam) &&
                 <Grid size={{ xs: 6 }}>
-                    <ConfirmationButton callToAction="Disable" action={disableTeamFn}
-                                        icon={ <RemoveCircleOutlineIcon /> }
-                                        label="Disable this team…">
-                        Are you sure you want to disable the <strong>{team.name}</strong> team? This
-                        will stop the team from being considered for any future events, but won't
-                        remove any data.
-                    </ConfirmationButton>
-                </Grid> }
-            { (canDisableTeam && !team.enabled) &&
-                <Grid size={{ xs: 6 }}>
-                    <ConfirmationButton callToAction="Enable" action={enableTeamFn} color="success"
-                                        icon={ <AddCircleOutlineIcon /> }
-                                        label="Enable this team…">
-                        Are you sure you want to enable the <strong>{team.name}</strong> team? This
-                        means that they can be considered for future events again.
-                    </ConfirmationButton>
+                    <Stack direction="row" spacing={2} justifyContent="flex-end">
+                        { canResetInviteKey &&
+                            <ConfirmationButton callToAction="Reset" action={resetTeamKeyFn}
+                                                icon={ <KeyIcon /> } color="info"
+                                                label="Reset key…">
+                                Are you sure you want to reset the <strong>{team.name} </strong>
+                                team's key? This will invalidate all invite links, for past
+                                and future events alike.
+                            </ConfirmationButton> }
+                        { (canDisableTeam && !!team.enabled) &&
+                            <ConfirmationButton callToAction="Disable" action={disableTeamFn}
+                                                icon={ <RemoveCircleOutlineIcon /> }
+                                                label="Disable this team…">
+                                Are you sure you want to disable the <strong>{team.name} </strong>
+                                team? This will stop the team from being considered for any future
+                                events, but won't remove any data.
+                            </ConfirmationButton> }
+                        { (canDisableTeam && !team.enabled) &&
+                            <ConfirmationButton callToAction="Enable" action={enableTeamFn}
+                                                color="success" icon={ <AddCircleOutlineIcon /> }
+                                                label="Enable this team…">
+                                Are you sure you want to enable the <strong>{team.name} </strong>
+                                team? This means that they can be considered for future events
+                                again.
+                            </ConfirmationButton> }
+                    </Stack>
                 </Grid> }
 
             <Grid size={{ xs: 12, md: 6 }}>

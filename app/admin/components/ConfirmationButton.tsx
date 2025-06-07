@@ -6,7 +6,7 @@
 import React, { useCallback, useState } from 'react';
 import { useRouter } from 'next/navigation';
 
-import Button from '@mui/material/Button';
+import Button, { type ButtonProps } from '@mui/material/Button';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import Typography from '@mui/material/Typography';
 
@@ -41,6 +41,11 @@ interface ConfirmationButtonProps {
      * Label that should be rendered on the button.
      */
     label: string;
+
+    /**
+     * Custom styles that should be applied to the inner button.
+     */
+    sx?: ButtonProps['sx'];
 }
 
 /**
@@ -75,14 +80,14 @@ export function ConfirmationButton(props: React.PropsWithChildren<ConfirmationBu
             return true;
         }
 
-        return { error: 'Expected a redirect or refresh actions to be given…' };
+        return true;
 
     }, [ action, router ]);
 
     return (
         <>
             <Button color={color} size="small" variant="outlined" endIcon={icon}
-                    onClick={handleRequestConfirm} sx={{ float: 'right' }}>
+                    onClick={handleRequestConfirm} sx={props.sx}>
                 {props.label}
             </Button>
             { open &&

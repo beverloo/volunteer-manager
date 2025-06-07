@@ -98,7 +98,8 @@ export default async function EnvironmentPage(props: NextPageParams<'domain'>) {
                 { canDeleteEnvironment &&
                     <Grid size={{ xs: 6 }}>
                         <ConfirmationButton action={deleteEnvironmentFn}
-                                            label="Delete this environment…">
+                                            label="Delete this environment…"
+                                            sx={{ float: 'right' }}>
                             Are you sure you want to delete <strong>{environment.domain}</strong>?
                             This action is permanent and cannot be undone. All teams currently
                             linked to this environment will need to be reassigned to a different
