@@ -67,11 +67,6 @@ interface ApplicationAvailabilityFormProps {
     includeDietaryRestrictions?: boolean;
 
     /**
-     * Callback to be invoked when the value of one of the form fields has changed.
-     */
-    onChange?: () => void;
-
-    /**
      * Whether the form should be locked, i.e. for all fields to be disabled.
      */
     readOnly?: boolean;
@@ -83,29 +78,29 @@ interface ApplicationAvailabilityFormProps {
  * shifts and further availability preferences they may have.
  */
 export function ApplicationAvailabilityForm(props: ApplicationAvailabilityFormProps) {
-    const { onChange, readOnly } = props;
+    const { readOnly } = props;
     return (
         <>
             <Grid size={{ xs: 12, sm: 6 }}>
                 <SelectElement name="serviceHours" label="Number of shifts" required
                                options={kServiceHoursOptions} fullWidth size="small"
-                               onChange={onChange} disabled={readOnly} />
+                               disabled={readOnly} />
             </Grid>
             <Grid size={{ xs: 12, sm: 6 }}>
                 <SelectElement name="serviceTiming" label="Timing of shifts" required
                                options={kServiceTimingOption} fullWidth size="small"
-                               onChange={onChange} disabled={readOnly}  />
+                               disabled={readOnly}  />
             </Grid>
             { !!props.includeDietaryRestrictions &&
                 <Grid size={{ xs: 12 }}>
                     <TextareaAutosizeElement name="preferencesDietary" fullWidth size="small"
                                              label="Any dietary restrictions?"
-                                             onChange={onChange} disabled={readOnly} />
+                                             disabled={readOnly} />
                 </Grid> }
             <Grid size={{ xs: 12 }}>
                 <TextareaAutosizeElement name="preferences" fullWidth size="small"
                                          label="Anything we should know about?"
-                                         onChange={onChange} disabled={readOnly} />
+                                         disabled={readOnly} />
             </Grid>
         </>
     );

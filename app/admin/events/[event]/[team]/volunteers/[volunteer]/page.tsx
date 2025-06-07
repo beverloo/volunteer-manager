@@ -14,6 +14,7 @@ import type { NextPageParams } from '@lib/NextRouterParams';
 import type { ServerAction } from '@lib/serverAction';
 import type { TimelineEvent } from '@beverloo/volunteer-manager-timeline';
 import { ApplicationParticipationForm } from '@app/registration/[slug]/application/ApplicationParticipation';
+import { AvailabilityPreferences } from './AvailabilityPreferences';
 import { ExpandableSection } from '@app/admin/components/ExpandableSection';
 import { FormGrid } from '@app/admin/components/FormGrid';
 import { FormGridSection } from '@app/admin/components/FormGridSection';
@@ -114,8 +115,10 @@ export default async function EventVolunteerPage(
             preferences: tUsersEvents.preferences,
             preferencesDietary: tUsersEvents.preferencesDietary,
             serviceHours: tUsersEvents.preferenceHours,
-            preferenceTimingStart: tUsersEvents.preferenceTimingStart,
-            preferenceTimingEnd: tUsersEvents.preferenceTimingEnd,
+            serviceTiming: {
+                start: tUsersEvents.preferenceTimingStart,
+                end: tUsersEvents.preferenceTimingEnd,
+            },
             socials: tUsersEvents.includeSocials,
             tshirtFit: tUsersEvents.shirtFit,
             tshirtSize: tUsersEvents.shirtSize,
@@ -237,12 +240,30 @@ export default async function EventVolunteerPage(
     // Section: Availability
     // ---------------------------------------------------------------------------------------------
 
-    let publicEvents: EventTimeslotEntry[] = [];
+    const availabilityAction = actions.updateAvailability.bind(
+        null, volunteer.userId, event.id, team.id);
+
+    const availabilityDefaultValues: Record<string, any> = {
+        preferences: volunteer.preferences,
+        preferencesDietary: volunteer.preferencesDietary,
+        serviceHours: `${volunteer.serviceHours}`,
+    };
+
+    if (!!volunteer.serviceTiming) {
+        const { start, end } = volunteer.serviceTiming;
+        availabilityDefaultValues.serviceTiming = `${start}-${end}`;
+    }
+
+    if (!!volunteer.availabilityTimeslots) {
+        availabilityDefaultValues.exceptionEvents =
+            volunteer.availabilityTimeslots.split(',').map(v => parseInt(v));
+    }
+
+    let availabilityEvents: EventTimeslotEntry[] = [];
     if (!!event.festivalId && volunteer.actualAvailableEventLimit > 0)
-        publicEvents = await getPublicEventsForFestival(event.festivalId, event.timezone);
+        availabilityEvents = await getPublicEventsForFestival(event.festivalId, event.timezone);
 
-    // TODO
-
+    // TODO: Exceptions
 
     // ---------------------------------------------------------------------------------------------
     // Section: Hotel preferences
@@ -401,9 +422,18 @@ export default async function EventVolunteerPage(
                 </Grid>
             </FormGridSection>
 
-            { /* ------------------------------------------------------------------------------ */ }
+            { /* -- Availability: ------------------------------------------------------------- */ }
 
-            <ApplicationAvailability event={event} events={publicEvents} step={availabilityStep}
+            <FormGridSection action={availabilityAction} defaultValues={availabilityDefaultValues}
+                             title="Availability preferences">
+                <AvailabilityPreferences exceptionEventLimit={volunteer.actualAvailableEventLimit}
+                                         exceptionEvents={availabilityEvents}
+                                         readOnly={readOnly} />
+            </FormGridSection>
+
+
+
+            <ApplicationAvailability event={event} events={availabilityEvents} step={availabilityStep}
                                      team={team.slug} readOnly={readOnly} volunteer={volunteer} />
 
             { /* ------------------------------------------------------------------------------ */ }
