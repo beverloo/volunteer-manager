@@ -1,7 +1,7 @@
 // Copyright 2024 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
-import { notFound, redirect } from 'next/navigation';
+import { forbidden, notFound, redirect } from 'next/navigation';
 
 import type { NextPageParams } from '@lib/NextRouterParams';
 import type { ShiftDemandTeamInfo } from './ShiftDemandTimeline';
@@ -69,6 +69,9 @@ export default async function EventTeamShiftPage(props: NextPageParams<'event' |
     const { access, event, team, user } = await verifyAccessAndFetchPageInfo(props.params);
 
     if (!access.can('event.shifts', 'read', { event: event.slug, team: team.slug }))
+        forbidden();
+
+    if (!team.flagEnableScheduling)
         notFound();
 
     const readOnly = !access.can('event.shifts', 'update', { event: event.slug, team: team.slug });

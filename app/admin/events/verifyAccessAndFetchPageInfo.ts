@@ -187,6 +187,11 @@ export interface PageInfoWithTeam extends PageInfo {
         _environment: string;
 
         /**
+         * Whether this team has access to volunteer scheduling tools.
+         */
+        flagEnableScheduling: boolean;
+
+        /**
          * Whether this team is responsible for managing landing page content.
          */
         flagManagesContent: boolean;
@@ -315,6 +320,7 @@ export async function verifyAccessAndFetchPageInfo(
             slug: tTeams.teamSlug,
             _environment: tTeams.teamEnvironment,
 
+            flagEnableScheduling: tTeams.teamFlagEnableScheduling.equals(/* true= */ 1),
             flagManagesContent: tTeams.teamFlagManagesContent.equals(/* true= */ 1),
             flagManagesFaq: tTeams.teamFlagManagesFaq.equals(/* true= */ 1),
             flagManagesFirstAid: tTeams.teamFlagManagesFirstAid.equals(/* true= */ 1),

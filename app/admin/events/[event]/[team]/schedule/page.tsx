@@ -32,6 +32,9 @@ export default async function EventTeamSchedulePage(props: NextPageParams<'event
     if (!access.can('event.schedule.planning', 'read', { event: event.slug, team: team.slug }))
         notFound();
 
+    if (!team.flagEnableScheduling)
+        notFound();
+
     const userSettings = await readUserSettings(user.id, [
         'user-admin-schedule-date',
         'user-admin-schedule-expand-sections',

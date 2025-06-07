@@ -1,7 +1,7 @@
 // Copyright 2024 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
-import { notFound } from 'next/navigation';
+import { forbidden, notFound } from 'next/navigation';
 
 import Alert from '@mui/material/Alert';
 import Paper from '@mui/material/Paper';
@@ -32,6 +32,9 @@ export default async function EventTeamShiftsPage(props: NextPageParams<'event' 
     const canDeleteShifts = access.can('event.shifts', 'delete', accessScope);
 
     if (!canReadShifts)
+        forbidden();
+
+    if (!team.flagEnableScheduling)
         notFound();
 
     const { activities, categories, locations } = await getShiftMetadata(event.festivalId);

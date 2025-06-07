@@ -65,6 +65,7 @@ export default async function TeamPage(props: NextPageParams<'slug'>) {
             defaultRoleId: teamsRolesDefaultJoin.roleId,
             availableRoleIds: db.aggregateAsArrayOfOneColumn(teamsRolesJoin.roleId),
 
+            flagEnableScheduling: tTeams.teamFlagEnableScheduling.equals(/* true= */ 1),
             flagManagesContent: tTeams.teamFlagManagesContent.equals(/* true= */ 1),
             flagManagesFaq: tTeams.teamFlagManagesFaq.equals(/* true= */ 1),
             flagManagesFirstAid: tTeams.teamFlagManagesFirstAid.equals(/* true= */ 1),
@@ -108,6 +109,10 @@ export default async function TeamPage(props: NextPageParams<'slug'>) {
     // ---------------------------------------------------------------------------------------------
 
     const kFlags: FlagProps[] = [
+        {
+            field: 'flagEnableScheduling',
+            title: 'Enable volunteer scheduling tools',
+        },
         {
             field: 'flagManagesContent',
             title: 'Manages landing page content',

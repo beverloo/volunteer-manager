@@ -96,6 +96,7 @@ async function fetchEventSidebarInformation(user: User, eventSlug: string) {
                 slug: teamsJoin.teamSlug,
                 color: teamsJoin.teamColourLightTheme,
 
+                flagEnableScheduling: teamsJoin.teamFlagEnableScheduling.equals(/* true= */ 1),
                 flagManagesContent: teamsJoin.teamFlagManagesContent.equals(/* true= */ 1),
                 flagManagesFaq: teamsJoin.teamFlagManagesFaq.equals(/* true= */ 1),
                 flagManagesFirstAid: teamsJoin.teamFlagManagesFirstAid.equals(/* true= */ 1),
@@ -366,6 +367,7 @@ export default async function EventLayout(props: React.PropsWithChildren<NextLay
                         scope: teamPermissionScope,
                     },
                     url: `/admin/events/${event}/${team.slug}/schedule`,
+                    condition: team.flagEnableScheduling,
                 },
                 {
                     icon: <SecurityIcon />,
@@ -387,6 +389,7 @@ export default async function EventLayout(props: React.PropsWithChildren<NextLay
                         scope: teamPermissionScope,
                     },
                     url: `/admin/events/${event}/${team.slug}/shifts`,
+                    condition: team.flagEnableScheduling,
                 },
                 {
                     icon: <PersonIcon />,
