@@ -9,6 +9,7 @@
 export interface User {
     /**
      * Unique ID of the user, as they are represented in the database.
+     * @deprecated
      */
     userId: number;
 
@@ -24,9 +25,15 @@ export interface User {
     name: string;
 
     /**
-     * The first name of this user.
+     * The first name of this user. Note that `nameOrFirstName` should be preferred when addressing
+     * the user, in case they have a display name set.
      */
     firstName: string;
+
+    /**
+     * Either the volunteer's display name, or their first name.
+     */
+    nameOrFirstName: string;
 
     /**
      * The last name of this user.

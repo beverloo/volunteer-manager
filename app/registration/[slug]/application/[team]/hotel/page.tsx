@@ -110,7 +110,7 @@ export default async function EventApplicationHotelsPage(props: NextPageParams<'
     // ---------------------------------------------------------------------------------------------
 
     const content = await getStaticContent([ 'registration', 'application', 'hotel' ], {
-        firstName: user.firstName,
+        firstName: user.nameOrFirstName,
     });
 
     const defaultValues = {

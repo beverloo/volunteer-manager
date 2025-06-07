@@ -185,6 +185,7 @@ export async function authenticateUser(params: AuthenticateUserParams)
         username: authenticationResult.username,
         name: authenticationResult.displayName ||
             `${authenticationResult.firstName} ${authenticationResult.lastName}`,
+        nameOrFirstName:authenticationResult.displayName || authenticationResult.firstName,
         firstName: authenticationResult.firstName,
         lastName: authenticationResult.lastName,
         displayName: authenticationResult.displayName,

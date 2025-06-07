@@ -129,10 +129,10 @@ export function EventApplicationForm(props: EventApplicationFormProps) {
                     <Box sx={kStyles.identityKnown} onClick={requestAuthenticationFlow}>
                         <Stack alignItems="center" direction="row" spacing={2}>
                             <Avatar src={user.avatarUrl}>
-                                {user.firstName} {user.lastName}
+                                {user.name}
                             </Avatar>
                             <Typography variant="h6">
-                                {user.firstName} {user.lastName}
+                                {user.name}
                             </Typography>
                         </Stack>
                     </Box> }

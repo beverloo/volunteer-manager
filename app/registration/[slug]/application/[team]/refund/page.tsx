@@ -69,14 +69,14 @@ export default async function EventApplicationRefundPage(props: NextPageParams<'
         state = 'unavailable';
         content = await getStaticContent([ ...contentPath, 'refund-unavailable' ], {
             event: event.shortName,
-            firstName: user.firstName,
+            firstName: user.nameOrFirstName,
         });
     } else {
         const { refundRequestsStart, refundRequestsEnd } = refundAvailability;
 
         const substitutions = {
             event: event.shortName,
-            firstName: user.firstName,
+            firstName: user.nameOrFirstName,
             refundRequestsStart: formatDate(refundRequestsStart, 'dddd, MMMM D'),
             refundRequestsEnd: formatDate(refundRequestsEnd, 'dddd, MMMM D'),
         };

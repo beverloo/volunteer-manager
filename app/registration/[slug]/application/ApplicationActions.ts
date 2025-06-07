@@ -190,7 +190,7 @@ export async function createApplication(eventId: number, teamId: number, formDat
                 event: eventInfo.shortName,
                 eventSlug: eventInfo.slug,
                 hostname: teamInfo.domain,
-                name: props.user.firstName,
+                name: props.user.nameOrFirstName,
                 team: teamInfo.name,
             });
 

@@ -679,7 +679,7 @@ export function EventApplicationPage(props: EventApplicationPageProps) {
         <>
             <Box sx={{ p: 2 }}>
                 <Typography variant="body1">
-                    {user.firstName}, your application has been {label}. {explanation} Please
+                    {user.nameOrFirstName}, your application has been {label}. {explanation} Please
                     e-mail{sp}
                     <MuiLink component={Link} href="mailto:crew@animecon.nl">
                         crew@animecon.nl
