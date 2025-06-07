@@ -72,13 +72,14 @@ export function SectionClearAction(props: SectionClearActionProps) {
                     <ClearIcon fontSize="small" />
                 </IconButton>
             </Tooltip>
-            <ConfirmationDialog onClose={ () => setConfirmationOpen(false) }
-                                onConfirm={handleCommit} title={title} open={confirmationOpen}>
-                <DialogContentText>
-                    Are you sure that you want to clear the {subject}? This action will permanently
-                    remove the currently stored information.
-                </DialogContentText>
-            </ConfirmationDialog>
+            { confirmationOpen &&
+                <ConfirmationDialog onClose={ () => setConfirmationOpen(false) }
+                                    onConfirm={handleCommit} title={title} open={confirmationOpen}>
+                    <DialogContentText>
+                        Are you sure that you want to clear the {subject}? This action will
+                        permanently remove the currently stored information.
+                    </DialogContentText>
+                </ConfirmationDialog> }
         </>
     );
 }
