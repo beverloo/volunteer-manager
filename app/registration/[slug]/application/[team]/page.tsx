@@ -4,10 +4,10 @@
 import { notFound } from 'next/navigation';
 
 import type { NextPageParams } from '@lib/NextRouterParams';
+import { EventApplicationStatus } from './EventApplicationStatus';
 import { determineEnvironment } from '@lib/Environment';
 import { generatePortalMetadataFn } from '@app/registration/generatePortalMetadataFn';
 import { getEnvironmentContext } from '@lib/EnvironmentContext';
-import EventApplicationStatus from './EventApplicationStatus';
 
 /**
  * The <EventApplicationStatusPage> displays the status of an individual application the visitor has

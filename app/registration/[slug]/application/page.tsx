@@ -7,6 +7,7 @@ import { notFound } from 'next/navigation';
 import type { SxProps } from '@mui/system';
 import type { Theme } from '@mui/material/styles';
 import { default as MuiLink } from '@mui/material/Link';
+import Alert from '@mui/material/Alert';
 import Box from '@mui/material/Box';
 import Divider from '@mui/material/Divider';
 import GroupIcon from '@mui/icons-material/Group';
@@ -20,6 +21,7 @@ import type { EnvironmentContext, EnvironmentContextEventAccess } from '@lib/Env
 import type { NextPageParams } from '@lib/NextRouterParams';
 import type { RegistrationStatus, ShirtFit, ShirtSize } from '@lib/database/Types';
 import { EventApplicationForm, type EventApplicationFormProps } from './EventApplicationForm';
+import { EventApplicationStatus } from './[team]/EventApplicationStatus';
 import { FormProvider } from '@components/FormProvider';
 import { FormSubmitButton } from '@components/FormSubmitButton';
 import { Markdown } from '@components/Markdown';
@@ -33,7 +35,6 @@ import db, { tEnvironments, tEvents, tRoles, tTeams, tUsersEvents } from '@lib/d
 import { kRegistrationStatus } from '@lib/database/Types';
 
 import * as actions from './ApplicationActions';
-import EventApplicationStatus from './[team]/EventApplicationStatus';
 
 /**
  * The <EventApplicationPage> serves three purposes: first, to explain when applications aren't
@@ -53,11 +54,18 @@ export default async function EventApplicationPage(props: NextPageParams<'slug'>
     if (!event)
         notFound();
 
-    // TODO: Enable applying multiple times on the same environment?
+    let targetTeam: EnvironmentContextEventAccess['teams'][number] | undefined;
+    {
+        const searchParams = await props.searchParams;
+        if (Object.hasOwn(searchParams, 'invite'))
+            targetTeam = event.teams.find(team => team.inviteKey === searchParams.invite);
+    }
 
     if (event.applications.length > 0) {
-        return <EventApplicationStatusPage context={context} environment={environment}
-                                           event={event} />;
+        if (!targetTeam || event.applications.some(app => app.team === targetTeam.slug)) {
+            return <EventApplicationStatusPage context={context} environment={environment}
+                                               event={event} />;
+        }
     }
 
     const { access } = context;
@@ -73,7 +81,8 @@ export default async function EventApplicationPage(props: NextPageParams<'slug'>
     });
 
     return acceptsApplications
-        ? <EventApplicationFormPage context={context} environment={environment} event={event} />
+        ? <EventApplicationFormPage context={context} environment={environment} event={event}
+                                    team={targetTeam} />
         : <EventApplicationNotAvailablePage />;
 }
 
@@ -109,11 +118,21 @@ async function EventApplicationNotAvailablePage() {
 }
 
 /**
+ * Props accepted by the <EventApplicationFormPage> component.
+ */
+interface EventApplicationFormPageProps extends EventApplicationSpecialisedProps {
+    /**
+     * Team that the application should be made towards, if any.
+     */
+    team?: EnvironmentContextEventAccess['teams'][number];
+};
+
+/**
  * The <EventApplicationFormPage> page enables the visitor to apply to join one of our teams. Data
  * is being checked in this method, after which the form defers to sub-components.
  */
-async function EventApplicationFormPage(props: EventApplicationSpecialisedProps) {
-    const { environment, context, event } = props;
+async function EventApplicationFormPage(props: EventApplicationFormPageProps) {
+    const { environment, context, event, team } = props;
 
     const dbInstance = db;
 
@@ -122,18 +141,20 @@ async function EventApplicationFormPage(props: EventApplicationSpecialisedProps)
     // manages the content, but can be overridden by special direct-apply links.
     // ---------------------------------------------------------------------------------------------
 
-    const applicationTeamId = await dbInstance.selectFrom(tTeams)
+    const applicationTeam = await dbInstance.selectFrom(tTeams)
         .where(tTeams.teamSlug.in(environment.teams))
-            .and(tTeams.teamFlagManagesContent.equals(/* true= */ 1))
-        .selectOneColumn(tTeams.teamId)
+            .and(tTeams.teamId.equalsIfValue(team?.id))
+            .and(tTeams.teamFlagManagesContent.equals(/* true= */ 1).onlyWhen(!team))
+        .select({
+            id: tTeams.teamId,
+            title: tTeams.teamTitle,
+        })
         .orderBy(tTeams.teamId, 'asc')  // arbitrary, but stable
         .limit(1)
         .executeSelectNoneOrOne();
 
-    if (!applicationTeamId)
+    if (!applicationTeam)
         notFound();
-
-    // TODO: Enable a mechanism to apply to a non-default team instead.
 
     // ---------------------------------------------------------------------------------------------
     // Determine context for the form, both to prepopulate known fields and to refer to applications
@@ -187,7 +208,7 @@ async function EventApplicationFormPage(props: EventApplicationSpecialisedProps)
 
     // ---------------------------------------------------------------------------------------------
 
-    const action = actions.createApplication.bind(null, event.id, applicationTeamId);
+    const action = actions.createApplication.bind(null, event.id, applicationTeam.id);
     const content = await getContent(environment.domain, event.id, [ 'application' ]);
 
     // Set default values for the application form. These may be further contextualised with the
@@ -205,6 +226,12 @@ async function EventApplicationFormPage(props: EventApplicationSpecialisedProps)
         <FormProvider action={action} defaultValues={defaultValues}>
             <Box sx={{ p: 2 }}>
                 { !!content && <Markdown sx={{ pb: 2 }}>{content.markdown}</Markdown> }
+
+                { !!team &&
+                    <Alert severity="info" sx={{ mb: 2 }}>
+                        You're applying to join the {applicationTeam.title}—how exciting!
+                    </Alert> }
+
 
                 <EventApplicationForm eventShortName={event.shortName}
                                       partnerApplications={partnerApplications}

@@ -162,12 +162,12 @@ export function EventApplicationForm(props: EventApplicationFormProps) {
                                         { application.status === 'Registered' &&
                                             <>
                                                 Your <MuiLink href={link}>{label}</MuiLink> is
-                                                still being considered!
+                                                still being considered
                                             </> }
                                         { application.status === 'Accepted' &&
                                             <>
                                                 Your <MuiLink href={link}>{label}</MuiLink> has
-                                                already been accepted!
+                                                already been accepted
                                             </> }
                                     </Typography>
                                 </Stack>

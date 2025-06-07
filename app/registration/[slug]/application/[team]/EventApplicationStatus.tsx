@@ -39,7 +39,7 @@ interface EventApplicationStatusProps {
  * The <EventApplicationStatus> component displays the status of a volunteer's application. This is
  * a server-side component that fetches the relevant information autonomously.
  */
-export default async function EventApplicationStatus(props: EventApplicationStatusProps) {
+export async function EventApplicationStatus(props: EventApplicationStatusProps) {
     const { context, event, team } = props;
 
     if (!context.user)
