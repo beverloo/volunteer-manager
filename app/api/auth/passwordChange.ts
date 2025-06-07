@@ -60,7 +60,7 @@ export async function passwordChange(request: Request, props: ActionProps): Prom
     if (!authenticationAttempt || !authenticationAttempt.user)
         return { success: false, error: 'That is not your current password…' };
 
-    await updateUserPassword(props.user.userId, request.newPassword, /* incrementSession= */ false);
+    await updateUserPassword(props.user.id, request.newPassword, /* incrementSession= */ false);
     RecordLog({
         type: kLogType.AccountPasswordUpdate,
         sourceUser: props.user,

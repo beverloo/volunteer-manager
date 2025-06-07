@@ -70,9 +70,10 @@ export function buildAuthenticationContext(params?: BuildAuthenticationContextPa
     return {
         access: new AccessControl(params.access ?? { /* empty */ }),
         user: {
-            userId: 2000000,
+            id: 2000000,
             username: 'joe@example.com',
             name: 'Joe Example',
+            nameOrFirstName: 'Joe',
             firstName: 'Joe',
             lastName: 'Example',
             avatarUrl: undefined,

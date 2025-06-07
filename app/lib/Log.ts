@@ -158,11 +158,11 @@ export function RecordLog(entry: LogEntry): void {
 
     let sourceUserId: number | null = null;
     if (sourceUser)
-        sourceUserId = typeof sourceUser === 'number' ? sourceUser : sourceUser.userId;
+        sourceUserId = typeof sourceUser === 'number' ? sourceUser : sourceUser.id;
 
     let targetUserId: number | null = null;
     if (targetUser)
-        targetUserId = typeof targetUser === 'number' ? targetUser : targetUser.userId;
+        targetUserId = typeof targetUser === 'number' ? targetUser : targetUser.id;
 
     const data = entry.data ? JSON.stringify(entry.data) : null;
     const severity = entry.severity ?? kLogSeverity.Info;
@@ -199,11 +199,11 @@ export async function RecordLogImmediate(entry: LogEntry): Promise<void> {
 
     let sourceUserId: number | null = null;
     if (sourceUser)
-        sourceUserId = typeof sourceUser === 'number' ? sourceUser : sourceUser.userId;
+        sourceUserId = typeof sourceUser === 'number' ? sourceUser : sourceUser.id;
 
     let targetUserId: number | null = null;
     if (targetUser)
-        targetUserId = typeof targetUser === 'number' ? targetUser : targetUser.userId;
+        targetUserId = typeof targetUser === 'number' ? targetUser : targetUser.id;
 
     const data = entry.data ? JSON.stringify(entry.data) : null;
     const severity = entry.severity ?? kLogSeverity.Info;

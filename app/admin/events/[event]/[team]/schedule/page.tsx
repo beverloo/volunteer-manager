@@ -32,7 +32,7 @@ export default async function EventTeamSchedulePage(props: NextPageParams<'event
     if (!access.can('event.schedule.planning', 'read', { event: event.slug, team: team.slug }))
         notFound();
 
-    const userSettings = await readUserSettings(user.userId, [
+    const userSettings = await readUserSettings(user.id, [
         'user-admin-schedule-date',
         'user-admin-schedule-expand-sections',
         'user-admin-schedule-expand-history',
@@ -60,7 +60,7 @@ export default async function EventTeamSchedulePage(props: NextPageParams<'event
         sections = kExpandSection.parse(unverifiedSections);
 
     } catch (error: any) {
-        console.warn(`User ${user.userId} has invalid section expand configuration`);
+        console.warn(`User ${user.id} has invalid section expand configuration`);
     }
 
     // ---------------------------------------------------------------------------------------------

@@ -173,7 +173,7 @@ async function EventApplicationFormPage(props: EventApplicationFormPageProps) {
         historicPreferences = await dbInstance.selectFrom(tUsersEvents)
             .innerJoin(tEvents)
                 .on(tEvents.eventId.equals(tUsersEvents.eventId))
-            .where(tUsersEvents.userId.equals(context.user.userId))
+            .where(tUsersEvents.userId.equals(context.user.id))
             .select({
                 tshirtFit: tUsersEvents.shirtFit,
                 tshirtSize: tUsersEvents.shirtSize,
@@ -187,7 +187,7 @@ async function EventApplicationFormPage(props: EventApplicationFormPageProps) {
                 .on(tTeams.teamId.equals(tUsersEvents.teamId))
             .innerJoin(tEnvironments)
                 .on(tEnvironments.environmentId.equals(tTeams.teamEnvironmentId))
-            .where(tUsersEvents.userId.equals(context.user.userId))
+            .where(tUsersEvents.userId.equals(context.user.id))
                 .and(tUsersEvents.eventId.equals(event.id))
                 .and(tUsersEvents.registrationStatus.in(
                     [ kRegistrationStatus.Registered, kRegistrationStatus.Accepted ]))
@@ -267,7 +267,7 @@ async function EventApplicationStatusPage(props: EventApplicationSpecialisedProp
             .on(tRoles.roleId.equals(tUsersEvents.roleId))
         .innerJoin(tTeams)
             .on(tTeams.teamId.equals(tUsersEvents.teamId))
-        .where(tUsersEvents.userId.equals(context.user.userId))
+        .where(tUsersEvents.userId.equals(context.user.id))
             .and(tUsersEvents.eventId.equals(event.id))
             .and(tTeams.teamSlug.in(environment.teams))
         .select({

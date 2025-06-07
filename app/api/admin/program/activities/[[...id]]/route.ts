@@ -161,7 +161,7 @@ createDataTableApi(kProgramActivityRowModel, kProgramActivityContext, {
                 activityId: newInternalActivityId,
                 mutation: kMutation.Created,
                 mutationSeverity: kMutationSeverity.Important,
-                mutationUserId: props.user?.userId,
+                mutationUserId: props.user?.id,
                 mutationDate: dbInstance.currentZonedDateTime(),
             })
             .executeInsert();
@@ -203,7 +203,7 @@ createDataTableApi(kProgramActivityRowModel, kProgramActivityContext, {
                 activityId: id,
                 mutation: kMutation.Deleted,
                 mutationSeverity: kMutationSeverity.Important,
-                mutationUserId: props.user?.userId,
+                mutationUserId: props.user?.id,
                 mutationDate: dbInstance.currentZonedDateTime(),
             })
             .executeInsert();
@@ -343,7 +343,7 @@ createDataTableApi(kProgramActivityRowModel, kProgramActivityContext, {
                     mutation: kMutation.Updated,
                     mutationFields: 'title, location',
                     mutationSeverity: kMutationSeverity.Important,
-                    mutationUserId: props.user?.userId,
+                    mutationUserId: props.user?.id,
                     mutationDate: dbInstance.currentZonedDateTime(),
                 })
                 .executeInsert();

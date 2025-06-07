@@ -84,7 +84,7 @@ export async function settings(request: Request, props: ActionProps): Promise<Re
     }
 
     if (!!Object.keys(settingsToUpdate).length)
-        await writeUserSettings(props.user.userId, settingsToUpdate as any);
+        await writeUserSettings(props.user.id, settingsToUpdate as any);
 
     return { success: true };
 }

@@ -113,7 +113,7 @@ export async function availabilityPreferences(request: Request, props: ActionPro
     if (!props.user)
         return { success: false, error: 'You must be signed in to share your preferences' };
 
-    let subjectUserId = props.user.userId;
+    let subjectUserId = props.user.id;
     if (!!request.adminOverrideUserId) {
         executeAccessCheck(props.authenticationContext, {
             check: 'admin-event',

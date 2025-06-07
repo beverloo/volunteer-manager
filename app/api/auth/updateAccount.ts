@@ -93,7 +93,7 @@ export async function updateAccount(request: Request, props: ActionProps): Promi
     const dbInstance = db;
 
     const account = await dbInstance.selectFrom(tUsers)
-        .where(tUsers.userId.equals(props.user.userId))
+        .where(tUsers.userId.equals(props.user.id))
         .select({
             firstName: tUsers.firstName,
             lastName: tUsers.lastName,
@@ -149,7 +149,7 @@ export async function updateAccount(request: Request, props: ActionProps): Promi
             discordHandle: update.discordHandle,
             discordHandleUpdated,
         })
-        .where(tUsers.userId.equals(props.user.userId))
+        .where(tUsers.userId.equals(props.user.id))
         .executeUpdate();
 
     RecordLog({

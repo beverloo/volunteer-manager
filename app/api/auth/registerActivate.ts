@@ -92,7 +92,7 @@ export async function registerActivate(request: Request, props: ActionProps): Pr
     if (!user || !sessionToken)
         return { success: false };  // the user must be disabled for another reason
 
-    await writeSealedSessionCookie({ id: user.userId, token: sessionToken }, props.responseHeaders);
+    await writeSealedSessionCookie({ id: user.id, token: sessionToken }, props.responseHeaders);
     RecordLog({
         type: kLogType.AccountActivate,
         sourceUser: user,

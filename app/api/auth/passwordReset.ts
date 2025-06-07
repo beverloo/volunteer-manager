@@ -100,14 +100,14 @@ export async function passwordReset(request: Request, props: ActionProps): Promi
     if (passwordResetRequest) {
         const { user } = await authenticateUser({ type: 'session', ... passwordResetRequest });
         if (user) {
-            await updateUserPassword(user.userId, request.password, /* incrementSession= */ true);
+            await updateUserPassword(user.id, request.password, /* incrementSession= */ true);
 
             const sessionToken = await getUserSessionToken(user);
             if (!sessionToken)
                 return { success: false };  // the user went away...
 
             await writeSealedSessionCookie(
-                { id: user.userId, token: sessionToken }, props.responseHeaders);
+                { id: user.id, token: sessionToken }, props.responseHeaders);
 
             RecordLog({
                 type: kLogType.AccountPasswordReset,

@@ -168,7 +168,7 @@ export const { DELETE, POST, PUT, GET } = createDataTableApi(kContentRowModel, k
                 contentType: context.type,
                 contentProtected: /* unprotected= */ 0,
                 content: '',
-                revisionAuthorId: props.user!.userId,
+                revisionAuthorId: props.user!.id,
                 revisionDate: dbInstance.currentZonedDateTime(),
                 revisionVisible: /* true= */ 1,
             })
@@ -183,7 +183,7 @@ export const { DELETE, POST, PUT, GET } = createDataTableApi(kContentRowModel, k
                 title: row.title,
                 updatedOn: Temporal.Now.zonedDateTimeISO('UTC').toString(),
                 updatedBy: `${props.user!.firstName} ${props.user!.lastName}`,
-                updatedByUserId: props.user!.userId,
+                updatedByUserId: props.user!.id,
                 protected: false,
             },
         }
@@ -321,7 +321,7 @@ export const { DELETE, POST, PUT, GET } = createDataTableApi(kContentRowModel, k
                 contentCategoryId: row.categoryId,
                 contentTitle: row.title,
                 content: row.content,
-                revisionAuthorId: props.user!.userId,
+                revisionAuthorId: props.user!.id,
                 revisionDate: db.currentZonedDateTime(),
             })
             .where(tContent.contentId.equals(id))

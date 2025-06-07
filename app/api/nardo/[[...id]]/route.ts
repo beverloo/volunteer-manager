@@ -84,7 +84,7 @@ export const { DELETE, GET, POST, PUT } = createDataTableApi(kNardoRowModel, kNa
         const insertId = await dbInstance.insertInto(tNardo)
             .set({
                 nardoAdvice: 'Nardo!',
-                nardoAuthorId: props.user!.userId,
+                nardoAuthorId: props.user!.id,
                 nardoAuthorDate: dbInstance.currentZonedDateTime(),
             })
             .returningLastInsertedId()
@@ -96,7 +96,7 @@ export const { DELETE, GET, POST, PUT } = createDataTableApi(kNardoRowModel, kNa
                 id: insertId,
                 advice: kDefaultAdvice,
                 authorName: `${props.user!.firstName} ${props.user!.lastName}`,
-                authorUserId: props.user!.userId,
+                authorUserId: props.user!.id,
                 date: Temporal.Now.zonedDateTimeISO('utc').toString(),
             },
         };
@@ -156,7 +156,7 @@ export const { DELETE, GET, POST, PUT } = createDataTableApi(kNardoRowModel, kNa
     async writeLog(request, mutation, props) {
         RecordLog({
             type: kLogType.AdminNardoMutation,
-            sourceUser: props.user!.userId,
+            sourceUser: props.user!.id,
             data: { mutation },
         });
     },

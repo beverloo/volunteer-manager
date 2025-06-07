@@ -65,13 +65,13 @@ export async function updateFavourite(request: Request, props: ActionProps): Pro
 
     const dbInstance = db;
 
-    const activities = await FavouriteCache.read(dbInstance, event.id, props.user.userId);
+    const activities = await FavouriteCache.read(dbInstance, event.id, props.user.id);
 
     let favourited: boolean;
 
     if (activities.hasOwnProperty(request.activityId)) {
         await dbInstance.deleteFrom(tUsersEventsFavourites)
-            .where(tUsersEventsFavourites.userId.equals(props.user.userId))
+            .where(tUsersEventsFavourites.userId.equals(props.user.id))
                 .and(tUsersEventsFavourites.eventId.equals(event.id))
                 .and(tUsersEventsFavourites.activityId.equals(activityId))
             .executeDelete();
@@ -81,7 +81,7 @@ export async function updateFavourite(request: Request, props: ActionProps): Pro
     } else {
         await dbInstance.insertInto(tUsersEventsFavourites)
             .set({
-                userId: props.user.userId,
+                userId: props.user.id,
                 eventId: event.id,
                 activityId,
             })
@@ -91,7 +91,7 @@ export async function updateFavourite(request: Request, props: ActionProps): Pro
         favourited = true;
     }
 
-    FavouriteCache.clear(event.id, props.user.userId);
+    FavouriteCache.clear(event.id, props.user.id);
 
     return {
         success: true,

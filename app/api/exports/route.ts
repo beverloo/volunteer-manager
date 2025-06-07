@@ -356,7 +356,7 @@ async function exports(request: Request, props: ActionProps): Promise<Response> 
                 accessDate: dbInstance.currentZonedDateTime(),
                 accessIpAddress: props.ip,
                 accessUserAgent: props.requestHeaders.get('user-agent') ?? '(unknown)',
-                accessUserId: props.user?.userId,
+                accessUserId: props.user?.id,
             })
             .executeInsert();
 

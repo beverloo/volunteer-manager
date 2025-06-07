@@ -148,7 +148,7 @@ createDataTableApi(kNardoPersonalisedRowModel, kNardoPersonalisedContext, {
             .leftJoin(usersEventsJoin)
                 .on(usersEventsJoin.userId.equals(tUsers.userId))
                     .and(usersEventsJoin.registrationStatus.equals(kRegistrationStatus.Accepted))
-            .where(tUsers.userId.equals(props.user?.userId))
+            .where(tUsers.userId.equals(props.user?.id))
             .select({
                 name: tUsers.firstName,
                 events: dbInstance.count(usersEventsJoin.eventId),
@@ -191,7 +191,7 @@ createDataTableApi(kNardoPersonalisedRowModel, kNardoPersonalisedContext, {
         // -----------------------------------------------------------------------------------------
 
         const cachedOutput = await dbInstance.selectFrom(tNardoPersonalised)
-            .where(tNardoPersonalised.nardoPersonalisedUserId.equals(props.user.userId))
+            .where(tNardoPersonalised.nardoPersonalisedUserId.equals(props.user.id))
                 .and(tNardoPersonalised.nardoPersonalisedInput.equals(prompt))
             .selectOneColumn(tNardoPersonalised.nardoPersonalisedOutput)
             .orderBy(tNardoPersonalised.nardoPersonalisedDate, 'desc')
@@ -240,7 +240,7 @@ createDataTableApi(kNardoPersonalisedRowModel, kNardoPersonalisedContext, {
 
         await dbInstance.insertInto(tNardoPersonalised)
             .set({
-                nardoPersonalisedUserId: props.user.userId,
+                nardoPersonalisedUserId: props.user.id,
                 nardoPersonalisedDate: dbInstance.currentZonedDateTime(),
                 nardoPersonalisedInput: prompt,
                 nardoPersonalisedOutput: response,
@@ -287,7 +287,7 @@ createDataTableApi(kNardoPersonalisedRowModel, kNardoPersonalisedContext, {
         if (mutation === 'Created') {
             RecordLog({
                 type: kLogType.NardoPersonalisedAdvice,
-                sourceUser: props.user!.userId,
+                sourceUser: props.user!.id,
                 data: { id: request.id },
             });
         }

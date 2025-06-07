@@ -251,7 +251,7 @@ export async function verifyAccessAndFetchPageInfo(
             .on(storageJoin.fileId.equals(tEvents.eventIdentityId))
         .leftJoin(usersEventsJoin)
             .on(usersEventsJoin.eventId.equals(tEvents.eventId))
-            .and(usersEventsJoin.userId.equals(user.userId))
+            .and(usersEventsJoin.userId.equals(user.id))
             .and(usersEventsJoin.registrationStatus.equals(kRegistrationStatus.Accepted))
         .leftJoin(rolesJoin)
             .on(rolesJoin.roleId.equals(usersEventsJoin.roleId))

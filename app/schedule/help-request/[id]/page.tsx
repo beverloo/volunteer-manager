@@ -35,7 +35,7 @@ export default async function EventlessHelpRequestPageWithId(props: NextPagePara
     const environment = await db.selectFrom(tEvents)
         .innerJoin(tUsersEvents)
             .on(tUsersEvents.eventId.equals(tEvents.eventId))
-                .and(tUsersEvents.userId.equals(user.userId))
+                .and(tUsersEvents.userId.equals(user.id))
                 .and(tUsersEvents.registrationStatus.equals(kRegistrationStatus.Accepted))
         .innerJoin(tTeams)
             .on(tTeams.teamId.equals(tUsersEvents.teamId))

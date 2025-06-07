@@ -36,7 +36,7 @@ export default async function EventApplicationRefundPage(props: NextPageParams<'
     // ---------------------------------------------------------------------------------------------
 
     const refund = await dbInstance.selectFrom(tRefunds)
-        .where(tRefunds.userId.equals(user.userId))
+        .where(tRefunds.userId.equals(user.id))
             .and(tRefunds.eventId.equals(event.id))
         .select({
             ticketNumber: tRefunds.refundTicketNumber,

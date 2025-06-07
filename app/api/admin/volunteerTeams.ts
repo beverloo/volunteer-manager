@@ -208,7 +208,7 @@ export async function volunteerTeams(request: Request, props: ActionProps): Prom
                 markdown: message,
             },
             attribution: {
-                sourceUserId: props.user.userId,
+                sourceUserId: props.user.id,
                 targetUserId: request.userId,
             },
         });

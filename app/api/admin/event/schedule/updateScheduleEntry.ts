@@ -159,7 +159,7 @@ export async function updateScheduleEntry(request: Request, props: ActionProps):
                 userId: request.shift.userId,
                 scheduleTimeStart: request.shift.start,
                 scheduleTimeEnd: request.shift.end,
-                scheduleUpdatedBy: props.user!.userId,
+                scheduleUpdatedBy: props.user!.id,
                 scheduleUpdated: dbInstance.currentZonedDateTime()
             })
             .where(tSchedule.scheduleId.equals(id))
@@ -207,7 +207,7 @@ export async function updateScheduleEntry(request: Request, props: ActionProps):
                     mutationAfterTimeStart,
                     mutationAfterTimeEnd,
                     mutationAfterUserId,
-                    mutationUserId: props.user!.userId,
+                    mutationUserId: props.user!.id,
                 })
                 .executeInsert();
         }

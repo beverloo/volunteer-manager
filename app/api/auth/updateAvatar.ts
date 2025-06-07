@@ -50,8 +50,8 @@ export async function updateAvatar(request: Request, props: ActionProps): Promis
     if (!props.user)
         return forbidden();
 
-    let subjectUserId: number = props.user.userId;
-    if (request.overrideUserId && request.overrideUserId !== props.user.userId) {
+    let subjectUserId: number = props.user.id;
+    if (request.overrideUserId && request.overrideUserId !== props.user.id) {
         executeAccessCheck(props.authenticationContext, {
             permission: 'volunteer.avatars',
         });

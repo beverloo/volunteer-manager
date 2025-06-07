@@ -368,7 +368,7 @@ export async function getSchedule(request: Request, props: ActionProps): Promise
     });
 
     const { event, team } = await validateContext(request);
-    if (!event || !team || !props.user?.userId)
+    if (!event || !team || !props.user?.id)
         notFound();
 
     const settings = await readSettings([
@@ -507,7 +507,7 @@ export async function getSchedule(request: Request, props: ActionProps): Promise
         const highlightedShifts = await getTimeslotsForShifts(highlights);
 
         await writeUserSetting(
-            props.user.userId, 'user-admin-schedule-highlight-shifts', highlights.join(','));
+            props.user.id, 'user-admin-schedule-highlight-shifts', highlights.join(','));
 
         for (const { id, demand, timeslots } of highlightedShifts) {
             if (!!demand) {
@@ -538,7 +538,7 @@ export async function getSchedule(request: Request, props: ActionProps): Promise
         }
     } else {
         await writeUserSetting(
-            props.user.userId, 'user-admin-schedule-highlight-shifts', undefined);
+            props.user.id, 'user-admin-schedule-highlight-shifts', undefined);
     }
 
     // ---------------------------------------------------------------------------------------------
@@ -591,7 +591,7 @@ export async function getSchedule(request: Request, props: ActionProps): Promise
     const recentShifts = await dbInstance.selectDistinctFrom(tSchedule)
         .where(tSchedule.eventId.equals(event.id))
             .and(tSchedule.shiftId.isNotNull())
-            .and(tSchedule.scheduleUpdatedBy.equals(props.user.userId))
+            .and(tSchedule.scheduleUpdatedBy.equals(props.user.id))
         .selectOneColumn(tSchedule.shiftId)
         .orderBy(tSchedule.scheduleUpdated, 'desc')
         .limit(settings['schedule-recent-shift-count'] ?? 4)

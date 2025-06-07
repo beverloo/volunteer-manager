@@ -159,7 +159,7 @@ export async function updateApplication(request: Request, props: ActionProps): P
                         markdown: message,
                     },
                     attribution: {
-                        sourceUserId: props.user.userId,
+                        sourceUserId: props.user.id,
                         targetUserId: request.userId,
                     },
                 });

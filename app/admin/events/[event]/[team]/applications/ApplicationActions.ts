@@ -95,7 +95,7 @@ export async function decideApplication(
                     markdown: data.message,
                 },
                 attribution: {
-                    sourceUserId: props.user.userId,
+                    sourceUserId: props.user.id,
                     targetUserId: userId,
                 },
             });

@@ -37,7 +37,7 @@ interface PlaywrightUserFields {
  */
 const kPlaywrightUsers: (Partial<User> & PlaywrightUserFields)[] = [
     {
-        userId: 1000000,
+        id: 1000000,
         username: 'playwright@animecon.nl',
         firstName: 'PWUSER',
 
@@ -47,7 +47,7 @@ const kPlaywrightUsers: (Partial<User> & PlaywrightUserFields)[] = [
         sessionToken: 1,
     },
     {
-        userId: 1000001,
+        id: 1000001,
         username: 'playwright-access-code@animecon.nl',
 
         activated: true,
@@ -56,7 +56,7 @@ const kPlaywrightUsers: (Partial<User> & PlaywrightUserFields)[] = [
         sessionToken: 1,
     },
     {
-        userId: 1000002,
+        id: 1000002,
         username: 'playwright-unactivated@animecon.nl',
 
         activated: false,
@@ -90,10 +90,10 @@ export class PlaywrightHooks {
                             playwrightUser.password === params.sha256Password.toLocaleLowerCase();
                     break;
                 case 'session':
-                    match = playwrightUser.userId === params.id;  // TODO: verify `token`?
+                    match = playwrightUser.id === params.id;  // TODO: verify `token`?
                     break;
                 case 'userId':
-                    match = playwrightUser.userId === params.userId;
+                    match = playwrightUser.id === params.userId;
                     break;
             }
 
@@ -105,9 +105,10 @@ export class PlaywrightHooks {
                 authType: playwrightUser.authType,
                 events: new Map(),
                 user: {
-                    userId: 999999,
+                    id: 999999,
                     username: undefined,
                     name: 'PWUSER Example',
+                    nameOrFirstName: 'PWUSER',
                     firstName: 'PWUSER',
                     lastName: 'Example',
                     avatarUrl: undefined,
@@ -126,13 +127,13 @@ export class PlaywrightHooks {
     /**
      * Hook for `getAuthenticationData` in `//app/lib/auth/Authentication.ts`.
      */
-    static isUserActivated(username: string): { userId: number; activated: boolean } | undefined {
+    static isUserActivated(username: string): { id: number; activated: boolean } | undefined {
         for (const playwrightUser of kPlaywrightUsers) {
             if (playwrightUser.username !== username)
                 continue;
 
             return {
-                userId: playwrightUser.userId!,
+                id: playwrightUser.id!,
                 activated: playwrightUser.activated,
             };
         }
@@ -143,10 +144,10 @@ export class PlaywrightHooks {
     /**
      * Hook for `getUserSessionToken` in `//app/lib/auth/Authentication.ts`.
      */
-    static getUserSessionToken(user: { userId: number } | number): number | null {
-        const userId = typeof user === 'number' ? user : user.userId;
+    static getUserSessionToken(user: { id: number } | number): number | null {
+        const userId = typeof user === 'number' ? user : user.id;
         for (const playwrightUser of kPlaywrightUsers) {
-            if (playwrightUser.userId === userId)
+            if (playwrightUser.id === userId)
                 return playwrightUser.sessionToken;
         }
 
@@ -158,7 +159,7 @@ export class PlaywrightHooks {
      */
     static isPlaywrightUser(sourceUserId: number | null, targetUserId: number | null) {
         for (const playwrightUser of kPlaywrightUsers) {
-            if (playwrightUser.userId === sourceUserId || playwrightUser.userId === targetUserId)
+            if (playwrightUser.id === sourceUserId || playwrightUser.id === targetUserId)
                 return true;
         }
 

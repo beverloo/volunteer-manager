@@ -9,9 +9,8 @@
 export interface User {
     /**
      * Unique ID of the user, as they are represented in the database.
-     * @deprecated
      */
-    userId: number;
+    id: number;
 
     /**
      * The username of this user, generally their e-mail address. There exist users in the system

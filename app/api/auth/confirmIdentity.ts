@@ -57,7 +57,7 @@ export async function confirmIdentity(request: Request, props: ActionProps): Pro
         type: kLogType.AccountIdentityCheck,
         severity: kLogSeverity.Debug,
         data: {
-            userId: user?.userId,
+            userId: user?.id,
             username: request.username,
             origin: props.origin,
             ip: props.ip,

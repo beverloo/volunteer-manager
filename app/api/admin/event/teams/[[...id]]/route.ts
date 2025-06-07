@@ -176,7 +176,7 @@ export const { GET, PUT } = createDataTableApi(kEventTeamRowModel, kEventTeamCon
                         contentType: kContentType.Page,
                         content: 'No content has been written yet…',
                         contentProtected: 1,
-                        revisionAuthorId: props.user!.userId,
+                        revisionAuthorId: props.user!.id,
                         revisionVisible: 1,
                         ...pageProps,
                     })))

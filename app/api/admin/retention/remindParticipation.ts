@@ -164,12 +164,12 @@ export async function remindParticipation(request: Request, props: ActionProps):
             eventId: event.eventId,
             teamId: teamId,
             retentionStatus: kRetentionStatus.Contacting,
-            retentionAssigneeId: props.user.userId,
+            retentionAssigneeId: props.user.id,
             retentionNotes: `${noteMedium} (${noteDate})`,
         })
         .onConflictDoUpdateSet({
             retentionStatus: kRetentionStatus.Contacting,
-            retentionAssigneeId: props.user.userId,
+            retentionAssigneeId: props.user.id,
             retentionNotes: `${noteMedium} (${noteDate})`,
         })
         .executeInsert();
@@ -196,7 +196,7 @@ export async function remindParticipation(request: Request, props: ActionProps):
                 markdown: request.email.message,
             },
             attribution: {
-                sourceUserId: props.user.userId,
+                sourceUserId: props.user.id,
                 targetUserId: request.userId,
             },
         });

@@ -109,7 +109,7 @@ export async function deleteScheduleEntry(request: Request, props: ActionProps):
                     mutationBeforeTimeStart: scheduledShift.timeStart,
                     mutationBeforeTimeEnd: scheduledShift.timeEnd,
                     mutationBeforeUserId: scheduledShift.userId,
-                    mutationUserId: props.user!.userId,
+                    mutationUserId: props.user!.id,
                 })
                 .executeInsert();
         }

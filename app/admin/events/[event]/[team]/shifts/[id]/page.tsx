@@ -75,7 +75,7 @@ export default async function EventTeamShiftPage(props: NextPageParams<'event' |
     const warnings: any[] = [ ];
 
     const step = await readSetting('schedule-time-step-minutes');
-    const userSettings = await readUserSettings(user.userId, [
+    const userSettings = await readUserSettings(user.id, [
         'user-admin-shifts-display-other-teams',
         'user-admin-shifts-expand-shifts',
     ]);

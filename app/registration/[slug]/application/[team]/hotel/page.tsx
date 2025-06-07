@@ -59,7 +59,7 @@ export default async function EventApplicationHotelsPage(props: NextPageParams<'
             .on(hotelBookingsJoin.bookingId.equals(hotelAssignmentsJoin.bookingId))
                 .and(hotelBookingsJoin.bookingConfirmed.equals(/* true= */ 1))
                 .and(hotelBookingsJoin.bookingVisible.equals(/* true= */ 1))
-        .where(tUsersEvents.userId.equals(user.userId))
+        .where(tUsersEvents.userId.equals(user.id))
             .and(tUsersEvents.eventId.equals(event.id))
             .and(tUsersEvents.teamId.equals(team.id))
         .select({
@@ -135,7 +135,7 @@ export default async function EventApplicationHotelsPage(props: NextPageParams<'
 
             { !!content && <Markdown>{content.markdown}</Markdown> }
 
-            { !!bookings && <HotelConfirmation eventId={event.id} userId={user.userId} /> }
+            { !!bookings && <HotelConfirmation eventId={event.id} userId={user.id} /> }
 
             { (!!settings.eligible || !!bookings) &&
                 <FormProvider action={action} defaultValues={defaultValues}>

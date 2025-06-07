@@ -16,5 +16,5 @@ export default async function ScheduleShiftsPage(props: NextPageParams<'event'>)
     const params = await props.params;
     const { user } = await requireAuthenticationContext({ check: 'event', event: params.event });
 
-    return <VolunteerPage userId={`${user.userId}`} />;
+    return <VolunteerPage userId={`${user.id}`} />;
 }

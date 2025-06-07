@@ -210,7 +210,7 @@ async function determineEventAccess(
             .on(tTeams.teamId.equals(tUsersEvents.teamId))
                 .and(tTeams.teamSlug.in(environment.teams))
         .where(tUsersEvents.eventId.equals(tEvents.eventId))
-            .and(tUsersEvents.userId.equals(authenticationContext.user?.userId || -1))
+            .and(tUsersEvents.userId.equals(authenticationContext.user?.id || -1))
         .select({
             teamName: tTeams.teamName,
             team: tTeams.teamSlug,

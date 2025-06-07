@@ -107,7 +107,7 @@ export async function EventApplicationStatus(props: EventApplicationStatusProps)
     // the |applications| contained within the environment context so far.
     // ---------------------------------------------------------------------------------------------
 
-    const registration = await getRegistration(event.id, info.teamId, context.user.userId);
+    const registration = await getRegistration(event.id, info.teamId, context.user.id);
     if (!registration)
         notFound();
 

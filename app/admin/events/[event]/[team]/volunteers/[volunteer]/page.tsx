@@ -139,7 +139,7 @@ export default async function EventVolunteerPage(
     // ---------------------------------------------------------------------------------------------
     // TODO TODO TODO TODO TODO
 
-    const settings = await readUserSettings(user.userId, [
+    const settings = await readUserSettings(user.id, [
         'user-admin-volunteers-expand-notes',
         'user-admin-volunteers-expand-shifts',
     ]);

@@ -106,7 +106,7 @@ createDataTableApi(kEventDeadlineRowModel, kEventDeadlineContext, {
         const insertId = await db.insertInto(tEventsDeadlines)
             .set({
                 eventId: event.id,
-                deadlineOwnerId: props.user.userId,
+                deadlineOwnerId: props.user.id,
                 deadlineDate: deadlineDate,
                 deadlineTitle: kDeadlineTitle,
                 deadlineDescription: kDeadlineDescription,
@@ -123,7 +123,7 @@ createDataTableApi(kEventDeadlineRowModel, kEventDeadlineContext, {
                 date: deadlineDate.toString(),
                 title: kDeadlineTitle,
                 description: kDeadlineDescription,
-                ownerUserId: props.user.userId,
+                ownerUserId: props.user.id,
                 completed: false,
             },
         };

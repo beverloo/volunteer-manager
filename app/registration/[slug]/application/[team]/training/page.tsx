@@ -55,7 +55,7 @@ export default async function EventApplicationTrainingPage(props: NextPageParams
                 .and(trainingsAssignmentsJoin.assignmentUserId.equals(tUsersEvents.userId))
         .leftJoin(trainingsJoin)
             .on(trainingsJoin.trainingId.equals(trainingsAssignmentsJoin.assignmentTrainingId))
-        .where(tUsersEvents.userId.equals(user.userId))
+        .where(tUsersEvents.userId.equals(user.id))
             .and(tUsersEvents.eventId.equals(event.id))
             .and(tUsersEvents.teamId.equals(team.id))
         .select({

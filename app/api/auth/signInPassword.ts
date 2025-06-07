@@ -79,7 +79,7 @@ export async function signInPassword(request: Request, props: ActionProps): Prom
             return {
                 success: true,
                 requiredPasswordUpdateToken: await sealPasswordResetRequest({
-                    id: user.userId,
+                    id: user.id,
                     token: userSessionToken,
                 }),
             };
@@ -94,7 +94,7 @@ export async function signInPassword(request: Request, props: ActionProps): Prom
             });
 
             await writeSealedSessionCookie(
-                { id: user.userId, token: userSessionToken }, props.responseHeaders);
+                { id: user.id, token: userSessionToken }, props.responseHeaders);
 
             return { success: true };
         }

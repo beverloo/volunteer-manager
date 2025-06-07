@@ -117,7 +117,7 @@ export async function updateHelpRequest(request: Request, props: ActionProps): P
 
             await dbInstance.update(tDisplaysRequests)
                 .set({
-                    requestAcknowledgedBy: props.user!.userId,
+                    requestAcknowledgedBy: props.user!.id,
                     requestAcknowledgedDate: dbInstance.currentZonedDateTime(),
                 })
                 .where(tDisplaysRequests.requestId.equals(request.requestId))
@@ -157,7 +157,7 @@ export async function updateHelpRequest(request: Request, props: ActionProps): P
 
             await dbInstance.update(tDisplaysRequests)
                 .set({
-                    requestClosedBy: props.user!.userId,
+                    requestClosedBy: props.user!.id,
                     requestClosedDate: dbInstance.currentZonedDateTime(),
                     requestClosedReason: request.close!.reason,
                 })

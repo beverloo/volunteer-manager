@@ -181,7 +181,7 @@ export async function authenticateUser(params: AuthenticateUserParams)
     const authType = authenticationResult.authType;
     const events: UserAuthenticationContext['events'] = new Map();
     const user: User = {
-        userId: authenticationResult.userId,
+        id: authenticationResult.userId,
         username: authenticationResult.username,
         name: authenticationResult.displayName ||
             `${authenticationResult.firstName} ${authenticationResult.lastName}`,
@@ -227,7 +227,7 @@ export async function authenticateUser(params: AuthenticateUserParams)
     return { access: accessControl, authType, events, user };
 }
 
-type UserLike = { userId: number };
+type UserLike = { id: number };
 
 /**
  * Returns the current session token from the `user`. This is a value that's quite important to the
@@ -238,7 +238,7 @@ export async function getUserSessionToken(user: UserLike | number): Promise<numb
         return PlaywrightHooks.getUserSessionToken(user);
 
     return db.selectFrom(tUsers)
-        .where(tUsers.userId.equals(typeof user === 'number' ? user : user.userId))
+        .where(tUsers.userId.equals(typeof user === 'number' ? user : user.id))
         .selectOneColumn(tUsers.sessionToken)
         .executeSelectNoneOrOne();
 }
@@ -282,7 +282,7 @@ export async function createAccount(data: AccountCreationData): Promise<number |
     return userId;
 }
 
-type ValidUserData = { userId: number; activated: boolean };
+type ValidUserData = { id: number; activated: boolean };
 
 /**
  * Returns whether the given `username` belongs to an activated account.
@@ -293,7 +293,7 @@ export async function isValidActivatedUser(username: string): Promise<ValidUserD
 
     return await db.selectFrom(tUsers)
         .select({
-            userId: tUsers.userId,
+            id: tUsers.userId,
             activated: tUsers.activated.equals(/* true= */ 1)
         })
         .where(tUsers.username.equals(username))

@@ -145,7 +145,7 @@ createDataTableApi(kProgramLocationRowModel, kProgramLocationContext, {
                 locationId: newInternalLocationId,
                 mutation: kMutation.Created,
                 mutationSeverity: kMutationSeverity.Important,
-                mutationUserId: props.user?.userId,
+                mutationUserId: props.user?.id,
                 mutationDate: dbInstance.currentZonedDateTime(),
             })
             .executeInsert();
@@ -183,7 +183,7 @@ createDataTableApi(kProgramLocationRowModel, kProgramLocationContext, {
                 locationId: id,
                 mutation: kMutation.Deleted,
                 mutationSeverity: kMutationSeverity.Important,
-                mutationUserId: props.user?.userId,
+                mutationUserId: props.user?.id,
                 mutationDate: dbInstance.currentZonedDateTime(),
             })
             .executeInsert();
@@ -253,7 +253,7 @@ createDataTableApi(kProgramLocationRowModel, kProgramLocationContext, {
                 mutation: kMutation.Updated,
                 mutationFields: 'area, display name',
                 mutationSeverity: kMutationSeverity.Important,
-                mutationUserId: props.user?.userId,
+                mutationUserId: props.user?.id,
                 mutationDate: dbInstance.currentZonedDateTime(),
             })
             .executeInsert();

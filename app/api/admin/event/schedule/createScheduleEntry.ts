@@ -128,7 +128,7 @@ export async function createScheduleEntry(request: Request, props: ActionProps):
                 shiftId: request.shift.shiftId,
                 scheduleTimeStart: request.shift.start,
                 scheduleTimeEnd: request.shift.end,
-                scheduleUpdatedBy: props.user!.userId,
+                scheduleUpdatedBy: props.user!.id,
                 scheduleUpdated: dbInstance.currentZonedDateTime()
             })
             .returningLastInsertedId()
@@ -143,7 +143,7 @@ export async function createScheduleEntry(request: Request, props: ActionProps):
                 mutationAfterTimeStart: request.shift.start,
                 mutationAfterTimeEnd: request.shift.end,
                 mutationAfterUserId: volunteer.id,
-                mutationUserId: props.user!.userId,
+                mutationUserId: props.user!.id,
             })
             .executeInsert();
     });

@@ -939,7 +939,7 @@ export async function getSchedule(request: Request, props: ActionProps): Promise
         schedule: { /* empty */ },
         shifts: { /* empty */ },
         teams: { /* empty */ },
-        userId: props.user.userId,
+        userId: props.user.id,
         vendors: { /* empty */ },
         volunteersActive: 0,
         volunteers: { /* empty */ },
@@ -958,7 +958,7 @@ export async function getSchedule(request: Request, props: ActionProps): Promise
     const dbInstance = db;
 
     if (schedule.config.enableFavourites)
-        await populateFavourites(dbInstance, schedule, event.id, props.user.userId);
+        await populateFavourites(dbInstance, schedule, event.id, props.user.id);
 
     if (schedule.config.enableKnowledgeBase)
         await populateKnowledgeBase(dbInstance, access, schedule, event.id);

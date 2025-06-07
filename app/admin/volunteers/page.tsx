@@ -85,7 +85,7 @@ export default async function VolunteersPage() {
     // Column and filter preferences:
     // ---------------------------------------------------------------------------------------------
 
-    const userSettings = await readUserSettings(user.userId, [
+    const userSettings = await readUserSettings(user.id, [
         'user-admin-volunteers-columns-hidden',
         'user-admin-volunteers-columns-filter',
     ]);

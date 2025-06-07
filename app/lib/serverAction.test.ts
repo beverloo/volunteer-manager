@@ -27,10 +27,11 @@ describe('serverAction', () => {
         scheme: T, action: ServerActionImplementation<T>)
     {
         const user: User = {
-            userId: 101,
+            id: 101,
             firstName: 'John',
             lastName: 'Doe',
             name: 'John Doe',
+            nameOrFirstName: 'John',
         };
 
         return async (formData: unknown) => executeServerAction(formData, scheme, action, user);

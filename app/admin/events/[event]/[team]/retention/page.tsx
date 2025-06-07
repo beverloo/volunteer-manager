@@ -44,7 +44,7 @@ export default async function EventTeamRetentionPage(props: NextPageParams<'even
         .where(tRetention.eventId.equals(event.id))
             .and(tRetention.teamId.equals(team.id))
             .and(tRetention.retentionStatus.notEquals(kRetentionStatus.Declined))
-            .and(tRetention.retentionAssigneeId.equals(user.userId))
+            .and(tRetention.retentionAssigneeId.equals(user.id))
             .and(usersEventJoin.registrationStatus.isNull())
         .select({
             id: tRetention.userId,

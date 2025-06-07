@@ -64,7 +64,7 @@ export default async function EventApplicationAvailabilityPage(
             .on(tEvents.eventId.equals(tUsersEvents.eventId))
         .innerJoin(tRoles)
             .on(tRoles.roleId.equals(tUsersEvents.roleId))
-        .where(tUsersEvents.userId.equals(user.userId))
+        .where(tUsersEvents.userId.equals(user.id))
             .and(tUsersEvents.eventId.equals(event.id))
             .and(tUsersEvents.teamId.equals(team.id))
         .select({

@@ -132,7 +132,7 @@ export async function createApplication(eventId: number, teamId: number, formDat
         // -----------------------------------------------------------------------------------------
 
         const existingApplication = await dbInstance.selectFrom(tUsersEvents)
-            .where(tUsersEvents.userId.equals(props.user.userId))
+            .where(tUsersEvents.userId.equals(props.user.id))
                 .and(tUsersEvents.eventId.equals(eventId))
                 .and(tUsersEvents.teamId.equals(teamId))
             .selectCountAll()
@@ -150,7 +150,7 @@ export async function createApplication(eventId: number, teamId: number, formDat
 
         const affectedRows = await dbInstance.insertInto(tUsersEvents)
             .set({
-                userId: props.user.userId,
+                userId: props.user.id,
                 eventId,
                 teamId,
                 roleId: teamInfo.defaultRoleId,
@@ -203,8 +203,8 @@ export async function createApplication(eventId: number, teamId: number, formDat
                     markdown: applicationConfirmation.markdown,
                 },
                 attribution: {
-                    sourceUserId: props.user.userId,
-                    targetUserId: props.user.userId,
+                    sourceUserId: props.user.id,
+                    targetUserId: props.user.id,
                 },
             });
         }
@@ -212,9 +212,9 @@ export async function createApplication(eventId: number, teamId: number, formDat
         await Publish({
             type: kSubscriptionType.Application,
             typeId: teamId,
-            sourceUserId: props.user.userId,
+            sourceUserId: props.user.id,
             message: {
-                userId: props.user.userId,
+                userId: props.user.id,
                 name: props.user.name,
                 event: eventInfo.shortName,
                 eventSlug: eventInfo.slug,
@@ -294,7 +294,7 @@ export async function requestRefund(eventId: number, formData: unknown) {
 
         const affectedRows = await dbInstance.insertInto(tRefunds)
             .set({
-                userId: props.user.userId,
+                userId: props.user.id,
                 eventId: eventId,
 
                 refundTicketNumber: data.ticketNumber,
@@ -355,7 +355,7 @@ export async function updateAvailability(eventId: number, teamId: number, formDa
                 .on(tRoles.roleId.equals(tUsersEvents.roleId))
             .innerJoin(tTeams)
                 .on(tTeams.teamId.equals(tUsersEvents.teamId))
-            .where(tUsersEvents.userId.equals(props.user.userId))
+            .where(tUsersEvents.userId.equals(props.user.id))
                 .and(tUsersEvents.eventId.equals(eventId))
                 .and(tUsersEvents.teamId.equals(teamId))
             .select({
@@ -422,7 +422,7 @@ export async function updateAvailability(eventId: number, teamId: number, formDa
                 preferenceTimingEnd: parseInt(serviceTimingEnd, /* radix= */ 10),
                 preferencesUpdated: dbInstance.currentZonedDateTime(),
             })
-            .where(tUsersEvents.userId.equals(props.user.userId))
+            .where(tUsersEvents.userId.equals(props.user.id))
                 .and(tUsersEvents.eventId.equals(eventId))
                 .and(tUsersEvents.teamId.equals(teamId))
             .executeUpdate();
@@ -477,7 +477,7 @@ export async function updateHotelPreferences(eventId: number, teamId: number, fo
                 .on(tEvents.eventId.equals(tUsersEvents.eventId))
             .innerJoin(tRoles)
                 .on(tRoles.roleId.equals(tUsersEvents.roleId))
-            .where(tUsersEvents.userId.equals(props.user.userId))
+            .where(tUsersEvents.userId.equals(props.user.id))
                 .and(tUsersEvents.eventId.equals(eventId))
                 .and(tUsersEvents.teamId.equals(teamId))
             .select({
@@ -567,7 +567,7 @@ export async function updateHotelPreferences(eventId: number, teamId: number, fo
 
         const affectedRows = await dbInstance.insertInto(tHotelsPreferences)
             .set({
-                userId: props.user.userId,
+                userId: props.user.id,
                 eventId: eventId,
                 teamId: teamId,
                 ...update,
@@ -623,7 +623,7 @@ export async function updateTrainingPreferences(eventId: number, teamId: number,
                 .on(tRoles.roleId.equals(tUsersEvents.roleId))
             .innerJoin(tTeams)
                 .on(tTeams.teamId.equals(tUsersEvents.teamId))
-            .where(tUsersEvents.userId.equals(props.user.userId))
+            .where(tUsersEvents.userId.equals(props.user.id))
                 .and(tUsersEvents.eventId.equals(eventId))
                 .and(tUsersEvents.teamId.equals(teamId))
             .select({
@@ -679,7 +679,7 @@ export async function updateTrainingPreferences(eventId: number, teamId: number,
         const affectedRows = await dbInstance.insertInto(tTrainingsAssignments)
             .set({
                 eventId: eventId,
-                assignmentUserId: props.user.userId,
+                assignmentUserId: props.user.id,
                 assignmentExtraId: null,
 
                 preferenceTrainingId,

@@ -38,7 +38,7 @@ export default async function EventTeamFaqPage(props: NextPageParams<'event' | '
 
     // Whether the `<KnowledgeCategories>` section should be expanded by default.
     const expandCategories = await readUserSetting(
-        user.userId, 'user-admin-knowledge-expand-categories');
+        user.id, 'user-admin-knowledge-expand-categories');
 
     const enableAuthorLink = access.can('volunteer.account.information', 'read');
     const scope = createKnowledgeBaseScope(event.id);

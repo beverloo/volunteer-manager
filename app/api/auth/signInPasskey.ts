@@ -123,12 +123,12 @@ export async function signInPasskey(request: Request, props: ActionProps): Promi
         RecordLog({
             type: kLogType.AccountIdentifyPasskey,
             severity: kLogSeverity.Debug,
-            sourceUser: user.userId,
+            sourceUser: user.id,
             data: { ip: props.ip },
         });
 
         await writeSealedSessionCookie(
-            { id: user.userId, token: sessionToken }, props.responseHeaders);
+            { id: user.id, token: sessionToken }, props.responseHeaders);
 
         return { success: true };
 

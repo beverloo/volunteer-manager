@@ -31,7 +31,7 @@ export default async function EventFinancePage(props: NextPageParams<'event'>) {
     let configurationExpanded = false;
     if (!!canManageFinances) {
         configurationExpanded =
-            await readUserSetting(user.userId, 'user-admin-event-finance-configuration') ?? false;
+            await readUserSetting(user.id, 'user-admin-event-finance-configuration') ?? false;
     }
 
     const includeTicketRevenue = access.can('admin');

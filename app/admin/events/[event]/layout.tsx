@@ -75,7 +75,7 @@ async function fetchEventSidebarInformation(user: User, eventSlug: string) {
         .leftJoin(usersEventsJoin)
             .on(usersEventsJoin.eventId.equals(tEvents.eventId))
             .and(usersEventsJoin.registrationStatus.equals(kRegistrationStatus.Accepted))
-            .and(usersEventsJoin.userId.equals(user.userId))
+            .and(usersEventsJoin.userId.equals(user.id))
         .where(tEvents.eventSlug.equals(eventSlug))
         .select({
             event: {

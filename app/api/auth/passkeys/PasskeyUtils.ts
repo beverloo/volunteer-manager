@@ -9,14 +9,14 @@ import db, { tUsersPasskeys, tUsers } from '@lib/database';
 
 type PasskeyRegistration = NonNullable<VerifiedRegistrationResponse['registrationInfo']>;
 
-type UserLike = { userId: number };
+type UserLike = { id: number };
 
 /**
  * Deletes the `passkeyId` from the `user`'s profile.
  */
 export async function deleteCredential(user: UserLike, passkeyId: number): Promise<boolean> {
     return await db.deleteFrom(tUsersPasskeys)
-        .where(tUsersPasskeys.userId.equals(user.userId))
+        .where(tUsersPasskeys.userId.equals(user.id))
             .and(tUsersPasskeys.userPasskeyId.equals(passkeyId))
         .executeDelete() > 0;
 }
@@ -93,7 +93,7 @@ export async function retrieveCredentials(user: UserLike, rpID: string): Promise
             created: tUsersPasskeys.credentialCreated,
             lastUsed: tUsersPasskeys.credentialLastUsed,
         })
-        .where(tUsersPasskeys.userId.equals(user.userId))
+        .where(tUsersPasskeys.userId.equals(user.id))
             .and(tUsersPasskeys.credentialRpid.equals(rpID))
         .orderBy(tUsersPasskeys.credentialLastUsed, 'desc nulls last')
             .orderBy(tUsersPasskeys.credentialCreated, 'asc')
@@ -112,7 +112,7 @@ export async function updateCredentialCounter(
             credentialLastUsed: dbInstance.currentZonedDateTime(),
             counter,
         })
-        .where(tUsersPasskeys.userId.equals(user.userId))
+        .where(tUsersPasskeys.userId.equals(user.id))
             .and(tUsersPasskeys.userPasskeyId.equals(passkeyId))
         .executeUpdate();
 }
@@ -126,7 +126,7 @@ export async function storePasskeyRegistration(
 {
     await db.insertInto(tUsersPasskeys)
         .set({
-            userId: user.userId,
+            userId: user.id,
             credentialId: Buffer.from(registration.credential.id, 'base64url'),
             credentialRpid: rpID,
             credentialFormat: registration.fmt,
@@ -147,7 +147,7 @@ export async function storePasskeyRegistration(
 export async function retrieveUserChallenge(user: UserLike): Promise<string | null> {
     return db.selectFrom(tUsers)
         .selectOneColumn(tUsers.challenge)
-        .where(tUsers.userId.equals(user.userId))
+        .where(tUsers.userId.equals(user.id))
         .executeSelectNoneOrOne();
 }
 
@@ -157,6 +157,6 @@ export async function retrieveUserChallenge(user: UserLike): Promise<string | nu
 export async function storeUserChallenge(user: UserLike, challenge: string | null): Promise<void> {
     await db.update(tUsers)
         .set({ challenge })
-        .where(tUsers.userId.equals(user.userId))
+        .where(tUsers.userId.equals(user.id))
         .executeUpdate();
 }

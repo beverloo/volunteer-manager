@@ -91,7 +91,7 @@ export class EmailLoggerImpl implements EmailLogger {
         if (typeof input === 'number')
             return input;
         else if (typeof input === 'object' && 'userId' in input)
-            return input.userId;
+            return input.id;
 
         return null;
     }

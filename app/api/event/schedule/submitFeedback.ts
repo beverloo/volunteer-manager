@@ -61,7 +61,7 @@ export async function submitFeedback(request: Request, props: ActionProps): Prom
     if (!props.user || !props.authenticationContext.user)
         notFound();
 
-    let userId: number | undefined = props.user.userId;
+    let userId: number | undefined = props.user.id;
     let feedbackName: string | undefined;
 
     if (props.access.can('organisation.feedback') && !!request.overrides) {

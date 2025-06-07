@@ -22,7 +22,7 @@ export default async function SubscriptionPage() {
     let action: React.ReactNode;
     if (access.can('system.internals')) {
         action = (
-            <SubscriptionTestAction userId={user.userId} name={user.firstName} />
+            <SubscriptionTestAction userId={user.id} name={user.firstName} />
         );
     }
 

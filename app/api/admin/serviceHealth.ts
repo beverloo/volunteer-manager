@@ -98,8 +98,8 @@ async function runEmailHealthCheck(user: User): Promise<Response> {
                 markdown: 'Test message from the **AnimeCon Volunteer Manager**',
             },
             attribution: {
-                sourceUserId: user.userId,
-                targetUserId: user.userId,
+                sourceUserId: user.id,
+                targetUserId: user.id,
             },
         });
 
