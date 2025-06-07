@@ -2,8 +2,11 @@
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
 import Grid from '@mui/material/Grid';
+import InputAdornment from '@mui/material/InputAdornment';
+import ShareIcon from '@mui/icons-material/Share';
 import Stack from '@mui/material/Stack';
 import TaskAltIcon from '@mui/icons-material/TaskAlt';
+import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 
 import type { NextPageParams } from '@lib/NextRouterParams';
@@ -16,6 +19,7 @@ import { PlaceholderPaper } from '@app/admin/components/PlaceholderPaper';
 import { RejectedApplication } from './RejectedApplication';
 import { Section } from '@app/admin/components/Section';
 import { SectionIntroduction } from '@app/admin/components/SectionIntroduction';
+import { generateInviteKey } from '@lib/EnvironmentContext';
 import { verifyAccessAndFetchPageInfo } from '@app/admin/events/verifyAccessAndFetchPageInfo';
 import db, { tEvents, tEventsTeams, tStorage, tTeams, tUsers, tUsersEvents } from '@lib/database';
 
@@ -117,6 +121,18 @@ export default async function ApplicationsPage(props: NextPageParams<'event' | '
     }
 
     // ---------------------------------------------------------------------------------------------
+    // Determine the unique invite link for this team through which volunteers can directly apply.
+    // This is the environment's regular application page for teams that manage content, and a link
+    // with a uniquely generated invite key for those that do not.
+    // ---------------------------------------------------------------------------------------------
+
+    let inviteLink: string | undefined;
+    if (!team.flagManagesContent) {
+        inviteLink  = `https://${team.domain}/registration/${event.slug}/application`;
+        inviteLink += `?invite=${generateInviteKey(event.slug, team.key)}`;
+    }
+
+    // ---------------------------------------------------------------------------------------------
     // Actions available to the user depend on the permissions they have been granted, and is
     // conveyed through the existence of Server Action references shared with the client.
     // ---------------------------------------------------------------------------------------------
@@ -187,10 +203,19 @@ export default async function ApplicationsPage(props: NextPageParams<'event' | '
         <>
             <Section title="Applications" subtitle={team.name}>
                 <SectionIntroduction>
-                    This page displays all volunteer applications submitted for this team. Please
-                    aim to review and respond to each application within a week to ensure timely
-                    communication with the applicants. Discuss criteria with your Staff member.
+                    Please try to review and respond to each application within a week, and be sure
+                    to discuss selection criteria with your Staff member!
                 </SectionIntroduction>
+                { !!inviteLink &&
+                    <TextField size="small" fullWidth value={inviteLink}
+                               slotProps={{
+                                   input: {
+                                       startAdornment:
+                                           <InputAdornment position="start">
+                                               <ShareIcon color="primary" fontSize="small" />
+                                           </InputAdornment>
+                                   },
+                               }} /> }
             </Section>
 
             { applications.length === 0 && <NoPendingApplications /> }

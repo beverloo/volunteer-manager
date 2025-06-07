@@ -7,7 +7,7 @@ import type { AccessControl } from '@lib/auth/AccessControl';
 import type { EventAvailabilityStatus } from '@lib/database/Types';
 import type { User } from '@lib/auth/User';
 import { requireAuthenticationContext, type PermissionAccessCheck } from '@lib/auth/AuthenticationContext';
-import db, { tEvents, tEventsTeams, tRoles, tStorage, tTeams, tUsersEvents } from '@lib/database';
+import db, { tEnvironments, tEvents, tEventsTeams, tRoles, tStorage, tTeams, tUsersEvents } from '@lib/database';
 
 import { kRegistrationStatus } from '@lib/database/Types';
 
@@ -152,9 +152,19 @@ export interface PageInfoWithTeam extends PageInfo {
         id: number;
 
         /**
+         * Secure key used to generate invite keys specific to this team.
+         */
+        key: string;
+
+        /**
          * Colour assigned to the team, to be used in the user interface.
          */
         colour: string;
+
+        /**
+         * Domain name of the environment that the team is served from.
+         */
+        domain: string;
 
         /**
          * Name of the team as it can be represented in the user interface.
@@ -292,10 +302,14 @@ export async function verifyAccessAndFetchPageInfo(
             .on(tEventsTeams.eventId.equals(event.id))
             .and(tEventsTeams.teamId.equals(tTeams.teamId))
             .and(tEventsTeams.enableTeam.equals(/* true= */ 1))
+        .innerJoin(tEnvironments)
+            .on(tEnvironments.environmentId.equals(tTeams.teamEnvironmentId))
         .where(tTeams.teamSlug.equals(params.team!))
         .select({
             id: tTeams.teamId,
+            key: tTeams.teamInviteKey,
             colour: tTeams.teamColourLightTheme,
+            domain: tEnvironments.environmentDomain,
             name: tTeams.teamName,
             plural: tTeams.teamPlural,
             slug: tTeams.teamSlug,
