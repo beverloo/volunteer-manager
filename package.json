@@ -1,6 +1,6 @@
 {
   "name": "volunteer-manager-animecon",
-  "version": "3.0.0",
+  "version": "4.0.0",
   "description": "Volunteer Management environment for AnimeCon",
   "scripts": {
     "sync-db": "node ts-sql.build.mjs",
