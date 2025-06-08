@@ -9,6 +9,7 @@ import { AdminClientProviders } from './AdminClientProviders';
 import { AdminHeader } from './AdminHeader';
 import { MuiLicense } from '../components/MuiLicense';
 import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
+import { readUserSettings } from '@lib/UserSettings';
 
 /**
  * URL that the user should navigate to when clicking on the build hash.
@@ -22,19 +23,30 @@ const kVersionLink = 'https://github.com/beverloo/volunteer-manager';
 export default async function RootAdminLayout(props: React.PropsWithChildren) {
     const { access, user } = await requireAuthenticationContext({ check: 'admin' });
 
+    const settings = await readUserSettings(user.id, [
+        'user-admin-experimental-dark-mode',
+        'user-admin-experimental-responsive',
+    ]);
+
+    // Determine the palette mode for the administration area. Dark Mode is not officially supported
+    // just yet, but can be experimentally enabled through user settings.
+    const paletteMode = !!settings['user-admin-experimental-dark-mode'] ? 'dark' : 'light';
+
     return (
         <>
             <MuiLicense />
-            <AdminClientProviders paletteMode="light">
+            <AdminClientProviders paletteMode={paletteMode}>
                 <Box sx={{ overflow: 'auto' }}>
                     <Box sx={{
                         backgroundColor: 'background.default',
                         minHeight: '100vh',
-                        minWidth: 1280,
+                        minWidth:
+                            !!settings['user-admin-experimental-responsive'] ? undefined
+                                                                             : 1280,
                         padding: 2,
                     }}>
 
-                        <AdminHeader access={access} user={user} />
+                        <AdminHeader access={access} user={user} settings={settings} />
 
                         {props.children}
 

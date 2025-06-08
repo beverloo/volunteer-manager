@@ -10,6 +10,7 @@ import { createGenerateMetadataFn } from '@app/admin/lib/generatePageMetadata';
 import { getExampleMessagesForUser } from '@app/admin/lib/getExampleMessagesForUser';
 import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
 import { updateAccountSettings } from '../AccountActions';
+import { readUserSettings } from '@lib/UserSettings';
 
 /**
  * The <AccountSettingsPage> component displays the settings that have been associated with this
@@ -28,8 +29,15 @@ export default async function AccountSettingsPage(props: NextPageParams<'id'>) {
     if (!Number.isSafeInteger(userId))
         notFound();
 
+    const userSettings = await readUserSettings(userId, [
+        'user-admin-experimental-dark-mode',
+        'user-admin-experimental-responsive',
+    ]);
+
     const defaultValues: AccountSettings = {
         exampleMessages: await getExampleMessagesForUser(userId),
+        experimentalDarkMode: !!userSettings['user-admin-experimental-dark-mode'],
+        experimentalResponsive: !!userSettings['user-admin-experimental-responsive'],
     };
 
     const readOnly = !access.can('organisation.accounts', 'update');

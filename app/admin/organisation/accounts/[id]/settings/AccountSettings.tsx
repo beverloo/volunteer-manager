@@ -1,8 +1,9 @@
 // Copyright 2025 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
-import { TextFieldElement } from '@app/components/proxy/react-hook-form-mui';
+import { CheckboxElement, TextFieldElement } from '@app/components/proxy/react-hook-form-mui';
 
+import Divider from '@mui/material/Divider';
 import Grid from '@mui/material/Grid';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
@@ -36,6 +37,7 @@ interface AccountSettingsFormProps {
 export function AccountSettingsForm(props: AccountSettingsFormProps) {
     return (
         <>
+
             <Grid size={{ xs: 3 }}>
                 <Typography variant="subtitle2" sx={{ pt: 0 }}>
                     Example messages
@@ -53,6 +55,36 @@ export function AccountSettingsForm(props: AccountSettingsFormProps) {
                                           fullWidth size="small"
                                           slotProps={{ input: { readOnly: !!props.readOnly } }}/> )}
                 </Stack>
+            </Grid>
+
+            <Grid size={{ xs: 12 }}><Divider /></Grid>
+
+            <Grid size={{ xs: 3 }}>
+                <Typography variant="subtitle2">
+                    Enable Dark Mode
+                </Typography>
+                <Typography variant="body2" color="textDisabled">
+                    This feature is experimental!
+                </Typography>
+            </Grid>
+            <Grid size={{ xs: 9 }}>
+                <CheckboxElement name="experimentalDarkMode" size="small"
+                                 readOnly={!!props.readOnly} />
+            </Grid>
+
+            <Grid size={{ xs: 12 }}><Divider /></Grid>
+
+            <Grid size={{ xs: 3 }}>
+                <Typography variant="subtitle2">
+                    Enable Responsive Layout
+                </Typography>
+                <Typography variant="body2" color="textDisabled">
+                    This feature is experimental!
+                </Typography>
+            </Grid>
+            <Grid size={{ xs: 9 }}>
+                <CheckboxElement name="experimentalResponsive" size="small"
+                                 readOnly={!!props.readOnly} />
             </Grid>
         </>
     );

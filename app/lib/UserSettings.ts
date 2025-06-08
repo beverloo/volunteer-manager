@@ -14,6 +14,8 @@ export type UserSettingsMap = {
     // ---------------------------------------------------------------------------------------------
 
     'user-admin-event-finance-configuration': boolean;
+    'user-admin-experimental-dark-mode': boolean;
+    'user-admin-experimental-responsive': boolean;
     'user-admin-knowledge-expand-categories': boolean;
     'user-admin-schedule-date': string;
     'user-admin-schedule-expand-sections': string;

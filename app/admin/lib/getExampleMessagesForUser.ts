@@ -9,17 +9,17 @@ import { readUserSetting, writeUserSetting } from '@lib/UserSettings';
  * Gets the example messages that have been stored for the given `userId`. An array of the messages
  * will be returned. Invalid messages will be silently ignored.
  */
-export async function getExampleMessagesForUser(userId: number): Promise<string[]> {
+export async function getExampleMessagesForUser(userId: number) {
     const exampleMessagesStr = await readUserSetting(userId, 'user-ai-example-messages');
     let exampleMessages: string[] = [ /* empty */ ];
 
-    if (!!exampleMessagesStr) {
+    if (!!exampleMessagesStr && exampleMessagesStr.length > 2) {
         try {
             const exampleMessagesArray = JSON.parse(exampleMessagesStr);
             exampleMessages = z.array(z.string()).parse(exampleMessagesArray);
 
         } catch (error: any) {
-            console.error(`Invalid example messages for user ${userId}`);
+            console.error(`Invalid example messages for user ${userId}:`, error);
         }
     }
 

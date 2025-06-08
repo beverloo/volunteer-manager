@@ -13,6 +13,7 @@ import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
 import { sealPasswordResetRequest } from '@lib/auth/PasswordReset';
 import { setExampleMessagesForUser } from '@app/admin/lib/getExampleMessagesForUser';
 import { writeSealedSessionCookieToStore } from '@lib/auth/Session';
+import { writeUserSettings } from '@lib/UserSettings';
 import db, { tUsers, tUsersAuth } from '@lib/database';
 
 import { kAuthType } from '@lib/database/Types';
@@ -423,6 +424,16 @@ const kAccountSettingsData = z.object({
      * Example messages that are used to personalise generated AI responses.
      */
     exampleMessages: z.array(z.string().nullish()),
+
+    /**
+     * Whether experimental support for Dark Mode should be enabled.
+     */
+    experimentalDarkMode: z.boolean(),
+
+    /**
+     * Whether experimental support for responsive layout should be enabled.
+     */
+    experimentalResponsive: z.boolean(),
 });
 
 /**
@@ -443,11 +454,21 @@ export async function updateAccountSettings(userId: number, formData: unknown) {
             });
         }
 
+        // Write the user settings to the database.
+        await writeUserSettings(userId, {
+            'user-admin-experimental-dark-mode': !!data.experimentalDarkMode,
+            'user-admin-experimental-responsive': !!data.experimentalResponsive,
+        });
+
         // Write the example messages to the database. The filter operation ensures that only string
         // values remain, but TypeScript is not yet smart enough to detect this.
         await setExampleMessagesForUser(userId, data.exampleMessages.filter(Boolean) as string[]);
 
-        return { success: true, message: 'Your updated settings have been saved!' };
+        return {
+            success: true,
+            refresh: true,
+            message: 'Your updated settings have been saved!'
+        };
     });
 }
 

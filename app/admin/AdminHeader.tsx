@@ -31,6 +31,14 @@ interface AdminHeaderProps {
     access: AccessControl;
 
     /**
+     * User settings that should be provided to the header.
+     */
+    settings: {
+        'user-admin-experimental-dark-mode'?: boolean;
+        'user-admin-experimental-responsive'?: boolean;
+    };
+
+    /**
      * The user who is signed in to their account.
      */
     user: User;
@@ -71,6 +79,8 @@ export async function AdminHeader(props: AdminHeaderProps) {
 
     const accountSettings: AccountSettings = {
         exampleMessages: await getExampleMessagesForUser(user.id),
+        experimentalDarkMode: !!props.settings['user-admin-experimental-dark-mode'],
+        experimentalResponsive: !!props.settings['user-admin-experimental-responsive'],
     };
 
     const saveSettingsFn = updateAccountSettings.bind(null, user.id);
