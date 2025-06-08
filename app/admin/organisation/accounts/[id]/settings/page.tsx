@@ -32,10 +32,12 @@ export default async function AccountSettingsPage(props: NextPageParams<'id'>) {
     const userSettings = await readUserSettings(userId, [
         'user-admin-experimental-dark-mode',
         'user-admin-experimental-responsive',
+        'user-ai-example-messages',
     ]);
 
     const defaultValues: AccountSettings = {
-        exampleMessages: await getExampleMessagesForUser(userId),
+        exampleMessages:
+            await getExampleMessagesForUser(userId, userSettings['user-ai-example-messages']),
         experimentalDarkMode: !!userSettings['user-admin-experimental-dark-mode'],
         experimentalResponsive: !!userSettings['user-admin-experimental-responsive'],
     };
