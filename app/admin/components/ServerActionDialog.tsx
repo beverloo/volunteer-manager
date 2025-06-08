@@ -10,7 +10,7 @@ import { type FieldValues, type FormContainerProps, useForm } from '@proxy/react
 import Alert from '@mui/material/Alert';
 import Button from '@mui/material/Button';
 import Collapse from '@mui/material/Collapse';
-import Dialog from '@mui/material/Dialog';
+import Dialog, { type DialogProps } from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
@@ -43,6 +43,11 @@ interface ServerActionDialogProps<TFieldValues extends FieldValues = FieldValues
     defaultValues?: FormContainerProps<TFieldValues>['defaultValues'];
 
     /**
+     * Optional maximum width that can be assigned to the dialog.
+     */
+    maxWidth?: DialogProps['maxWidth'];
+
+    /**
      * Whether the dialog should be open.
      */
     open?: boolean;
@@ -60,7 +65,7 @@ interface ServerActionDialogProps<TFieldValues extends FieldValues = FieldValues
 export function ServerActionDialog<TFieldValues extends FieldValues = FieldValues>(
     props: React.PropsWithChildren<ServerActionDialogProps<TFieldValues>>)
 {
-    const { action, children, defaultValues, open, onClose, ...innerProps } = props;
+    const { action, children, defaultValues, maxWidth, open, onClose, ...innerProps } = props;
     const form = useForm();
 
     const handleClose = useCallback(async () => {
@@ -73,7 +78,7 @@ export function ServerActionDialog<TFieldValues extends FieldValues = FieldValue
     }, [ form, onClose ]);
 
     return (
-        <Dialog open={!!open} onClose={handleClose} fullWidth>
+        <Dialog open={!!open} onClose={handleClose} fullWidth maxWidth={maxWidth}>
             <FormProvider action={action} defaultValues={defaultValues} form={form}>
                 <InnerServerActionDialog {...innerProps} onClose={handleClose}>
                     {children}
@@ -146,7 +151,7 @@ function InnerServerActionDialog(props: React.PropsWithChildren<InnerServerActio
             <DialogTitle>
                 {title}
             </DialogTitle>
-            <DialogContent>
+            <DialogContent sx={{ overflowY: 'visible' }}>
                 { description &&
                     <Typography>
                         {description}

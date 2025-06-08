@@ -431,18 +431,27 @@ const kAccountSettingsData = z.object({
 export async function updateAccountSettings(userId: number, formData: unknown) {
     'use server';
     return executeServerAction(formData, kAccountSettingsData, async (data, props) => {
-        await requireAuthenticationContext({
-            check: 'admin',
-            permission: {
-                permission: 'organisation.accounts',
-                operation: 'update',
-            },
-        });
+        if (props.user.id !== userId) {
+            // Users are always welcome to update their own settings - no further checks will be
+            // done in that case. Such changes will not be logged either.
+            await requireAuthenticationContext({
+                check: 'admin',
+                permission: {
+                    permission: 'organisation.accounts',
+                    operation: 'update',
+                },
+            });
+        }
 
         // Write the example messages to the database. The filter operation ensures that only string
         // values remain, but TypeScript is not yet smart enough to detect this.
         await setExampleMessagesForUser(userId, data.exampleMessages.filter(Boolean) as string[]);
 
-        return { success: true };
+        return { success: true, message: 'Your updated settings have been saved!' };
     });
 }
+
+/**
+ * Type describing the data required to update an account's settings.
+ */
+export type AccountSettingsData = z.infer<typeof kAccountSettingsData>;

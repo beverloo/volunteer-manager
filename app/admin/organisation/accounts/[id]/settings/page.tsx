@@ -4,7 +4,8 @@
 import { notFound } from 'next/navigation';
 
 import type { NextPageParams } from '@lib/NextRouterParams';
-import { AccountSettings } from './AccountSettings';
+import { AccountSettingsForm, type AccountSettings } from './AccountSettings';
+import { FormGrid } from '@app/admin/components/FormGrid';
 import { createGenerateMetadataFn } from '@app/admin/lib/generatePageMetadata';
 import { getExampleMessagesForUser } from '@app/admin/lib/getExampleMessagesForUser';
 import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
@@ -27,15 +28,17 @@ export default async function AccountSettingsPage(props: NextPageParams<'id'>) {
     if (!Number.isSafeInteger(userId))
         notFound();
 
-    const exampleMessages = await getExampleMessagesForUser(userId);
-    const updateAccountSettingsFn = updateAccountSettings.bind(null, userId);
+    const defaultValues: AccountSettings = {
+        exampleMessages: await getExampleMessagesForUser(userId),
+    };
 
     const readOnly = !access.can('organisation.accounts', 'update');
+    const updateAccountSettingsFn = updateAccountSettings.bind(null, userId);
 
     return (
-        <AccountSettings updateAccountSettingsFn={updateAccountSettingsFn}
-                         exampleMessages={exampleMessages}
-                         readOnly={readOnly} />
+        <FormGrid action={updateAccountSettingsFn} defaultValues={defaultValues}>
+            <AccountSettingsForm readOnly={readOnly} />
+        </FormGrid>
     );
 }
 

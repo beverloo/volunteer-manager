@@ -9,9 +9,13 @@ import Paper from '@mui/material/Paper';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 
+import type { AccountSettings } from './organisation/accounts/[id]/settings/AccountSettings';
 import type { User } from '@lib/auth/User';
 import { AdminHeaderEventsMenu } from './AdminHeaderEventsMenu';
+import { AdminHeaderSettingsButton } from './AdminHeaderSettingsButton';
 import { checkPermission, or } from '@lib/auth/AuthenticationContext';
+import { getExampleMessagesForUser } from './lib/getExampleMessagesForUser';
+import { updateAccountSettings } from './organisation/accounts/[id]/AccountActions';
 import db, { tEvents } from '@lib/database';
 
 import { kAnyTeam, type AccessControl } from '@lib/auth/AccessControl';
@@ -41,11 +45,13 @@ export async function AdminHeader(props: AdminHeaderProps) {
     const { access, user } = props;
 
     // ---------------------------------------------------------------------------------------------
-    // Determine the events that can be shown in the header.
+    // Determine the events that can be shown in the header. The four most recent unhidden events
+    // will be considered; other events can still be accessed through the regular Event overview.
     // ---------------------------------------------------------------------------------------------
 
     const dbInstance = db;
     const unfilteredEvents = await dbInstance.selectFrom(tEvents)
+        .where(tEvents.eventHidden.equals(/* false= */ 0))
         .select({
             shortName: tEvents.eventShortName,
             slug: tEvents.eventSlug,
@@ -57,6 +63,17 @@ export async function AdminHeader(props: AdminHeaderProps) {
 
     const filteredEvents = unfilteredEvents.filter(event =>
         access.can('event.visible', { event: event.slug, team: kAnyTeam }));
+
+    // ---------------------------------------------------------------------------------------------
+    // Determine the user's settings and the action through which their settings can be updated. The
+    // settings page is shared with the account system, to ensure that both pages stay in sync.
+    // ---------------------------------------------------------------------------------------------
+
+    const accountSettings: AccountSettings = {
+        exampleMessages: await getExampleMessagesForUser(user.id),
+    };
+
+    const saveSettingsFn = updateAccountSettings.bind(null, user.id);
 
     // ---------------------------------------------------------------------------------------------
 
@@ -82,12 +99,18 @@ export async function AdminHeader(props: AdminHeaderProps) {
                 </Typography>
 
                 <Stack direction="row" spacing={2} alignItems="center">
+
                     <Typography color="primary.contrastText">
                         { user.displayName ?? user.firstName }
                     </Typography>
-                    <Avatar src={user.avatarUrl}>
-                        {user.firstName} {user.lastName}
-                    </Avatar>
+
+                   <AdminHeaderSettingsButton saveSettingsFn={saveSettingsFn}
+                                              settings={accountSettings}>
+                        <Avatar src={user.avatarUrl}>
+                            {user.firstName} {user.lastName}
+                        </Avatar>
+                    </AdminHeaderSettingsButton>
+
                 </Stack>
 
             </Stack>
