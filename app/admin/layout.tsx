@@ -1,13 +1,19 @@
 // Copyright 2023 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
-import { AdminHeader } from './AdminHeader';
-import { AdminLayout } from './AdminLayout';
-import { MuiLicense } from '../components/MuiLicense';
-import { getHeaderEventsForUser } from './AdminUtils';
-import { checkPermission, or, requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
+import { default as MuiLink } from '@mui/material/Link';
+import Box from '@mui/material/Box';
+import Typography from '@mui/material/Typography';
 
-import { kDashboardPermissions } from './organisation/dashboard/DashboardPermissions';
+import { AdminClientProviders } from './AdminClientProviders';
+import { AdminHeader } from './AdminHeader';
+import { MuiLicense } from '../components/MuiLicense';
+import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
+
+/**
+ * URL that the user should navigate to when clicking on the build hash.
+ */
+const kVersionLink = 'https://github.com/beverloo/volunteer-manager';
 
 /**
  * Layout of the administration section of the Volunteer Manager. The layout is the same for every
@@ -15,28 +21,33 @@ import { kDashboardPermissions } from './organisation/dashboard/DashboardPermiss
  */
 export default async function RootAdminLayout(props: React.PropsWithChildren) {
     const { access, user } = await requireAuthenticationContext({ check: 'admin' });
-    const events = await getHeaderEventsForUser(access);
-
-    const canAccessOrganisationSection = checkPermission(access, kDashboardPermissions);
-
-    // Note: keep this in sync with //admin/volunteers/layout.tsx
-    const canAccessVolunteersSection = checkPermission(access, or(
-        'volunteer.export',
-        'volunteer.settings.shifts',
-        {
-            permission: 'volunteer.account.information',
-            operation: 'read',
-        }));
 
     return (
         <>
             <MuiLicense />
-            <AdminLayout>
-                <AdminHeader canAccessOrganisationSection={canAccessOrganisationSection}
-                             canAccessVolunteersSection={canAccessVolunteersSection}
-                             events={events} user={user} />
-                {props.children}
-            </AdminLayout>
+            <AdminClientProviders paletteMode="light">
+                <Box sx={{ overflow: 'auto' }}>
+                    <Box sx={{
+                        backgroundColor: 'background.default',
+                        minHeight: '100vh',
+                        minWidth: 1280,
+                        padding: 2,
+                    }}>
+
+                        <AdminHeader access={access} user={user} />
+
+                        {props.children}
+
+                        <Typography component="footer" align="center" variant="body2"
+                                    color="textPrimary" sx={{ mt: 1 }}>
+                            AnimeCon Volunteer Manager (
+                            <MuiLink href={kVersionLink}>{process.env.buildHash}</MuiLink>) —
+                            © 2015–{ (new Date()).getFullYear() }
+                        </Typography>
+
+                    </Box>
+                </Box>
+            </AdminClientProviders>
         </>
     );
 }
