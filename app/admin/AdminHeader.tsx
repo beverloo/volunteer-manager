@@ -116,8 +116,8 @@ export async function AdminHeader(props: AdminHeaderProps) {
                         { user.displayName ?? user.firstName }
                     </Typography>
 
-                   <AdminHeaderSettingsButton saveSettingsFn={saveSettingsFn}
-                                              settings={accountSettings}>
+                    <AdminHeaderSettingsButton saveSettingsFn={saveSettingsFn}
+                                               settings={accountSettings}>
                         <Avatar src={user.avatarUrl}>
                             {user.firstName} {user.lastName}
                         </Avatar>

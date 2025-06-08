@@ -54,7 +54,7 @@ export function AdminHeaderSettingsButton(
                            width: '16px',
                            height: '16px',
                        }}>
-                          <SettingsIcon fontSize="inherit" color="primary" />
+                           <SettingsIcon fontSize="inherit" color="primary" />
                        </Avatar>
                    }>
                 {props.children}
