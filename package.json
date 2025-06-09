@@ -64,7 +64,7 @@
     "ts-sql-query": "^1.65.0",
     "twilio": "^5.7.0",
     "uuid": "^11.1.0",
-    "zod": "^3.25.55"
+    "zod": "^3.25.56"
   },
   "overrides": {
     "nodemailer-mock": {
@@ -84,7 +84,7 @@
     "@types/jest": "^29.5.14",
     "@types/node": "22.15.30",
     "@types/nodemailer": "^6.4.17",
-    "@types/react": "^19.1.6",
+    "@types/react": "^19.1.7",
     "@types/react-avatar-editor": "^13.0.4",
     "@types/react-dom": "^19.1.6",
     "@types/uuid": "^10.0.0",
@@ -94,7 +94,7 @@
     "eslint-plugin-unused-imports": "^4.1.4",
     "jest": "^29.7.0",
     "jest-environment-jsdom": "^29.7.0",
-    "jest-extended": "^5.0.3",
+    "jest-extended": "^6.0.0",
     "next-build-id": "^3.0.0",
     "nodemailer-mock": "^2.0.9",
     "ts-sql-codegen": "^3.23.1",
