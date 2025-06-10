@@ -14,6 +14,8 @@ import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
+import StarBorderIcon from '@mui/icons-material/StarBorder';
+import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
 
 import { Temporal, formatDate } from '@lib/Temporal';
@@ -32,6 +34,11 @@ export interface Birthday {
      * compatible serialization.
      */
     birthdate: string;
+
+    /**
+     * Whether the volunteer has been a leader in our organisation.
+     */
+    leader?: boolean;
 }
 
 /**
@@ -69,7 +76,7 @@ export function BirthdayCard(props: BirthdayCardProps) {
                     {month}
                 </Typography>
                 <List dense disablePadding>
-                    { props.birthdays.map(({ name, birthdate }, index) => {
+                    { props.birthdays.map(({ name, birthdate, leader }, index) => {
                         const plainBirthdate = Temporal.PlainDate.from(birthdate);
                         const plainBirthdateThisYear = plainBirthdate.with({ year: today.year });
 
@@ -100,6 +107,10 @@ export function BirthdayCard(props: BirthdayCardProps) {
                                             }
                                         }
                                     }} />
+                                { !!leader &&
+                                    <Tooltip title="This person has been a senior volunteer">
+                                        <StarBorderIcon color="disabled" />
+                                    </Tooltip>}
                             </ListItem>
                         );
                     }) }

@@ -11,7 +11,7 @@ import { default as TopLevelLayout } from './TopLevelLayout';
 import { Dashboard } from './dashboard/Dashboard';
 import { Temporal } from '@lib/Temporal';
 import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
-import db, { tEvents, tStorage, tUsers, tUsersEvents } from '@lib/database';
+import db, { tEvents, tRoles, tStorage, tUsers, tUsersEvents } from '@lib/database';
 
 import { getConnectionPool } from '@lib/database/Connection';
 import { globalScheduler } from '@lib/scheduler/SchedulerImpl';
@@ -38,6 +38,8 @@ async function fetchBirthdays(user: User) {
         .innerJoin(tUsersEvents)
             .on(tUsersEvents.eventId.equals(tEvents.eventId))
             .and(tUsersEvents.registrationStatus.equals(kRegistrationStatus.Accepted))
+        .innerJoin(tRoles)
+            .on(tRoles.roleId.equals(tUsersEvents.roleId))
         .innerJoin(tUsers)
             .on(tUsers.userId.equals(tUsersEvents.userId))
             .and(tUsers.birthdate.isNotNull())
@@ -45,6 +47,7 @@ async function fetchBirthdays(user: User) {
         .select({
             name: tUsers.name,
             birthdate: tUsers.birthdate,
+            leader: db.aggregateAsArrayOfOneColumn(tRoles.rolePermissionGrant),
         })
         .groupBy(tUsers.userId)
         .executeSelectMany();
@@ -64,8 +67,9 @@ async function fetchBirthdays(user: User) {
             continue;  // should not happen
 
         const entry: Birthday = {
-            name: birthday.name,
+            ...birthday,
             birthdate: birthday.birthdate.toString(),
+            leader: birthday.leader.length > 0,
         };
 
         if (birthday.birthdate.month === currentMonth.month)
