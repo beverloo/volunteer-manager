@@ -5,7 +5,7 @@
 
 import type { PaletteMode } from '@mui/material';
 import type { Theme, ThemeOptions } from '@mui/material/styles';
-import { createTheme } from '@mui/material/styles';
+import { createTheme, darken, lighten } from '@mui/material/styles';
 import { deepmerge } from '@mui/utils';
 import { grey } from '@mui/material/colors';
 
@@ -23,10 +23,6 @@ const kThemePaletteModeMixins: { [key in PaletteMode]: ThemeOptions } = {
 
             primary: {
                 main: '#388bfd',
-            },
-
-            secondary: {
-                main: '#cae8ff',
             },
 
             background: {
@@ -60,11 +56,15 @@ let globalAdminTheme: Theme | undefined;
 /**
  * Returns the theme to use in the administrative area.
  */
-export function createAdminTheme(mode: PaletteMode): Theme {
+export function createAdminTheme(mode: PaletteMode, palette: { dark: string; light: string }) {
     if (!globalAdminTheme || globalAdminTheme.palette.mode !== mode) {
         globalAdminTheme = createTheme(deepmerge(kThemePaletteModeMixins[mode], {
             palette: {
                 mode,
+
+                secondary: {
+                    main: palette[mode],
+                },
 
                 DataGrid: {
                     bg: 'transparent',

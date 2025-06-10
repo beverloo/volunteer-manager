@@ -1,6 +1,8 @@
 // Copyright 2023 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
+import { notFound } from 'next/navigation';
+
 import { default as MuiLink } from '@mui/material/Link';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
@@ -8,6 +10,7 @@ import Typography from '@mui/material/Typography';
 import { AdminClientProviders } from './AdminClientProviders';
 import { AdminHeader } from './AdminHeader';
 import { MuiLicense } from '../components/MuiLicense';
+import { determineEnvironment } from '@lib/Environment';
 import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
 import { readUserSettings } from '@lib/UserSettings';
 
@@ -23,6 +26,10 @@ const kVersionLink = 'https://github.com/beverloo/volunteer-manager';
 export default async function RootAdminLayout(props: React.PropsWithChildren) {
     const { access, user } = await requireAuthenticationContext({ check: 'admin' });
 
+    const environment = await determineEnvironment();
+    if (!environment)
+        notFound();
+
     const settings = await readUserSettings(user.id, [
         'user-admin-experimental-dark-mode',
         'user-admin-experimental-responsive',
@@ -36,7 +43,7 @@ export default async function RootAdminLayout(props: React.PropsWithChildren) {
     return (
         <>
             <MuiLicense />
-            <AdminClientProviders paletteMode={paletteMode}>
+            <AdminClientProviders paletteMode={paletteMode} palette={environment.colours}>
                 <Box sx={{ overflow: 'auto' }}>
                     <Box sx={{
                         backgroundColor: 'background.default',

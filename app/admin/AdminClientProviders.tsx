@@ -17,6 +17,14 @@ interface AdminClientProvidersProps {
      * Palette mode that should be active for the admin area.
      */
     paletteMode: PaletteMode;
+
+    /**
+     * Palette that should be used as the primary colours in the admin area.
+     */
+    palette: {
+        dark: string;
+        light: string;
+    };
 }
 
 /**
@@ -24,7 +32,7 @@ interface AdminClientProvidersProps {
  */
 export function AdminClientProviders(props: React.PropsWithChildren<AdminClientProvidersProps>) {
     return (
-        <ThemeProvider theme={createAdminTheme(props.paletteMode)}>
+        <ThemeProvider theme={createAdminTheme(props.paletteMode, props.palette)}>
             <NuqsAdapter>
                 {props.children}
             </NuqsAdapter>
