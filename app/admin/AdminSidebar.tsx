@@ -21,7 +21,7 @@ export type { AdminSidebarMenuEntry, AdminSidebarMenuSubMenuItem } from './Admin
  */
 const kStyles: { [key: string]: SxProps<Theme> } = {
     header: {
-        backgroundColor: 'primary.main',
+        backgroundColor: 'animecon.adminHeaderBackground',
         color: 'primary.contrastText',
         paddingX: 2,
         paddingY: 1,

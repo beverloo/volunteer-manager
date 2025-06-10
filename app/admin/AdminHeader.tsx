@@ -99,7 +99,7 @@ export async function AdminHeader(props: AdminHeaderProps) {
         <Paper>
             <Stack direction="row" justifyContent="space-between" alignItems="center" spacing={2}
                    sx={{
-                       backgroundColor: 'primary.main',
+                       backgroundColor: 'animecon.adminHeaderBackground',
                        borderTopLeftRadius: '4px',
                        borderTopRightRadius: '4px',
                        paddingX: 2,

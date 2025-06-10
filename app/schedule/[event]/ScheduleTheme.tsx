@@ -15,28 +15,28 @@ import useMediaQuery from '@mui/material/useMediaQuery';
 
 import Box from '@mui/material/Box';
 
+export interface AdminPalette {
+    adminHeaderBackground: string;
+};
+
+interface PublicPalette {
+    activeBackground: string;
+    activeBackgroundHover: string;
+    pastBackground: string;
+    pastBackgroundHover: string;
+    pastForeground: string;
+}
+
 declare module '@mui/material/styles' {
     interface Components {
         acThemeDarkColor: string;
         acThemeLightColor: string;
     }
     interface Palette {
-        animecon: {
-            activeBackground: string;
-            activeBackgroundHover: string;
-            pastBackground: string;
-            pastBackgroundHover: string;
-            pastForeground: string;
-        };
+        animecon: AdminPalette & PublicPalette;
     }
     interface PaletteOptions {
-        animecon: {
-            activeBackground: string;
-            activeBackgroundHover: string;
-            pastBackground: string;
-            pastBackgroundHover: string;
-            pastForeground: string;
-        };
+        animecon: AdminPalette & PublicPalette;
     }
 }
 
@@ -159,7 +159,7 @@ function createScheduleTheme(mode: PaletteMode, palette: { dark: string; light: 
                 pastBackground: mode === 'dark' ? '#212121' : '#e0e0e0',
                 pastBackgroundHover: mode === 'dark' ? '#292929' : '#d8d8d8',
                 pastForeground: mode === 'dark' ? 'rgba(255, 255, 255, .7)' : 'rgba(0, 0, 0, .25)',
-            },
+            } satisfies PublicPalette as any,
             background: {
                 default: mode === 'dark' ? '#181818' : lighten(baseColour, 0.94),
                 paper: mode === 'dark' ? '#212121' : '#ffffff',

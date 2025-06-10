@@ -7,8 +7,9 @@ import type { PaletteMode } from '@mui/material';
 import type { Theme, ThemeOptions } from '@mui/material/styles';
 import { createTheme } from '@mui/material/styles';
 import { deepmerge } from '@mui/utils';
-
 import { grey } from '@mui/material/colors';
+
+import type { AdminPalette } from '@app/schedule/[event]/ScheduleTheme';
 
 /**
  * Mixins that should be added to a created type depending on the chosen palette mode.
@@ -16,7 +17,18 @@ import { grey } from '@mui/material/colors';
 const kThemePaletteModeMixins: { [key in PaletteMode]: ThemeOptions } = {
     dark: {
         palette: {
-            animecon: { /* empty */ } as any,  // not applicable for the admin area
+            animecon: {
+                adminHeaderBackground: '#0d419d',
+            } satisfies AdminPalette as any,
+
+            primary: {
+                main: '#388bfd',
+            },
+
+            secondary: {
+                main: '#cae8ff',
+            },
+
             background: {
                 default: '#111111',
                 paper: grey[900],
@@ -25,7 +37,14 @@ const kThemePaletteModeMixins: { [key in PaletteMode]: ThemeOptions } = {
     },
     light: {
         palette: {
-            animecon: { /* empty */ } as any,  // not applicable for the admin area
+            animecon: {
+                adminHeaderBackground: '#37474F',
+            } satisfies AdminPalette as any,
+
+            primary: {
+                main: '#37474F',
+            },
+
             background: {
                 default: '#f8faf0',
             },
@@ -46,10 +65,6 @@ export function createAdminTheme(mode: PaletteMode): Theme {
         globalAdminTheme = createTheme(deepmerge(kThemePaletteModeMixins[mode], {
             palette: {
                 mode,
-
-                primary: {
-                    main: '#37474F',
-                },
 
                 DataGrid: {
                     bg: 'transparent',
