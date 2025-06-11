@@ -547,7 +547,8 @@ export const kPermissionGroups: Record<string, string[]> = {
         'organisation.roles',
         'organisation.teams',
 
-        'statistics',
+        'statistics.basic',
+        // note: statistics.finances omitted
 
         'system.content',
         'system.internals.ai',
@@ -597,7 +598,8 @@ export const kPermissionGroups: Record<string, string[]> = {
         // note: organisation.teams omitted
 
         'statistics.basic',
-        'statistics.finances',
+        // note: statistics.finances omitted
+
         'system.subscriptions.eligible',
         'volunteer.account.information:read',
         'volunteer.avatars',
@@ -624,6 +626,8 @@ export const kPermissionGroups: Record<string, string[]> = {
         // note: organisation.teams omitted
 
         'statistics.basic',
+        // note: statistics.finances omitted
+
         'system.subscriptions.eligible',
         'volunteer.avatars',
     ],

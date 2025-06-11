@@ -107,7 +107,7 @@ export default async function ProgramActivityPage(props: NextPageParams<'event' 
     let salesProducts: SalesProduct[] = [ /* no products */ ];
     let salesRange: [ string, string ] = [ '1998-09-04', '1998-09-18' ];
 
-    if (access.can('statistics.finances')) {
+    if (access.can('statistics.basic')) {
         const configuration = await dbInstance.selectFrom(tEventsSalesConfiguration)
             .where(tEventsSalesConfiguration.eventId.equals(event.id))
                 .and(tEventsSalesConfiguration.saleEventId.equals(activityId))
