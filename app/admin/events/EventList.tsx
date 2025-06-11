@@ -13,8 +13,8 @@ import Typography from '@mui/material/Typography';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 
+import { Chip } from '@app/admin/components/Chip';
 import { DataTable, type DataTableColumn } from '@app/admin/components/DataTable';
-import { TeamChip } from '@app/admin/components/TeamChip';
 import { Temporal, formatDate } from '@lib/Temporal';
 
 /**
@@ -82,10 +82,9 @@ export interface EventListEntry {
         name: string;
 
         /**
-         * Colours (as HTML colours) in which this team should be highlighted.
+         * Color in which this team should be highlighted.
          */
-        dark: string;
-        light: string;
+        themeColor: string;
     }[];
 }
 
@@ -163,7 +162,7 @@ export function EventList(props: EventListProps) {
                 return (
                     <Stack direction="row" spacing={1}>
                         { teams.map((team, index) =>
-                            <TeamChip key={index} colours={team} label={team.name} /> ) }
+                            <Chip key={index} color={team.themeColor} label={team.name} /> ) }
                     </Stack>
                 );
             },

@@ -29,14 +29,9 @@ import { styled } from '@mui/material/styles';
  */
 interface TeamIdentityHeaderProps extends BoxProps {
     /**
-     * Dark-theme variant of the team's identity.
+     * Background color reflecting the team's identity.
      */
-    darkThemeColour: string;
-
-    /**
-     * Light-theme variant of the team's identity.
-     */
-    lightThemeColour: string;
+    backgroundColor: string;
 };
 
 /**
@@ -45,19 +40,15 @@ interface TeamIdentityHeaderProps extends BoxProps {
  */
 const TeamIdentityHeader = styled((props: TeamIdentityHeaderProps) => {
     // eslint-disable-next-line unused-imports/no-unused-vars
-    const { darkThemeColour, lightThemeColour, ...boxProps } = props;
+    const { backgroundColor, ...boxProps } = props;
     return <Box {...boxProps} />;
-})(({ darkThemeColour, lightThemeColour, theme }) => {
-    const backgroundColor = theme.palette.mode === 'light' ? lightThemeColour : darkThemeColour;
-    const color = theme.palette.getContrastText(backgroundColor);
-
-    return {
-        backgroundColor, color,
-        borderRadius: theme.shape.borderRadius,
-        borderBottomLeftRadius: 0,
-        borderBottomRightRadius: 0,
-    };
-});
+})(({ backgroundColor, theme }) => ({
+    backgroundColor,
+    color: theme.palette.getContrastText(backgroundColor),
+    borderRadius: theme.shape.borderRadius,
+    borderBottomLeftRadius: 0,
+    borderBottomRightRadius: 0,
+}));
 
 /**
  * The <TeamIdentityFooter> component displays a box similarly themed after the team's identity, but
@@ -86,11 +77,9 @@ interface EventTeamCardProps {
     teamName: string;
 
     /**
-     * The dark theme & light theme variants of the team's theme colour. Will be used to personalise
-     * the card specific to this team.
+     * Colour, in a CSS-compatible format, representing the team's theme.
      */
-    teamColourDarkTheme: string;
-    teamColourLightTheme: string;
+    teamColour: string;
 
     /**
      * Number of volunteers in the team, and the target number of volunteers they're striving for.
@@ -111,8 +100,6 @@ interface EventTeamCardProps {
  * birdseye view on how the team is doing, and what the team settings for this events are.
  */
 export function EventTeamCard(props: EventTeamCardProps) {
-    const { teamColourDarkTheme, teamColourLightTheme } = props;
-
     const [ teamHistoryOpen, setTeamHistoryOpen ] = useState<boolean>(false);
 
     const closeTeamHistory = useCallback(() => setTeamHistoryOpen(false), [ /* no deps */ ]);
@@ -122,8 +109,7 @@ export function EventTeamCard(props: EventTeamCardProps) {
         <Paper sx={{ aspectRatio: 1.25 }}>
             <Stack direction="column" spacing={2} justifyContent="space-between"
                    sx={{ height: '100%' }}>
-                <TeamIdentityHeader darkThemeColour={teamColourDarkTheme}
-                                    lightThemeColour={teamColourLightTheme} sx={{ px: 2, py: 1 }}>
+                <TeamIdentityHeader backgroundColor={props.teamColour} sx={{ px: 2, py: 1 }}>
                     <Stack direction="row" alignItems="center" justifyContent="space-between">
                         <Typography variant="h5">
                             {props.teamName}
@@ -189,8 +175,7 @@ export function EventTeamCard(props: EventTeamCardProps) {
                             </Tooltip> }
                     </Stack>
                 </Stack>
-                <TeamIdentityFooter darkThemeColour={teamColourDarkTheme}
-                                    lightThemeColour={teamColourLightTheme} />
+                <TeamIdentityFooter backgroundColor={props.teamColour} />
             </Stack>
             { !!teamHistoryOpen &&
                 <Dialog open={teamHistoryOpen} onClose={closeTeamHistory} fullWidth maxWidth="md">

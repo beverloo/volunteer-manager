@@ -46,9 +46,7 @@ export default async function EventsPage() {
             endTime: dbInstance.dateTimeAsString(tEvents.eventEndTime),
             teams: dbInstance.aggregateAsArray({
                 name: teamsJoin.teamName,
-
-                dark: teamsJoin.teamColourDarkTheme,
-                light: teamsJoin.teamColourLightTheme,
+                themeColor: teamsJoin.teamColourLightTheme,
             }),
         })
         .groupBy(tEvents.eventId)

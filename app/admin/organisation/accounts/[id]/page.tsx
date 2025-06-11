@@ -37,8 +37,7 @@ async function AccountParticipationTable(props: { userId: number }) {
             role: tRoles.roleName,
             team: tTeams.teamName,
             teamSlug: tTeams.teamSlug,
-            teamDarkThemeColour: tTeams.teamColourDarkTheme,
-            teamLightThemeColour: tTeams.teamColourLightTheme,
+            teamColour: tTeams.teamColourLightTheme,
         })
         .orderBy('eventStartTime', 'desc')
         .executeSelectMany();

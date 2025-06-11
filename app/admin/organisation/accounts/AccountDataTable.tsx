@@ -13,8 +13,8 @@ import ReportGmailerrorredIcon from '@mui/icons-material/ReportGmailerrorred';
 import Stack from '@mui/material/Stack';
 import Tooltip from '@mui/material/Tooltip';
 
+import { Chip } from '@app/admin/components/Chip';
 import { DataTable, type DataTableColumn } from '@app/admin/components/DataTable';
-import { TeamChip } from '@app/admin/components/TeamChip';
 import { callApi } from '@lib/callApi';
 
 /**
@@ -51,10 +51,9 @@ interface AccountDataTableProps {
     /**
      * Information about the teams and their theme colours.
      */
-    teamColours: {
+    teams: {
         name: string;
-        darkThemeColour: string;
-        lightThemeColour: string;
+        themeColor: string;
     }[];
 
     /**
@@ -73,10 +72,9 @@ export function AccountDataTable(props: AccountDataTableProps) {
     const router = useRouter();
 
     const teamColours = useMemo(() => {
-        return new Map(props.teamColours.map(({ name, darkThemeColour, lightThemeColour }) =>
-            ([ name, { dark: darkThemeColour, light: lightThemeColour } ])));
+        return new Map(props.teams.map(({ name, themeColor }) => ([ name, themeColor ])));
 
-    }, [ props.teamColours ]);
+    }, [ props.teams ]);
 
     const columns: DataTableColumn<VolunteerRowModel>[] = [
         {
@@ -161,8 +159,7 @@ export function AccountDataTable(props: AccountDataTableProps) {
                 return (
                     <Stack direction="row" spacing={1}>
                         { chips.map((team: any, index: number) =>
-                            <TeamChip key={index} label={team}
-                                      colours={teamColours.get(team)!} /> ) }
+                            <Chip key={index} label={team} color={teamColours.get(team)!} /> ) }
                     </Stack>
                 );
             },

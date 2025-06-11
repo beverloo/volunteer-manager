@@ -139,8 +139,7 @@ async function getParticipatingTeams(eventId: number) {
             id: tTeams.teamId,
 
             teamName: tTeams.teamName,
-            teamColourDarkTheme: tTeams.teamColourDarkTheme,
-            teamColourLightTheme: tTeams.teamColourLightTheme,
+            teamColour: tTeams.teamColourLightTheme,
             teamTargetSize: tEventsTeams.teamTargetSize,
             teamSize: dbInstance.count(usersEventsJoin.userId),
 

@@ -73,13 +73,12 @@ export default async function AccountsPage() {
     // Team information from the database:
     // ---------------------------------------------------------------------------------------------
 
-    const teamColours = await dbInstance.selectFrom(tTeams)
-            .select({
-                name: tTeams.teamName,
-                darkThemeColour: tTeams.teamColourDarkTheme,
-                lightThemeColour: tTeams.teamColourLightTheme,
-            })
-            .executeSelectMany();
+    const teams = await dbInstance.selectFrom(tTeams)
+        .select({
+            name: tTeams.teamName,
+            themeColor: tTeams.teamColourLightTheme,
+        })
+        .executeSelectMany();
 
     // ---------------------------------------------------------------------------------------------
     // Column and filter preferences:
@@ -103,7 +102,8 @@ export default async function AccountsPage() {
                 Columns and filtering can be altered through the column menu.
             </SectionIntroduction>
             <AccountDataTable initialFilterModel={filterModel}
-                              initialHiddenFields={hiddenFields} teamColours={teamColours}
+                              initialHiddenFields={hiddenFields}
+                              teams={teams}
                               volunteers={volunteers} />
             { canCreateAccounts &&
                 <>

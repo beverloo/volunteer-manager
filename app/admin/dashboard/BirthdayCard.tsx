@@ -108,7 +108,7 @@ export function BirthdayCard(props: BirthdayCardProps) {
                                         }
                                     }} />
                                 { !!leader &&
-                                    <Tooltip title="This person has been a senior volunteer">
+                                    <Tooltip title="This person has been a volunteering lead">
                                         <StarBorderIcon color="disabled" />
                                     </Tooltip>}
                             </ListItem>

@@ -8,8 +8,8 @@ import Link from 'next/link';
 import { default as MuiLink } from '@mui/material/Link';
 
 import type { RegistrationStatus } from '@lib/database/Types';
-import { type DataTableColumn, DataTable } from '@app/admin/components/DataTable';
-import { TeamChip } from '@app/admin/components/TeamChip';
+import { Chip } from '@app/admin/components/Chip';
+import { DataTable, type DataTableColumn } from '@app/admin/components/DataTable';
 
 /**
  * Information about a volunteer's participation in a singular event.
@@ -51,14 +51,9 @@ interface ParticipationInfo {
     teamSlug: string;
 
     /**
-     * Dark theme colour that applies to this team.
+     * Theme colour that applies to this team.
      */
-    teamDarkThemeColour: string;
-
-    /**
-     * Light theme colour that applies to this team.
-     */
-    teamLightThemeColour: string;
+    teamColour: string;
 
     /**
      * Name of the role in which they participated.
@@ -128,11 +123,7 @@ export function ParticipationTable(props: ParticipationTableProps) {
             flex: 1,
 
             renderCell: params =>
-                <TeamChip label={params.value}
-                          colours={{
-                              dark: params.row.teamDarkThemeColour,
-                              light: params.row.teamLightThemeColour,
-                          }} />,
+                <Chip label={params.value} color={params.row.teamColour} />,
         },
         {
             field: 'role',
