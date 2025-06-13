@@ -99,7 +99,7 @@ describe('callApi', () => {
             /* `foo` is missing */
         });
 
-        expect(responsePromise).rejects.toThrowError(/doesn't exist/)
+        expect(responsePromise).rejects.toThrow(/doesn't exist/)
     });
 
     it('confirms that REST path parameters are limited to scalar types', async () => {
@@ -109,6 +109,6 @@ describe('callApi', () => {
             foo: { a: 1, b: 2 }  // `foo` is not a scalar
         });
 
-        expect(responsePromise).rejects.toThrowError(/must be scalars/)
+        expect(responsePromise).rejects.toThrow(/must be scalars/)
     });
 });

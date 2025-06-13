@@ -8,8 +8,8 @@ describe('Iron', () => {
         const invalidPassword = 'too-short';
         const validPassword = 'this-password-definitely-is-long-enough';
 
-        expect(seal(null, invalidPassword, 0)).rejects.toThrowError();
-        expect(unseal('', invalidPassword, 0)).rejects.toThrowError();
+        expect(seal(null, invalidPassword, 0)).rejects.toThrow();
+        expect(unseal('', invalidPassword, 0)).rejects.toThrow();
 
         expect(seal(null, validPassword, 0)).resolves.toMatch(/^Fe/);
     });
@@ -42,9 +42,9 @@ describe('Iron', () => {
 
         expect(firstSealedData).not.toEqual(secondSealedData);
         expect(unseal(firstSealedData, firstPassword, 32)).resolves.toEqual(plaintext);
-        expect(unseal(firstSealedData, secondPassword, 32)).rejects.toThrowError();
+        expect(unseal(firstSealedData, secondPassword, 32)).rejects.toThrow();
 
-        expect(unseal(secondSealedData, firstPassword, 32)).rejects.toThrowError();
+        expect(unseal(secondSealedData, firstPassword, 32)).rejects.toThrow();
         expect(unseal(secondSealedData, secondPassword, 32)).resolves.toEqual(plaintext);
     });
 });

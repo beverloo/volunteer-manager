@@ -12,8 +12,8 @@ type AnPlanParameters = Record<string, boolean | number | string>;
  * Creates the cipher used to decrypt or encrypt the parameters, based on the set environment
  * variables. If the appropriate key and IV are not available then an exception will be thrown.
  */
-function createCipher(mode: 'decrypt'): crypto.Decipher;
-function createCipher(mode: 'encrypt'): crypto.Cipher;
+function createCipher(mode: 'decrypt'): crypto.Decipheriv;
+function createCipher(mode: 'encrypt'): crypto.Cipheriv;
 function createCipher(mode: 'decrypt' | 'encrypt') {
     if (!Object.hasOwn(process.env, 'APP_ANPLAN_URL_KEY'))
         throw new Error('The AnPlan URL key must be defined in order to encrypt URLs.');
