@@ -219,6 +219,9 @@ const kLogMessageFormatter: {
     [kLogType.AdminSubscriptionUpdate]: (source, target) => {
         return `Updated the subscriptions for ${target?.name}`;
     },
+    [kLogType.AdminSuspendVolunteer]: (source, target, { action }) => {
+        return `${action} ${target?.name}'s account`;
+    },
     [kLogType.AdminTeamCreate]: (source, target, { title }) => {
         return `Created the ${title} team`;
     },

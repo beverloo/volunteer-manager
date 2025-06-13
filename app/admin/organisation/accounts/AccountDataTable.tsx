@@ -9,6 +9,7 @@ import { useRouter } from 'next/navigation';
 
 import type { GridFilterModel } from '@mui/x-data-grid-pro';
 import { default as MuiLink } from '@mui/material/Link';
+import BlockIcon from '@mui/icons-material/Block';
 import ReportGmailerrorredIcon from '@mui/icons-material/ReportGmailerrorred';
 import Stack from '@mui/material/Stack';
 import Tooltip from '@mui/material/Tooltip';
@@ -32,6 +33,7 @@ interface VolunteerRowModel {
     phoneNumber?: string;
     teams?: string;
     activated: boolean;
+    suspended: boolean;
 }
 
 /**
@@ -93,6 +95,10 @@ export function AccountDataTable(props: AccountDataTableProps) {
                         <Tooltip title="Pending activation">
                             <ReportGmailerrorredIcon color="error" fontSize="small"
                                                      sx={{ ml: 1 }} />
+                        </Tooltip> }
+                    { !!params.row.suspended &&
+                        <Tooltip title="Account restricted">
+                            <BlockIcon color="warning" fontSize="small" sx={{ ml: 1 }} />
                         </Tooltip> }
                 </>,
         },

@@ -12,6 +12,7 @@ import Paper from '@mui/material/Paper';
 import PersonIcon from '@mui/icons-material/Person';
 import SettingsIcon from '@mui/icons-material/Settings';
 import Stack from '@mui/material/Stack';
+import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
 
 import type { NextLayoutParams } from '@lib/NextRouterParams';
@@ -53,6 +54,7 @@ export default async function AccountLayout(
             name: tUsers.name,
             firstName: tUsers.firstName,
             activated: tUsers.activated,
+            suspendedReason: tUsers.participationSuspended,
         })
         .executeSelectNoneOrOne();
 
@@ -100,10 +102,17 @@ export default async function AccountLayout(
     let deactivateAccountFn: ServerAction | undefined;
     let impersonateFn: ServerAction | undefined;
     let resetPasswordFn: ServerAction | undefined;
+    let suspendFn: ServerAction | undefined;
+    let unsuspendFn: ServerAction | undefined;
 
     if (access.can('organisation.accounts', 'update')) {
         createAccessCodeFn = actions.createAccessCode.bind(null, account.id);
         resetPasswordFn = actions.resetPassword.bind(null, account.id);
+
+        if (!account.suspendedReason)
+            suspendFn = actions.updateAccountSuspension.bind(null, account.id, true);
+        else
+            unsuspendFn = actions.updateAccountSuspension.bind(null, account.id, false);
 
         if (!account.activated)
             activateAccountFn = actions.activateAccount.bind(null, account.id);
@@ -123,15 +132,24 @@ export default async function AccountLayout(
                         {account.name}
                     </Typography>
                     { !account.activated &&
-                        <Chip color="error" size="small" label="not activated" /> }
+                        <Tooltip title="They have not activated their account">
+                            <Chip color="error" size="small" label="not activated" />
+                        </Tooltip> }
+                    { !!account.suspendedReason &&
+                        <Tooltip title="Their applications cannot be accepted">
+                            <Chip color="warning" size="small" label="restricted" />
+                        </Tooltip> }
                 </Stack>
                 <AccountHeaderActions
                     firstName={account.firstName}
+                    suspendedReason={account.suspendedReason}
                     activateAccountFn={activateAccountFn}
                     createAccessCodeFn={createAccessCodeFn}
                     deactivateAccountFn={deactivateAccountFn}
                     impersonateFn={impersonateFn}
-                    resetPasswordFn={resetPasswordFn} />
+                    resetPasswordFn={resetPasswordFn}
+                    suspendFn={suspendFn}
+                    unsuspendFn={unsuspendFn} />
             </Paper>
             <Paper>
                 <NavigationTabs tabs={tabs} />

@@ -476,3 +476,51 @@ export async function updateAccountSettings(userId: number, formData: unknown) {
  * Type describing the data required to update an account's settings.
  */
 export type AccountSettingsData = z.infer<typeof kAccountSettingsData>;
+
+/**
+ * Data associated with an account settings update.
+ */
+const kUpdateAccountSuspensionData = z.object({
+    reason: z.string().optional(),
+});
+
+/**
+ * Server Action called when the account's suspension status should be updated.
+ */
+export async function updateAccountSuspension(userId: number, suspend: boolean, formData: unknown) {
+    'use server';
+    return executeServerAction(formData, kUpdateAccountSuspensionData, async (data, props) => {
+        await requireAuthenticationContext({
+            check: 'admin',
+            permission: {
+                permission: 'organisation.accounts',
+                operation: 'update',
+            },
+        });
+
+        if (!!suspend && !data.reason?.length)
+            return { success: false, error: 'A reason for the suspension must be given…' };
+
+        const affectedRows = await db.update(tUsers)
+            .set({
+                participationSuspended: suspend ? data.reason : null,
+            })
+            .where(tUsers.userId.equals(userId))
+            .executeUpdate();
+
+        if (!affectedRows)
+            return { success: false, error: 'Unable to update the suspension status…' };
+
+        RecordLog({
+            type: kLogType.AdminSuspendVolunteer,
+            severity: kLogSeverity.Warning,
+            sourceUser: props.user,
+            targetUser: userId,
+            data: {
+                action: suspend ? 'Restricted' : 'Unrestricted',
+            }
+        });
+
+        return { success: true, refresh: true };
+    });
+}

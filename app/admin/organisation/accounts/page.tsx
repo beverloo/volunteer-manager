@@ -64,6 +64,7 @@ export default async function AccountsPage() {
                 birthdate: dbInstance.dateAsString(tUsers.birthdate),
                 teams: dbInstance.stringConcatDistinct(teamsJoin.teamName),
                 activated: tUsers.activated.equals(/* true= */ 1),
+                suspended: tUsers.participationSuspended.isNotNull(),
             })
             .groupBy(tUsers.userId)
             .orderBy(tUsers.name, 'asc')

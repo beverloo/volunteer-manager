@@ -5,13 +5,18 @@
 
 import { useState } from 'react';
 
+import { TextFieldElement } from '@components/proxy/react-hook-form-mui';
+
+import Alert from '@mui/material/Alert';
 import AttributionIcon from '@mui/icons-material/Attribution';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import Divider from '@mui/material/Divider';
 import LockResetIcon from '@mui/icons-material/LockReset';
+import PauseIcon from '@mui/icons-material/Pause';
 import PinIcon from '@mui/icons-material/Pin';
+import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import Stack from '@mui/material/Stack';
 import UnpublishedIcon from '@mui/icons-material/Unpublished';
 
@@ -27,6 +32,11 @@ interface AccountHeaderActionsProps {
      * First name of the account holder, to contextualise warning prompts.
      */
     firstName: string;
+
+    /**
+     * Reason that the account has been suspended, if any.
+     */
+    suspendedReason?: string;
 
     /**
      * Server action to invoke when the account should be activated.
@@ -52,6 +62,16 @@ interface AccountHeaderActionsProps {
      * Server action to invoke when the account's password should be reset.
      */
     resetPasswordFn?: ServerAction;
+
+    /**
+     * Server action to invoke when the account should be suspended.
+     */
+    suspendFn?: ServerAction;
+
+    /**
+     * Server action to invoke when the account should be unsuspended.
+     */
+    unsuspendFn?: ServerAction;
 }
 
 /**
@@ -65,6 +85,8 @@ export function AccountHeaderActions(props: AccountHeaderActionsProps) {
     const [ deactivateAccountDialogOpen, setDeactivateAccountDialogOpen ] = useState(false);
     const [ impersonateDialogOpen, setImpersonateDialogOpen ] = useState(false);
     const [ resetPasswordDialogOpen, setResetPasswordDialogOpen ] = useState(false);
+    const [ suspendDialogOpen, setSuspendDialogOpen ] = useState(false);
+    const [ unsuspendDialogOpen, setUnsuspendDialogOpen ] = useState(false);
 
     const hasAnyAction =
         props.activateAccountFn ||
@@ -92,6 +114,18 @@ export function AccountHeaderActions(props: AccountHeaderActionsProps) {
                         <Button onClick={ () => setActivateAccountDialogOpen(true) }
                                 startIcon={ <CheckCircleIcon /> }>
                             Activate
+                        </Button> }
+
+                    { !!props.suspendFn &&
+                        <Button onClick={ () => setSuspendDialogOpen(true) }
+                                startIcon={ <PauseIcon /> }>
+                            Restrict
+                        </Button> }
+
+                    { !!props.unsuspendFn &&
+                        <Button onClick={ () => setUnsuspendDialogOpen(true) }
+                                startIcon={ <PlayArrowIcon /> }>
+                            Unrestrict
                         </Button> }
 
                     { !!props.resetPasswordFn &&
@@ -178,6 +212,38 @@ export function AccountHeaderActions(props: AccountHeaderActionsProps) {
                     open={resetPasswordDialogOpen}
                     submitLabel="Request" title="Request a password reset" /> }
 
+            { !!props.suspendFn &&
+                <ServerActionDialog
+                    action={props.suspendFn}
+                    description={
+                        <>
+                            Restricting the account owned by <strong>{props.firstName}</strong> will
+                            stop them from being approved as volunteers in any of our teams. The
+                            reason will remain private.
+                        </> }
+                    onClose={ () => setSuspendDialogOpen(false) }
+                    open={suspendDialogOpen}
+                    submitLabel="Restrict" title="Restrict this account">
+                    <TextFieldElement name="reason" label="Reason" size="small" fullWidth
+                                      required sx={{ mt: 2 }} />
+                </ServerActionDialog> }
+
+            { !!props.unsuspendFn &&
+                <ServerActionDialog
+                    action={props.unsuspendFn}
+                    description={
+                        <>
+                            Removing the restriction from the account owned by
+                            <strong> {props.firstName}</strong> will enable their applications to be
+                            approved again by team leads.
+                        </> }
+                    onClose={ () => setUnsuspendDialogOpen(false) }
+                    open={unsuspendDialogOpen}
+                    submitLabel="Unrestrict" title="Unrestrict this account">
+                    <Alert severity="warning" sx={{ mt: 2 }}>
+                        <strong>Reason for the restriction</strong>: {props.suspendedReason}
+                    </Alert>
+                </ServerActionDialog> }
         </>
     );
 }

@@ -9,11 +9,17 @@ import { useRouter } from 'next/navigation';
 
 import { SelectElement } from '@components/proxy/react-hook-form-mui';
 
+import Alert from '@mui/material/Alert';
 import Button from '@mui/material/Button';
 import CardActions from '@mui/material/CardActions';
 import CardContent from '@mui/material/CardContent';
 import CardHeader from '@mui/material/CardHeader';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import Chip from '@mui/material/Chip';
+import Dialog from '@mui/material/Dialog';
+import DialogActions from '@mui/material/DialogActions';
+import DialogContent from '@mui/material/DialogContent';
+import DialogTitle from '@mui/material/DialogTitle';
 import Divider from '@mui/material/Divider';
 import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
 import IconButton from '@mui/material/IconButton';
@@ -324,6 +330,8 @@ export function Application(props: ApplicationProps) {
     const [ approveOpen, setApproveOpen ] = useState<boolean>(false);
     const [ rejectEverOpen, setRejectEverOpen ] = useState<boolean>(false);
     const [ rejectOpen, setRejectOpen ] = useState<boolean>(false);
+    const [ suspendEverOpen, setSuspendEverOpen ] = useState<boolean>(false);
+    const [ suspendOpen, setSuspendOpen ] = useState<boolean>(false);
 
     const processResponse = useCallback(async (
         serverFn: ServerAction, subject?: string, message?: string) =>
@@ -371,6 +379,12 @@ export function Application(props: ApplicationProps) {
         return await processResponse(props.rejectFn!, subject, message);
     }, [ processResponse, props.rejectFn ]);
 
+    const handleSuspendClose = useCallback(() => setSuspendOpen(false), [ /* no dependencies */ ]);
+    const handleSuspendOpen = useCallback(() => {
+        setSuspendEverOpen(true);
+        setSuspendOpen(true);
+    }, [ /* no dependencies */ ]);
+
     // ---------------------------------------------------------------------------------------------
 
     const avatarUrl = application.avatar ? `/blob/${application.avatar}.png` : undefined;
@@ -406,10 +420,8 @@ export function Application(props: ApplicationProps) {
                         <Divider />
                         <CardActions disableSpacing sx={{ justifyContent: 'flex-end', gap: 2 }}>
                             { !!application.suspended &&
-                                <Typography color="error" variant="body2"
-                                            sx={{ flexGrow: 1, px: 1 }}>
-                                    This volunteer has been suspended
-                                </Typography> }
+                                <Chip color="error" label="restricted" size="small" clickable
+                                      onClick={handleSuspendOpen} sx={{ ml: 1, mr: 'auto' }} /> }
                             { !!props.rejectFn &&
                                 <Button size="small" color="error" startIcon={ <ThumbDownIcon /> }
                                         onClick={handleRejectOpen}>
@@ -444,36 +456,56 @@ export function Application(props: ApplicationProps) {
                                      description={
                                          <>
                                              You're about to approve
-                                             <strong> {application?.firstName}</strong>'s
+                                             <strong> {application.firstName}</strong>'s
                                              application to help out during this event. An e-mail
                                              will automatically be sent to let them know.
                                          </>
                                      } apiParams={{
                                          type: 'approve-volunteer',
                                          approveVolunteer: {
-                                             userId: application?.userId ?? 0,
+                                             userId: application.userId ?? 0,
                                              event, team,
                                          },
                                      }} onSubmit={handleApproved} /> }
 
             { !!rejectEverOpen &&
-                <CommunicationDialog title={`Reject ${application?.firstName}'s application`}
+                <CommunicationDialog title={`Reject ${application.firstName}'s application`}
                                      open={rejectOpen} onClose={handleRejectClose}
                                      confirmLabel="Reject" allowSilent={props.canRespondSilently}
                                      description={
                                          <>
                                              You're about to reject
-                                             <strong> {application?.firstName}</strong>'s
+                                             <strong> {application.firstName}</strong>'s
                                              application to help out during this event. An e-mail
                                              will automatically be sent to let them know.
                                          </>
                                      } apiParams={{
                                          type: 'reject-volunteer',
                                          rejectVolunteer: {
-                                             userId: application?.userId ?? 0,
+                                             userId: application.userId ?? 0,
                                              event, team,
                                          },
                                      }} onSubmit={handleRejected} /> }
+
+            { !!suspendEverOpen &&
+                <Dialog open={suspendOpen} onClose={handleSuspendClose} fullWidth>
+                    <DialogTitle>
+                        This account has been restricted
+                    </DialogTitle>
+                    <DialogContent>
+                        <Typography>
+                            Applications made by <strong>{application.firstName} </strong> have been
+                            restricted from being approved. This cannot be overridden without
+                            removing the restriction.
+                        </Typography>
+                        <Alert severity="warning" sx={{ mt: 2 }}>
+                            <strong>Reason for the restriction</strong>: {application.suspended}
+                        </Alert>
+                    </DialogContent>
+                    <DialogActions sx={{ pt: 0, mr: 2, mb: 1.5 }}>
+                        <Button onClick={handleSuspendClose} variant="text">Close</Button>
+                    </DialogActions>
+                </Dialog> }
 
         </>
     );
