@@ -68,6 +68,7 @@ export async function settings(request: Request, props: ActionProps): Promise<Re
         'user-admin-volunteers-expand-notes': 'boolean',
         'user-admin-volunteers-expand-shifts': 'boolean',
         'user-ai-example-messages': 'string',
+        'user-ai-example-messages-promo-time': 'number',
     };
 
     const settingsToUpdate: { [k in keyof UserSettingsMap]?: UserSettingsMap[k] } = {};

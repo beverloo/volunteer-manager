@@ -34,6 +34,7 @@ export default async function RootAdminLayout(props: React.PropsWithChildren) {
         'user-admin-experimental-dark-mode',
         'user-admin-experimental-responsive',
         'user-ai-example-messages',
+        'user-ai-example-messages-promo-time',
     ]);
 
     // Determine the palette mode for the administration area. Dark Mode is not officially supported

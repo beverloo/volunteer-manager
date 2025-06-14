@@ -13,6 +13,7 @@ import type { AccountSettings } from './organisation/accounts/[id]/settings/Acco
 import type { User } from '@lib/auth/User';
 import { AdminHeaderEventsMenu } from './AdminHeaderEventsMenu';
 import { AdminHeaderSettingsButton } from './AdminHeaderSettingsButton';
+import { Temporal } from '@lib/Temporal';
 import { checkPermission, or } from '@lib/auth/AuthenticationContext';
 import { getExampleMessagesForUser } from './lib/getExampleMessagesForUser';
 import { updateAccountSettings } from './organisation/accounts/[id]/AccountActions';
@@ -20,6 +21,13 @@ import db, { tEvents } from '@lib/database';
 
 import { kAnyTeam, type AccessControl } from '@lib/auth/AccessControl';
 import { kDashboardPermissions } from './organisation/dashboard/DashboardPermissions';
+import { AdminHeaderPromoDialog } from './AdminHeaderPromoDialog';
+import { writeUserSetting } from '@lib/UserSettings';
+
+/**
+ * Number of seconds between reminders to fill in their example AI messages.
+ */
+const kPromoReminderIntervalMs = 30.25 * 24 * 60 * 60 * 1000;  // ~one month
 
 /**
  * Props accepted by the <AdminHeader> component.
@@ -37,6 +45,7 @@ interface AdminHeaderProps {
         'user-admin-experimental-dark-mode'?: boolean;
         'user-admin-experimental-responsive'?: boolean;
         'user-ai-example-messages'?: string;
+        'user-ai-example-messages-promo-time'?: number;
     };
 
     /**
@@ -86,6 +95,21 @@ export async function AdminHeader(props: AdminHeaderProps) {
     };
 
     const saveSettingsFn = updateAccountSettings.bind(null, user.id);
+
+    // ---------------------------------------------------------------------------------------------
+    // Determine whether the promotion should be shown. These will be shown at a particular interval
+    // until the user has filled in their AI example messages.
+    // ---------------------------------------------------------------------------------------------
+
+    const currentTimeEpochMs = Temporal.Now.instant().epochMilliseconds;
+    const previousPromotionEpochMs = props.settings['user-ai-example-messages-promo-time'] ?? 0;
+
+    const showPromo: boolean =
+        (currentTimeEpochMs - previousPromotionEpochMs) > kPromoReminderIntervalMs &&
+        !accountSettings.exampleMessages.length;
+
+    if (showPromo)
+        await writeUserSetting(user.id, 'user-ai-example-messages-promo-time', currentTimeEpochMs);
 
     // ---------------------------------------------------------------------------------------------
 
@@ -147,6 +171,9 @@ export async function AdminHeader(props: AdminHeaderProps) {
                     </Button> }
 
             </Stack>
+
+            { !!showPromo && <AdminHeaderPromoDialog name={user.displayName ?? user.firstName} /> }
+
         </Paper>
     );
 }
