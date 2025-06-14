@@ -1062,6 +1062,10 @@ tables:
     type: tinyint(1)
     nullable: false
     default: "0"
+  - name: anonymized
+    type: datetime
+    nullable: true
+    default: "NULL"
   - name: session_token
     type: int(4) unsigned
     nullable: false
@@ -1100,6 +1104,7 @@ tables:
       `permissions_teams` text DEFAULT NULL,
       `challenge` text DEFAULT NULL,
       `activated` tinyint(1) NOT NULL DEFAULT 0,
+      `anonymized` datetime DEFAULT NULL,
       `session_token` int(4) unsigned NOT NULL DEFAULT 1,
       PRIMARY KEY (`user_id`)
     ) ENGINE=InnoDB AUTO_INCREMENT=[Redacted by tbls] DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci

@@ -9,12 +9,14 @@ import { RecordLog, kLogSeverity, kLogType } from '@lib/Log';
 import { executeServerAction } from '@lib/serverAction';
 import { authenticateUser, getUserSessionToken, isUsernameAvailable } from '@lib/auth/Authentication';
 import { clearPageMetadataCache } from '@app/admin/lib/generatePageMetadata';
+import { nanoid } from '@lib/nanoid';
 import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
 import { sealPasswordResetRequest } from '@lib/auth/PasswordReset';
 import { setExampleMessagesForUser } from '@app/admin/lib/getExampleMessagesForUser';
 import { writeSealedSessionCookieToStore } from '@lib/auth/Session';
 import { writeUserSettings } from '@lib/UserSettings';
-import db, { tUsers, tUsersAuth } from '@lib/database';
+import db, { tFeedback, tNardoPersonalised, tOutboxEmail, tStorage, tSubscriptions, tUsers,
+    tUsersAuth } from '@lib/database';
 
 import { kAuthType } from '@lib/database/Types';
 import { kTemporalPlainDate } from '@app/api/Types';
@@ -61,6 +63,112 @@ export async function activateAccount(userId: number, formData: unknown) {
             success: true,
             message: 'Their account has been activated',
             refresh: true,
+        };
+    });
+}
+
+/**
+ * Server action that can be used to anonymize an account.
+ */
+export async function anonymizeAccount(userId: number, formData: unknown) {
+    'use server';
+
+    /**
+     * Array of accounts that cannot by anonymized. This is to protect the system in case someone
+     * goes on a rampage, which may be difficult to distinguish from a periodic prune.
+     */
+    const kUnanonymizableUserIds = [
+        /* Peter= */ 1,
+        /* Ferdi= */ 3,
+        /* Nardo= */ 4,
+    ];
+
+    return executeServerAction(formData, kNoDataRequired, async (data, props) => {
+        await requireAuthenticationContext({
+            check: 'admin',
+            permission: {
+                permission: 'organisation.accounts',
+                operation: 'delete',
+            },
+        });
+
+        if (kUnanonymizableUserIds.includes(userId))
+            return { success: false, error: 'This account is not allowed to be anonymized…' };
+
+        const dbInstance = db;
+        const uniqueHash = nanoid(8);
+
+        const affectedRows = await dbInstance.transaction(async () => {
+            const affectedRows = await db.update(tUsers)
+                .set({
+                    username: `${uniqueHash}@animecon.team`,
+                    firstName: uniqueHash,
+                    lastName: '(anonymized)',
+                    displayName: null,
+                    gender: 'Other',
+                    birthdate: null,
+                    phoneNumber: null,
+                    discordHandle: null,
+                    discordHandleUpdated: null,
+                    avatarId: null,
+                    privileges: 0n,
+                    participationSuspended: null,
+                    permissionsGrants: null,
+                    permissionsRevokes: null,
+                    permissionsEvents: null,
+                    permissionsTeams: null,
+                    challenge: null,
+                    activated: /* false= */ 0,
+                    anonymized: dbInstance.currentZonedDateTime(),
+                    sessionToken: /* sign out= */ 100,
+                })
+                .where(tUsers.userId.equals(userId))
+                .executeUpdate();
+
+            await dbInstance.update(tOutboxEmail)
+                .set({
+                    outboxTo: `${uniqueHash}@animecon.team`
+                })
+                .where(tOutboxEmail.outboxToUserId.equals(userId))
+                .executeUpdate();
+
+            await dbInstance.deleteFrom(tFeedback)
+                .where(tFeedback.userId.equals(userId))
+                .executeDelete();
+
+            await dbInstance.deleteFrom(tNardoPersonalised)
+                .where(tNardoPersonalised.nardoPersonalisedUserId.equals(userId))
+                .executeDelete();
+
+            await db.deleteFrom(tStorage)
+                .where(tStorage.userId.equals(userId))
+                .executeDelete();
+
+            await db.deleteFrom(tSubscriptions)
+                .where(tSubscriptions.subscriptionUserId.equals(userId))
+                .executeDelete();
+
+            return affectedRows;
+        });
+
+        if (!affectedRows)
+            return { success: false, error: 'The account could not be anonymized…' };
+
+        RecordLog({
+            type: kLogType.AdminAnonymizeAccount,
+            severity: kLogSeverity.Error,
+            sourceUser: props.user,
+            targetUser: userId,
+        });
+
+        // The account's information should no longer be available, so remove all cached information
+        // to avoid confusion by page titles showing otherwise permanently removed information.
+        clearPageMetadataCache('user');
+
+        return {
+            success: true,
+            message: 'The account has been anonymized successfully',
+            redirect: '/admin/organisation/accounts',
         };
     });
 }

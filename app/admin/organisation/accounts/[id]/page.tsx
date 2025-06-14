@@ -14,6 +14,7 @@ import db, { tEvents, tRoles, tTeams, tUsers, tUsersEvents } from '@lib/database
 
 import * as actions from './AccountActions';
 import { createGenerateMetadataFn } from '@app/admin/lib/generatePageMetadata';
+import { AnonymizationButton } from './AnonymizationButton';
 
 /**
  * Displays an account participation table for the user identified by the given `userId`.
@@ -83,6 +84,11 @@ export default async function AccountInformationPage(props: NextPageParams<'id'>
     if (!defaultValues)
         notFound();
 
+    const anonymizationAction =
+        access.can('organisation.accounts', 'delete')
+            ? actions.anonymizeAccount.bind(null, userId)
+            : undefined;
+
     const readOnly = !access.can('organisation.accounts', 'update');
 
     return (
@@ -95,6 +101,13 @@ export default async function AccountInformationPage(props: NextPageParams<'id'>
             </FormGrid>
             <Divider sx={{ my: 2 }} />
             <AccountParticipationTable userId={userId} />
+            { !!anonymizationAction &&
+                <>
+                    <Divider sx={{ my: 2 }} />
+                    <AnonymizationButton
+                        action={anonymizationAction}
+                        name={`${defaultValues.firstName} ${defaultValues.lastName}`} />
+                </> }
         </>
     );
 }

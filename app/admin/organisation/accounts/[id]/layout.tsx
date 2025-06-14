@@ -3,6 +3,7 @@
 
 import { notFound } from 'next/navigation';
 
+import Alert from '@mui/material/Alert';
 import Box from '@mui/material/Box';
 import CategoryIcon from '@mui/icons-material/Category';
 import Chip from '@mui/material/Chip';
@@ -55,12 +56,16 @@ export default async function AccountLayout(
             name: tUsers.name,
             firstName: tUsers.firstName,
             activated: tUsers.activated,
+            anonymized: tUsers.anonymized.isNotNull(),
             suspendedReason: tUsers.participationSuspended,
         })
         .executeSelectNoneOrOne();
 
     if (!account)
         notFound();
+
+    if (!!account.anonymized)
+        return <AnonymizedAccountLayout />;
 
     // ---------------------------------------------------------------------------------------------
     // Determine the tabs that the signed in user has access to:
@@ -159,5 +164,25 @@ export default async function AccountLayout(
                 </Box>
             </Paper>
         </>
+    );
+}
+
+/**
+ * Specific layout indicating that the user is attempting to access the page of an anonymized
+ * account. The actual information will not be shared, and instead an explanation of what's going on
+ * will be displayed.
+ */
+function AnonymizedAccountLayout() {
+    return (
+        <Paper sx={{ p: 2 }}>
+            <Typography variant="h5" sx={{ mb: 1 }}>
+                Account Anonymized
+            </Typography>
+            <Alert severity="error">
+                This account has been anonymized, meaning that all identifiable information has been
+                removed and the account is permanently disabled. As a result, the account settings
+                and controls associated with it are no longer accessible.
+            </Alert>
+        </Paper>
     );
 }

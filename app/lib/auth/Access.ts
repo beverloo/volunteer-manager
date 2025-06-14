@@ -215,7 +215,6 @@ export const kPermissions = {
             'This permission determines whether the volunteer has the ability to manage all ' +
             'known accounts, including their own. This is a dangerous permission, as access to ' +
             'PII is by necessity included in this.',
-        hide: [ 'delete' ],
         type: 'crud',
     },
 
@@ -513,6 +512,7 @@ export const kPermissionGroups: Record<string, string[]> = {
         // note: organisation.accounts:create omitted
         'organisation.accounts:read',
         'organisation.accounts:update',
+        // note: organisation.accounts:delete omitted
         'organisation.avatars',
         'organisation.displays',
         // note: organisation.environments omitted
@@ -559,6 +559,7 @@ export const kPermissionGroups: Record<string, string[]> = {
         // note: organisation.accounts:create omitted
         'organisation.accounts:read',
         // note: organisation.accounts:update omitted
+        // note: organisation.accounts:delete omitted
         'organisation.avatars',
         // note: organisation.displays omitted
         // note: organisation.environments omitted

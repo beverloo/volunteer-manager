@@ -105,6 +105,9 @@ const kLogMessageFormatter: {
     [kLogType.AdminAccessVolunteerInfo]: (source, target) => {
         return `Accessed contact information for ${target?.name}`;
     },
+    [kLogType.AdminAnonymizeAccount]: (source, target) => {
+        return `Anonymized account #${target?.userId}`;
+    },
     [kLogType.AdminClearHotelPreferences]: (source, target, { event }) => {
         return `Cleared ${target?.name}'s hotel preferences for ${event}`;
     },

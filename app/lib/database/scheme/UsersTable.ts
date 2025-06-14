@@ -36,6 +36,7 @@ export class UsersTable extends Table<DBConnection, 'UsersTable'> {
     permissionsTeams = this.optionalColumnWithDefaultValue('permissions_teams', 'string');
     challenge = this.optionalColumnWithDefaultValue('challenge', 'string');
     activated = this.columnWithDefaultValue('activated', 'int');
+    anonymized = this.optionalColumnWithDefaultValue<ZonedDateTime>('anonymized', 'customLocalDateTime', 'dateTime', TemporalTypeAdapter);
     sessionToken = this.columnWithDefaultValue('session_token', 'int');
 
     constructor() {

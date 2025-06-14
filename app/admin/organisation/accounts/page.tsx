@@ -51,6 +51,7 @@ export default async function AccountsPage() {
                     .and(usersEventsJoin.registrationStatus.equals(kRegistrationStatus.Accepted)))
             .leftJoin(teamsJoin)
                 .on(teamsJoin.teamId.equals(usersEventsJoin.teamId))
+            .where(tUsers.anonymized.isNull())
             .select({
                 id: tUsers.userId,
                 username: tUsers.username,
