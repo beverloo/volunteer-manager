@@ -119,7 +119,7 @@ export async function AdminHeader(props: AdminHeaderProps) {
                     <AdminHeaderSettingsButton saveSettingsFn={saveSettingsFn}
                                                settings={accountSettings}>
                         <Avatar src={user.avatarUrl}>
-                            {user.firstName} {user.lastName}
+                            { user.name[0] }
                         </Avatar>
                     </AdminHeaderSettingsButton>
 
