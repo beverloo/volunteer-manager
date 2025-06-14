@@ -239,7 +239,7 @@ export const { GET, PUT } = createDataTableApi(kRetentionRowModel, kRetentionCon
             .groupBy(tUsersEvents.userId, usersEventsJoin.eventId)
             .executeSelectPage();
 
-        const includeAccountLink = props.access.can('volunteer.account.information', 'read');
+        const includeAccountLink = props.access.can('organisation.accounts', 'read');
 
         const volunteerRows: RetentionRowModel[] = [];
         for (const volunteer of volunteers.data) {

@@ -19,11 +19,7 @@ export default async function VolunteersLayout(props: React.PropsWithChildren) {
         check: 'admin',
         permission: or(
             'volunteer.export',
-            'volunteer.settings.shifts',
-            {
-                permission: 'volunteer.account.information',
-                operation: 'read',
-            }),
+            'volunteer.settings.shifts'),
     });
 
     const volunteersMenu: AdminSidebarMenuEntry[] = [

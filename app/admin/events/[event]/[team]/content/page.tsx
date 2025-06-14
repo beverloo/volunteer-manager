@@ -21,7 +21,7 @@ export default async function EventContentPage(props: NextPageParams<'event' | '
     if (!team.flagManagesContent)
         notFound();
 
-    const enableAuthorLink = access.can('volunteer.account.information', 'read');
+    const enableAuthorLink = access.can('organisation.accounts', 'read');
     const pathPrefix = `/registration/${event.slug}/`;
     const scope = createEventScope(event.id, team.id);
 

@@ -69,7 +69,7 @@ export default async function EventTeamSchedulePage(props: NextPageParams<'event
     // ---------------------------------------------------------------------------------------------
 
     const enableHistoryDelete = access.can('system.logs', 'delete');
-    const enableHistoryProfileLinks = access.can('volunteer.account.information', 'read');
+    const enableHistoryProfileLinks = access.can('organisation.accounts', 'read');
 
     return (
         <>

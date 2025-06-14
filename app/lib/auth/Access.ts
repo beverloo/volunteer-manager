@@ -416,17 +416,6 @@ export const kPermissions = {
         warning: true,
     },
 
-    'volunteer.account.information': {
-        name: 'Volunteer account information',
-        description:
-            'This permission grants access to all volunteer accounts that have been created on ' +
-            'the Volunteer Manager, together with basic information in regards to their ' +
-            'participation in our events so far.',
-        hide: [ 'create', 'delete' ],  // we do not currently allow creating or deleting accounts
-        type: 'crud',
-        warning: true,
-    },
-
     'volunteer.avatars': {
         name: 'Avatar management',
         description:
@@ -568,7 +557,6 @@ export const kPermissionGroups: Record<string, string[]> = {
         'volunteer.export',
         // note: volunteer.account omitted
         // note: volunteer.account.impersonate omitted
-        'volunteer.account.information',
         'volunteer.pii',
         'volunteer.settings',
         'volunteer.silent',
@@ -607,7 +595,6 @@ export const kPermissionGroups: Record<string, string[]> = {
 
         'system.subscriptions.eligible',
 
-        'volunteer.account.information:read',
         'volunteer.avatars',
     ],
 

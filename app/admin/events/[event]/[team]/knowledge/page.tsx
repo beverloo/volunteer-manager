@@ -40,7 +40,7 @@ export default async function EventTeamFaqPage(props: NextPageParams<'event' | '
     const expandCategories = await readUserSetting(
         user.id, 'user-admin-knowledge-expand-categories');
 
-    const enableAuthorLink = access.can('volunteer.account.information', 'read');
+    const enableAuthorLink = access.can('organisation.accounts', 'read');
     const scope = createKnowledgeBaseScope(event.id);
 
     return (

@@ -143,7 +143,7 @@ export default async function EventVolunteerPage(
         'user-admin-volunteers-expand-shifts',
     ]);
 
-    const canAccessAccountInformation = access.can('volunteer.account.information', 'read');
+    const canAccessAccountInformation = access.can('organisation.accounts', 'read');
     const canUpdateApplications = access.can('event.applications', 'update', accessScope);
     const canUpdateParticipation = access.can('event.volunteers.participation', accessScope);
     const canUpdateWithoutNotification = access.can('volunteer.silent');

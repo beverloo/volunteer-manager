@@ -20,7 +20,7 @@ export default async function ContentPage() {
         permission: 'system.content',
     });
 
-    const enableAuthorLink = access.can('volunteer.account.information', 'read');
+    const enableAuthorLink = access.can('organisation.accounts', 'read');
     const scope = createGlobalScope();
 
     return (

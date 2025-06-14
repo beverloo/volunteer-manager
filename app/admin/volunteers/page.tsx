@@ -13,7 +13,7 @@ export default async function VolunteersPage() {
     await requireAuthenticationContext({
         check: 'admin',
         permission: {
-            permission: 'volunteer.account.information',
+            permission: 'organisation.accounts',
             operation: 'read',
         },
     });
