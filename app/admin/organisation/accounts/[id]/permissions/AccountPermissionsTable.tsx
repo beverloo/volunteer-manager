@@ -11,6 +11,7 @@ import type { GridColDef, GridGroupNode, GridGroupingColDefOverride, GridRowId, 
     from '@mui/x-data-grid-pro';
 import { DataGridPro } from '@mui/x-data-grid-pro';
 
+import BlockIcon from '@mui/icons-material/Block';
 import Button from '@mui/material/Button';
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
@@ -45,6 +46,11 @@ export interface AccountPermissionStatus {
      * Description associated with the permission, explaining why it does what it does.
      */
     description?: string;
+
+    /**
+     * Whether this permission is restricted for the signed in user.
+     */
+    restricted?: boolean;
 
     /**
      * The status of this permission, summarising its state.
@@ -169,20 +175,21 @@ export function AccountPermissionsTable(props: AccountPermissionsTableProps) {
 
             renderCell: params => {
                 if (!!params.value) {
-                    if (!!params.row.warning) {
-                        return (
-                            <>
-                                <Typography variant="body2" sx={{ pr: .5 }}>
-                                    {params.value}
-                                </Typography>
+                    return (
+                        <>
+                            <Typography variant="body2" sx={{ pr: .5 }}>
+                                {params.value}
+                            </Typography>
+                            { !!params.row.warning &&
                                 <Tooltip title="This is a dangerous permission">
-                                    <ReportIcon sx={{ color: 'error.main' }} fontSize="small" />
-                                </Tooltip>
-                            </>
-                        );
-                    }
-
-                    return params.value;
+                                    <ReportIcon color="error" fontSize="small" />
+                                </Tooltip> }
+                            { !!params.row.restricted &&
+                                <Tooltip title="You are not able to change this permission">
+                                    <BlockIcon color="warning" fontSize="small" sx={{ ml: 0.5 }} />
+                                </Tooltip> }
+                        </>
+                    );
                 }
 
                 return (
@@ -265,9 +272,18 @@ export function AccountPermissionsTable(props: AccountPermissionsTableProps) {
                 if (!!params.row.suffix)
                     name += params.row.suffix;
 
+                const readOnly = props.readOnly || params.row.restricted;
                 return (
-                    <CheckboxElement name={`grants[${name}]`} size="small"
-                                     color="success" sx={{ ml: 1 }} disabled={props.readOnly} />
+                    <>
+                        <CheckboxElement name={`grants[${name}]`} size="small"
+                                         color="success" sx={{ ml: 1 }}
+                                         labelProps={{
+                                             // This is a workaround for the fact that checkboxes in
+                                             // MUI don't support the `readOnly` state, despite
+                                             // advertising in TypeScript definitions that they do.
+                                             sx: { pointerEvents: readOnly ? 'none' : undefined }
+                                         }} />
+                    </>
                 );
             },
         },
@@ -293,9 +309,18 @@ export function AccountPermissionsTable(props: AccountPermissionsTableProps) {
                 if (!!params.row.suffix)
                     name += params.row.suffix;
 
+                const readOnly = props.readOnly || params.row.restricted;
                 return (
-                    <CheckboxElement name={`revokes[${name}]`} size="small"
-                                     color="error" sx={{ ml: 1 }} disabled={props.readOnly}/>
+                    <>
+                        <CheckboxElement name={`revokes[${name}]`} size="small"
+                                         color="error" sx={{ ml: 1 }}
+                                         labelProps={{
+                                             // This is a workaround for the fact that checkboxes in
+                                             // MUI don't support the `readOnly` state, despite
+                                             // advertising in TypeScript definitions that they do.
+                                             sx: { pointerEvents: readOnly ? 'none' : undefined }
+                                         }} />
+                    </>
                 );
             },
         }

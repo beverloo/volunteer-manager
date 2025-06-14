@@ -26,7 +26,7 @@ export default async function AccountPermissionsPage(props: NextPageParams<'id'>
         notFound();
 
     const readOnly = !access.can('organisation.permissions', 'update');
-    return <AccountPermissions readOnly={readOnly} userId={userId} />
+    return <AccountPermissions access={access} readOnly={readOnly} userId={userId} />
 }
 
 export const generateMetadata =

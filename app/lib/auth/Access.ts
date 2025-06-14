@@ -18,6 +18,7 @@ export const kPermissions = {
             'The root administrator role grants all permissions in the system without exception, ' +
             'providing unrestricted access. This includes read/write access to system logs and ' +
             'the ability to update permissions for other people.',
+        restrict: 'root',
         type: 'boolean',
         warning: true,
     },
@@ -251,6 +252,7 @@ export const kPermissions = {
             'This permission allows the volunteer to impersonate other accounts by signing in ' +
             'as them without needing their authentication information. Any modifications made ' +
             'while impersonating someone will be attributed to the other person!',
+        restrict: 'root',
         type: 'boolean',
         warning: true,
     },
@@ -375,6 +377,9 @@ export const kPermissions = {
             'logs contain all account activity, actions and changes that are made in the ' +
             'Volunteer Manager, without exception.',
         hide: [ 'create', 'update' ],  // logs generally should be read-only, but can be deleted
+        restrict: {
+            delete: 'root',
+        },
         type: 'crud',
         warning: true,
     },
@@ -521,7 +526,7 @@ export const kPermissions = {
  */
 export const kPermissionGroups: Record<string, string[]> = {
     root: [
-        'root',  // reflection
+        'root',  // reflection (restricted)
         'admin',  // reflection
 
         'event',
@@ -555,7 +560,7 @@ export const kPermissionGroups: Record<string, string[]> = {
         'system.internals.outbox',
         'system.internals.scheduler',
         // note: system.internals.settings omitted
-        // note: system.logs:delete omitted
+        // note: system.logs:delete omitted (restricted)
         'system.logs:read',
         'system.subscriptions',
 
@@ -591,7 +596,7 @@ export const kPermissionGroups: Record<string, string[]> = {
         // note: organisation.displays omitted
         // note: organisation.environments omitted
         'organisation.feedback',
-        // note: organisation.impersonation omitted
+        // note: organisation.impersonation omitted (restricted)
         'organisation.nardo',
         // note: organisation.permissions omitted
         // note: organisation.roles omitted
@@ -601,6 +606,7 @@ export const kPermissionGroups: Record<string, string[]> = {
         // note: statistics.finances omitted
 
         'system.subscriptions.eligible',
+
         'volunteer.account.information:read',
         'volunteer.avatars',
     ],
@@ -619,7 +625,7 @@ export const kPermissionGroups: Record<string, string[]> = {
         // note: organisation.displays omitted
         // note: organisation.environments omitted
         // note: organisation.feedback omitted
-        // note: organisation.impersonation omitted
+        // note: organisation.impersonation omitted (restricted)
         // note: organisation.nardo omitted
         // note: organisation.permissions omitted
         // note: organisation.roles omitted
@@ -629,6 +635,7 @@ export const kPermissionGroups: Record<string, string[]> = {
         // note: statistics.finances omitted
 
         'system.subscriptions.eligible',
+
         'volunteer.avatars',
     ],
 

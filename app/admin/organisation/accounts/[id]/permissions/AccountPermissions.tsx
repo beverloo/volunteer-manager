@@ -1,6 +1,7 @@
 // Copyright 2024 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
+import { notFound } from 'next/navigation';
 import { z } from 'zod/v4';
 
 import { SelectElement } from '@components/proxy/react-hook-form-mui';
@@ -10,7 +11,7 @@ import Divider from '@mui/material/Divider';
 import Grid from '@mui/material/Grid';
 import Typography from '@mui/material/Typography';
 
-import type { AccessDescriptor, AccessOperation } from '@lib/auth/AccessDescriptor';
+import type { AccessDescriptor, AccessOperation, AccessRestriction } from '@lib/auth/AccessDescriptor';
 import { AccessControl, kAnyEvent, kAnyTeam, type AccessControlParams, type AccessResult } from '@lib/auth/AccessControl';
 import { AccountPermissionsTable, type AccountPermissionStatus } from './AccountPermissionsTable';
 import { FormGrid } from '@app/admin/components/FormGrid';
@@ -58,14 +59,61 @@ const kAccountPermissionData = z.object({
 });
 
 /**
+ * Returns whether the |restriction| is in effect based on the given |access| object.
+ */
+function isRestricted(restriction: AccessRestriction, access: AccessControl): boolean {
+    switch (restriction) {
+        case 'root':
+            return !access.can('root');
+    }
+
+    throw new Error(`Unhandled permission restriction: ${restriction}`);
+}
+
+/**
+ * Validates that the given |restriction| is allowed to be overridden by the given |access| object.
+ * Doesn't return anything when passed, will throw an exception when failed.
+ */
+function validateRestriction(
+    fullPermission: string, restriction: AccessRestriction, userAccess: AccessControl,
+    existingAccess: AccessControl): void | never
+{
+    if (!isRestricted(restriction, userAccess))
+        return;  // there are no applied restrictions
+
+    const [ permission, operation ] = fullPermission.split(':');
+    if (!operation) {
+        const booleanPermission = permission as BooleanPermission;
+
+        if (existingAccess.can(booleanPermission))
+            return;  // this permission has already been granted
+
+    } else {
+        const crudPermission = permission as CRUDPermission;
+        const crudOperation = operation as AccessOperation;
+
+        if (existingAccess.can(crudPermission, crudOperation))
+            return;  // this permission has already been granted
+    }
+
+    throw new Error(`You are not able to assign the "${fullPermission}" permission`);
+}
+
+/**
  * Converts the given `input` to a list of permissions as a string. The input is expected to be
  * formatted in line with `kAccountPermissionData.grants`, which means a nested object with keys
  * indicating the permission status.
  *
+ * The given `access` control object must represent access granted to the signed in user who is
+ * making these changes. It's used to verify that permission restrictions are adhered to.
+ *
  * @example input: { event: { applications: true, visible: false }, test: { boolean: true } }
  * @example output: event.applications,test.boolean
  */
-export function toPermissionList(input: any, path?: string, permissions?: string[]): string | null {
+export function toPermissionList(
+    input: any, userAccess: AccessControl, existingAccess: AccessControl, path?: string,
+    permissions?: string[]): string | null
+{
     permissions ??= [ /* empty array */ ];
 
     if (!input || typeof input !== 'object' || Array.isArray(input))
@@ -106,12 +154,49 @@ export function toPermissionList(input: any, path?: string, permissions?: string
                 }
             }
 
-            toPermissionList(input[entry], `${permission}.`, permissions);
+            toPermissionList(
+                input[entry], userAccess, existingAccess, `${permission}.`, permissions);
         }
     }
 
-    if (isRoot && permissions.length > 0)
+    if (isRoot && permissions.length > 0) {
+        // Do an O(kn) sweep op all assigned permissions to verify that assignment restrictions are
+        // adhered to. This is an expensive operation, but is most rigorous in light of inheritance.
+        for (const fullPermission of permissions) {
+            const [ permission, operation ] = fullPermission.split(':', 2);
+
+            for (const [ verificationPermission, descriptor ] of Object.entries(kPermissions)) {
+                if (!verificationPermission.startsWith(permission))
+                    continue;  // not relevant for the current |permission|
+
+                if (!('restrict' in descriptor))
+                    continue;  // the |verificationPermission| has no restrictions
+
+                if (typeof descriptor.restrict === 'string') {
+                    validateRestriction(
+                        fullPermission, descriptor.restrict, userAccess, existingAccess);
+                } else {
+                    for (const verificationOperation of [ 'create', 'read', 'update', 'delete' ]) {
+                        if (!(verificationOperation in descriptor.restrict))
+                            continue;  // the |verificationOperation| has no restrictions
+
+                        if (!!operation && operation !== verificationOperation)
+                            continue;  // the |verificationOperation| is not relevant
+
+                        const typedVerificationOperation =
+                            verificationOperation as keyof typeof descriptor.restrict;
+
+                        validateRestriction(
+                            `${verificationPermission}:${verificationOperation}`,
+                            descriptor.restrict[typedVerificationOperation],
+                            userAccess, existingAccess);
+                    }
+                }
+            }
+        }
+
         return permissions.join(',');
+    }
 
     return null;
 }
@@ -125,13 +210,38 @@ async function updateAccountPermissions(userId: number, formData: unknown) {
         if (!props.access.can('organisation.permissions', 'update'))
             return { success: false, error: 'You are not able to update permissions' };
 
-        let grants: string | null = null;
-        if (!!data.grants)
-            grants = toPermissionList(data.grants);
+        const existingAccessInfo = await db.selectFrom(tUsers)
+            .where(tUsers.userId.equals(userId))
+            .select({
+                id: tUsers.userId,  // to ensure that an object is returned
 
+                grants: tUsers.permissionsGrants,
+                revokes: tUsers.permissionsRevokes,
+                events: tUsers.permissionsEvents,
+                teams: tUsers.permissionsTeams,
+            })
+            .executeSelectNoneOrOne();
+
+        if (!existingAccessInfo)
+            notFound();
+
+        const existingAccess = new AccessControl(existingAccessInfo);
+        if (existingAccess.can('root') && !props.access.can('root'))
+            return { success: false, error: 'You are not allowed to update these permissions…' };
+
+        let grants: string | null = null;
         let revokes: string | null = null;
-        if (!!data.revokes)
-            revokes = toPermissionList(data.revokes);
+
+        try {
+            if (!!data.grants)
+                grants = toPermissionList(data.grants, props.access, existingAccess);
+
+            if (!!data.revokes)
+                revokes = toPermissionList(data.revokes, props.access, existingAccess);
+
+        } catch (error: any) {
+            return { success: false, error: error.message };
+        }
 
         let events: string | null = null;
         if (!!data.events.length)
@@ -210,6 +320,11 @@ function maybeUpgradePermissionStatus(
  * Props accepted by the <AccountPermissions> component.
  */
 interface AccountPermissionsProps {
+    /**
+     * Access control object representing the signed in user.
+     */
+    access: AccessControl;
+
     /**
      * Whether the permissions should be displayed as read-only.
      */
@@ -352,6 +467,9 @@ export async function AccountPermissions(props: AccountPermissionsProps) {
             warning: !!descriptor.warning,
         };
 
+        if (typeof descriptor.restrict === 'string')
+            permission.restricted = isRestricted(descriptor.restrict, props.access);
+
         if (descriptor.type === 'boolean') {
             const booleanPermission = name as BooleanPermission;
 
@@ -381,6 +499,7 @@ export async function AccountPermissions(props: AccountPermissionsProps) {
                 const childPermission: AccountPermissionStatus = {
                     id: `${name}.${operation}`,
                     name: `${uppercaseFirst(operation)} ${lowercaseFirst(descriptor.name)}`,
+                    restricted: !!permission.restricted,
                     status: {
                         account:
                             userAccessControl.query(crudPermission, operation, defaultOptions),
@@ -388,6 +507,13 @@ export async function AccountPermissions(props: AccountPermissionsProps) {
                             roleAccessControl.query(crudPermission, operation, defaultOptions),
                     },
                 };
+
+                if (typeof descriptor.restrict === 'object' && operation in descriptor.restrict) {
+                    if (!!descriptor.restrict[operation]) {
+                        childPermission.restricted =
+                            isRestricted(descriptor.restrict[operation], props.access);
+                    }
+                }
 
                 permission.status.account = maybeUpgradePermissionStatus(
                     permission.status.account, childPermission.status.account);
@@ -424,6 +550,9 @@ export async function AccountPermissions(props: AccountPermissionsProps) {
 
     // ---------------------------------------------------------------------------------------------
 
+    const outranks = userAccessControl.can('root') && !props.access.can('root');
+    const readOnly = props.readOnly || outranks;
+
     return (
         <FormGrid action={action} defaultValues={defaultValues}>
             <Grid size={{ xs: 12 }}>
@@ -435,6 +564,14 @@ export async function AccountPermissions(props: AccountPermissionsProps) {
                 </SectionIntroduction>
             </Grid>
 
+            { outranks &&
+                <Grid size={{ xs: 12 }}>
+                    <Alert severity="error">
+                        This account has higher permissions than yours, so you won't be able to
+                        change their permission settings.
+                    </Alert>
+                </Grid> }
+
             <Grid size={{ xs: 2 }}>
                 <Typography variant="body2" sx={{ pt: 1.25 }}>
                     Global event access:
@@ -443,7 +580,7 @@ export async function AccountPermissions(props: AccountPermissionsProps) {
             <Grid size={{ xs: 10 }}>
                 <SelectElement name="events" label="Event access" SelectProps={{ multiple: true }}
                                options={eventsOptions} size="small" fullWidth
-                               disabled={props.readOnly} />
+                               disabled={readOnly} />
             </Grid>
 
             <Grid size={{ xs: 2 }}>
@@ -454,11 +591,11 @@ export async function AccountPermissions(props: AccountPermissionsProps) {
             <Grid size={{ xs: 10 }}>
                 <SelectElement name="teams" label="Team access" SelectProps={{ multiple: true }}
                                options={teamsOptions} size="small" fullWidth
-                               disabled={props.readOnly} />
+                               disabled={readOnly} />
             </Grid>
 
             <Grid size={{ xs: 12 }}>
-                <AccountPermissionsTable permissions={permissions} readOnly={props.readOnly} />
+                <AccountPermissionsTable permissions={permissions} readOnly={readOnly} />
             </Grid>
 
             { !!userConfiguration?.events.length &&

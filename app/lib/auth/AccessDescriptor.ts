@@ -7,6 +7,11 @@
 export type AccessOperation = 'create' | 'read' | 'update' | 'delete';
 
 /**
+ * Type of access restrictions that can be put on a descriptor.
+ */
+export type AccessRestriction = 'root';
+
+/**
  * Describes a permission available in the Volunteer Manager. Permissions must have a type, a name
  * and a description, and can optionally have additional metadata associated too.
  */
@@ -38,6 +43,11 @@ export interface AccessDescriptor {
      * granted. May be set to `kAnyTeam` to pass when access to any team been granted.
      */
     requireTeam?: boolean;
+
+    /**
+     * Restrictions that should be placed on visibility of this permission.
+     */
+    restrict?: AccessRestriction | { [key in AccessOperation]?: AccessRestriction };
 
     /**
      * Whether the permission is either granted or not granted ("boolean"), or has additional
