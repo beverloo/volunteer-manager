@@ -41,15 +41,14 @@ export class ImportYourTicketProviderTask extends Task {
     /**
      * The default interval for the import task, when no precise granularity can be decided upon.
      */
-    static readonly kIntervalMaximum = /* 2 days= */ 2 * 24 * 3600 * 1000;
+    static readonly kIntervalMaximum = /* 1 day= */ 1 * 24 * 3600 * 1000;
 
     /**
      * Intervals for the tasks based on the number of days until the event happens.
      */
     static readonly kIntervalConfiguration = [
         { maximumDays: /* 4 weeks= */   28, intervalMs: /* 6 hours= */   6 * 3600 * 1000 },
-        { maximumDays: /* 8 weeks= */   56, intervalMs: /* 12 hours= */ 12 * 3600 * 1000 },
-        { maximumDays: /* 24 weeks= */ 168, intervalMs: /* 24 hours= */ 24 * 3600 * 1000 },
+        { maximumDays: /* 12 weeks= */  84, intervalMs: /* 12 hours= */ 12 * 3600 * 1000 },
     ];
 
     /**
