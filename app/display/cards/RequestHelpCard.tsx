@@ -26,6 +26,7 @@ import { DisplayContext } from '../DisplayContext';
 import { callApi } from '@lib/callApi';
 
 import { kDisplayHelpRequestStatus, kDisplayHelpRequestTarget } from '@lib/database/Types';
+import { kThemeImageVersion } from '@app/config';
 
 /**
  * Props accepted by the <RequestHelpButton> component.
@@ -150,7 +151,7 @@ export function RequestHelpCard(props: RequestHelpCardProps) {
     return (
         <Paper>
             <Box sx={{
-                backgroundImage: 'url(/images/request-help.jpg?2025)',
+                backgroundImage: `url(/images/theme/request-help.jpg?${kThemeImageVersion})`,
                 backgroundPosition: 'center',
                 backgroundSize: 'cover',
                 borderTopLeftRadius: theme => theme.shape.borderRadius,

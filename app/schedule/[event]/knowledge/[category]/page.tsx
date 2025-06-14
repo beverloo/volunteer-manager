@@ -21,6 +21,7 @@ import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
 import db, { tContent, tContentCategories } from '@lib/database';
 
 import { kContentType } from '@lib/database/Types';
+import { kThemeImageVersion } from '@app/config';
 
 /**
  * The <ScheduleKnowledgeCategoryPage> component displays a list of all questions within a given
@@ -67,7 +68,8 @@ export default async function ScheduleKnowledgeCategoryPage(
             <SetTitle title={category.title} />
             <HeaderSectionCard>
                 <Box sx={{
-                    backgroundImage: 'url(/images/knowledge-base-category.jpg?2025)',
+                    backgroundImage:
+                        `url(/images/theme/knowledge-base-category.jpg?${kThemeImageVersion})`,
                     backgroundPosition: 'center',
                     backgroundSize: 'cover',
                     width: '100%',

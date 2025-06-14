@@ -9,6 +9,8 @@ import { HeaderSectionCard } from '../components/HeaderSectionCard';
 import { SetTitle } from '../components/SetTitle';
 import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
 
+import { kThemeImageVersion } from '@app/config';
+
 /**
  * The <AdvicePage> component describes the page that's able to generate personalised advice for the
  * volunteer, based on the latest piece of Del a Rie Advice and the volunteer's circumstances. The
@@ -23,7 +25,9 @@ export default async function AdvicePage(props: NextPageParams<'event'>) {
             <SetTitle title="Del a Rie Advies" />
             <HeaderSectionCard>
                 <Box sx={{
-                    backgroundImage: 'url(/images/del-a-rie-advies-personalised.jpg?2025)',
+                    backgroundImage:
+                        'url(/images/theme/del-a-rie-advies-personalised.jpg?' +
+                        `${kThemeImageVersion})`,
                     backgroundPosition: 'center',
                     backgroundSize: 'cover',
                     width: '100%',

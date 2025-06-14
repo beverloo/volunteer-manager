@@ -8,6 +8,8 @@ import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import Typography from '@mui/material/Typography';
 
+import { kThemeImageVersion } from '@app/config';
+
 /**
  * The <JobCompletedCard> displays a card that celebrates that the volunteer has no further work to
  * do, and that they've helped out tremendously well.
@@ -16,7 +18,7 @@ export function JobCompletedCard() {
     return (
         <Card>
             <Box sx={{
-                backgroundImage: 'url(/images/job-completed.jpg?2025)',
+                backgroundImage: `url(/images/theme/job-completed.jpg?${kThemeImageVersion})`,
                 backgroundPosition: 'center',
                 backgroundSize: 'cover',
                 display: 'flex',

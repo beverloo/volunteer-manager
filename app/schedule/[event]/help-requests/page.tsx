@@ -35,6 +35,8 @@ import { getEventBySlug } from '@lib/EventLoader';
 import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
 import db, { tDisplays, tDisplaysRequests, tUsers } from '@lib/database';
 
+import { kThemeImageVersion } from '@app/config';
+
 /**
  * Props accepted by the <HelpRequestSummary> component.
  */
@@ -206,7 +208,7 @@ export default async function ScheduleHelpRequestsPage(props: NextPageParams<'ev
             <SetTitle title="Help Requests" />
             <HeaderSectionCard>
                 <Box sx={{
-                    backgroundImage: 'url(/images/help-requests.jpg?2025)',
+                    backgroundImage: `url(/images/theme/help-requests.jpg?${kThemeImageVersion})`,
                     backgroundPosition: 'center',
                     backgroundSize: 'cover',
                     width: '100%',

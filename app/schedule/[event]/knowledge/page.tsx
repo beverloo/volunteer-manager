@@ -9,6 +9,8 @@ import { KnowledgeBaseCategories } from './KnowledgeBaseCategories';
 import { generateScheduleMetadataFn } from '../lib/generateScheduleMetadataFn';
 import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
 
+import { kThemeImageVersion } from '@app/config';
+
 /**
  * The <ScheduleKnowledgePage> component displays a list of categories available in the knowledge
  * base, each of which links through to a page containing all associated questions.
@@ -19,7 +21,7 @@ export default async function ScheduleKnowledgePage(props: NextPageParams<'event
         <>
             <HeaderSectionCard>
                 <Box sx={{
-                    backgroundImage: 'url(/images/knowledge-base.jpg?2025)',
+                    backgroundImage: `url(/images/theme/knowledge-base.jpg?${kThemeImageVersion})`,
                     backgroundPosition: 'center',
                     backgroundSize: 'cover',
                     width: '100%',

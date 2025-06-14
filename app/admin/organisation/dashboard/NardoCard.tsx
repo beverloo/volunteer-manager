@@ -10,6 +10,8 @@ import { Temporal } from '@lib/Temporal';
 import { readSetting } from '@lib/Settings';
 import db, { tNardo } from '@lib/database';
 
+import { kThemeImageVersion } from '@app/config';
+
 /**
  * Props accepted by the <NardoCard> component.
  */
@@ -43,7 +45,7 @@ export async function NardoCard(props: NardoCardProps) {
         <Card>
             { !!props.header &&
                 <CardMedia component="img" height="150" alt="Del a Rie Advies"
-                           image="/images/del-a-rie-advies-2.jpg" /> }
+                           image={`/images/theme/del-a-rie-advies.jpg?${kThemeImageVersion}`} /> }
             <CardContent sx={{ pb: '16px !important' }}>
                 <Typography variant="body2" sx={{ color: 'text.secondary' }}>
                     {advice}

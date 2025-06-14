@@ -13,6 +13,8 @@ import ReadMoreIcon from '@mui/icons-material/ReadMore';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 
+import { kThemeImageVersion } from '@app/config';
+
 /**
  * Props accepted by the <KnowledgeBaseCard> component.
  */
@@ -32,7 +34,8 @@ export function KnowledgeBaseCard(props: KnowledgeBaseCardProps) {
         <Card>
             <CardActionArea LinkComponent={Link} href={`/schedule/${props.slug}/knowledge`}>
                 <Box sx={{
-                    backgroundImage: 'url(/images/knowledge-base-category.jpg?2025)',
+                    backgroundImage:
+                        `url(/images/theme/knowledge-base-category.jpg?${kThemeImageVersion})`,
                     backgroundPosition: 'center',
                     backgroundSize: 'cover',
                     width: '100%',

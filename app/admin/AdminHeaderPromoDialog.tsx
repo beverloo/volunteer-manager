@@ -13,6 +13,8 @@ import DialogContent from '@mui/material/DialogContent';
 import Divider from '@mui/material/Divider';
 import Typography from '@mui/material/Typography';
 
+import { kThemeImageVersion } from '@app/config';
+
 /**
  * Props accepted by the <AdminHeaderPromoDialog> component.
  */
@@ -36,7 +38,7 @@ export function AdminHeaderPromoDialog(props: AdminHeaderPromoDialogProps) {
         <Dialog open={dialogOpen} onClose={handleDialogClose} fullWidth>
             <Box sx={{
                 aspectRatio: 3.25,
-                backgroundImage: 'url(/images/admin/ai-promo.jpg)',
+                backgroundImage: `url(/images/theme/ai-promo.jpg?${kThemeImageVersion})`,
                 backgroundPosition: 'center center',
 
             }} />

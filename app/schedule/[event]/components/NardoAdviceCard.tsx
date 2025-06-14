@@ -12,6 +12,8 @@ import CardActionArea from '@mui/material/CardActionArea';
 import CardContent from '@mui/material/CardContent';
 import Typography from '@mui/material/Typography';
 
+import { kThemeImageVersion } from '@app/config';
+
 /**
  * Props accepted by the <NardoAdviceClickthroughContainer> component.
  */
@@ -66,7 +68,8 @@ export function NardoAdviceCard(props: NardoAdviceCardProps) {
         <Card>
             <NardoAdviceClickthroughContainer {...containerProps}>
                 <Box sx={{
-                    backgroundImage: 'url(/images/del-a-rie-advies-2.jpg?2025)',
+                    backgroundImage:
+                        `url(/images/theme/del-a-rie-advies.jpg?${kThemeImageVersion})`,
                     backgroundPosition: 'center 70%',
                     backgroundSize: 'cover',
                     display: 'flex',

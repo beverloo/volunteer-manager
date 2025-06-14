@@ -7,6 +7,8 @@ import Box from '@mui/material/Box';
 import Paper from '@mui/material/Paper';
 import Typography from '@mui/material/Typography';
 
+import { kThemeImageVersion } from '@app/config';
+
 /**
  * Props accepted by the <AdviceCard> component.
  */
@@ -25,7 +27,8 @@ export function AdviceCard(props: AdviceCardProps) {
     return (
         <Paper>
             <Box sx={{
-                backgroundImage: 'url(/images/del-a-rie-advies-display.jpg?2025)',
+                backgroundImage:
+                    `url(/images/theme/del-a-rie-advies-display.jpg?${kThemeImageVersion})`,
                 backgroundPosition: 'center',
                 backgroundSize: 'cover',
                 borderTopLeftRadius: theme => theme.shape.borderRadius,
