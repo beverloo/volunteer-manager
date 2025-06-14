@@ -407,15 +407,6 @@ export const kPermissions = {
     // Volunteer-associated permissions
     // ---------------------------------------------------------------------------------------------
 
-    'volunteer.account': {
-        name: 'Account management',
-        description:
-            'This permission grants full account management capabilities, including the ability ' +
-            'update and reset passwords, impersonate users and disable their accounts.',
-        type: 'boolean',
-        warning: true,
-    },
-
     'volunteer.avatars': {
         name: 'Avatar management',
         description:
@@ -545,8 +536,6 @@ export const kPermissionGroups: Record<string, string[]> = {
 
         'volunteer.avatars',
         'volunteer.export',
-        // note: volunteer.account omitted
-        // note: volunteer.account.impersonate omitted
         'volunteer.settings',
         'volunteer.silent',
     ],
