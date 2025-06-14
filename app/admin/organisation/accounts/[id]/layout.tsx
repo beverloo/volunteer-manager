@@ -18,6 +18,7 @@ import Typography from '@mui/material/Typography';
 import type { NextLayoutParams } from '@lib/NextRouterParams';
 import type { ServerAction } from '@lib/serverAction';
 import { AccountHeaderActions } from './AccountHeaderActions';
+import { AccountRestrictedChip } from './AccountRestrictedChip';
 import { NavigationTabs, type NavigationTabsProps } from '@app/admin/components/NavigationTabs';
 import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
 import db, { tUsers } from '@lib/database';
@@ -136,9 +137,8 @@ export default async function AccountLayout(
                             <Chip color="error" size="small" label="not activated" />
                         </Tooltip> }
                     { !!account.suspendedReason &&
-                        <Tooltip title="Their applications cannot be accepted">
-                            <Chip color="warning" size="small" label="restricted" />
-                        </Tooltip> }
+                        <AccountRestrictedChip name={account.firstName}
+                                               reason={account.suspendedReason} /> }
                 </Stack>
                 <AccountHeaderActions
                     firstName={account.firstName}

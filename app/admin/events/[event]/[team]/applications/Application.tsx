@@ -9,17 +9,11 @@ import { useRouter } from 'next/navigation';
 
 import { SelectElement } from '@components/proxy/react-hook-form-mui';
 
-import Alert from '@mui/material/Alert';
 import Button from '@mui/material/Button';
 import CardActions from '@mui/material/CardActions';
 import CardContent from '@mui/material/CardContent';
 import CardHeader from '@mui/material/CardHeader';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
-import Chip from '@mui/material/Chip';
-import Dialog from '@mui/material/Dialog';
-import DialogActions from '@mui/material/DialogActions';
-import DialogContent from '@mui/material/DialogContent';
-import DialogTitle from '@mui/material/DialogTitle';
 import Divider from '@mui/material/Divider';
 import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
 import IconButton from '@mui/material/IconButton';
@@ -38,6 +32,7 @@ import TransferWithinAStationIcon from '@mui/icons-material/TransferWithinAStati
 import Typography from '@mui/material/Typography';
 
 import type { ServerAction } from '@lib/serverAction';
+import { AccountRestrictedChip } from '@app/admin/organisation/accounts/[id]/AccountRestrictedChip';
 import { Avatar } from '@components/Avatar';
 import { CommunicationDialog } from '@app/admin/components/CommunicationDialog';
 import { ServerActionDialog } from '@app/admin/components/ServerActionDialog';
@@ -264,10 +259,6 @@ export function Application(props: ApplicationProps) {
 
     const router = useRouter();
 
-    // TODO: Support the `move` action
-
-    // ---------------------------------------------------------------------------------------------
-
     const information: ApplicationBulletPoint[] = [
         composeParticipationHistoryBulletPoint(application),
         composeTimingPreferenceBulletPoint(application),
@@ -330,8 +321,6 @@ export function Application(props: ApplicationProps) {
     const [ approveOpen, setApproveOpen ] = useState<boolean>(false);
     const [ rejectEverOpen, setRejectEverOpen ] = useState<boolean>(false);
     const [ rejectOpen, setRejectOpen ] = useState<boolean>(false);
-    const [ suspendEverOpen, setSuspendEverOpen ] = useState<boolean>(false);
-    const [ suspendOpen, setSuspendOpen ] = useState<boolean>(false);
 
     const processResponse = useCallback(async (
         serverFn: ServerAction, subject?: string, message?: string) =>
@@ -379,12 +368,6 @@ export function Application(props: ApplicationProps) {
         return await processResponse(props.rejectFn!, subject, message);
     }, [ processResponse, props.rejectFn ]);
 
-    const handleSuspendClose = useCallback(() => setSuspendOpen(false), [ /* no dependencies */ ]);
-    const handleSuspendOpen = useCallback(() => {
-        setSuspendEverOpen(true);
-        setSuspendOpen(true);
-    }, [ /* no dependencies */ ]);
-
     // ---------------------------------------------------------------------------------------------
 
     const avatarUrl = application.avatar ? `/blob/${application.avatar}.png` : undefined;
@@ -420,8 +403,9 @@ export function Application(props: ApplicationProps) {
                         <Divider />
                         <CardActions disableSpacing sx={{ justifyContent: 'flex-end', gap: 2 }}>
                             { !!application.suspended &&
-                                <Chip color="error" label="restricted" size="small" clickable
-                                      onClick={handleSuspendOpen} sx={{ ml: 1, mr: 'auto' }} /> }
+                                <AccountRestrictedChip name={application.firstName}
+                                                       reason={application.suspended}
+                                                       sx={{ ml: 1, mr: 'auto' }} /> }
                             { !!props.rejectFn &&
                                 <Button size="small" color="error" startIcon={ <ThumbDownIcon /> }
                                         onClick={handleRejectOpen}>
@@ -486,27 +470,6 @@ export function Application(props: ApplicationProps) {
                                              event, team,
                                          },
                                      }} onSubmit={handleRejected} /> }
-
-            { !!suspendEverOpen &&
-                <Dialog open={suspendOpen} onClose={handleSuspendClose} fullWidth>
-                    <DialogTitle>
-                        This account has been restricted
-                    </DialogTitle>
-                    <DialogContent>
-                        <Typography>
-                            Applications made by <strong>{application.firstName} </strong> have been
-                            restricted from being approved. This cannot be overridden without
-                            removing the restriction.
-                        </Typography>
-                        <Alert severity="warning" sx={{ mt: 2 }}>
-                            <strong>Reason for the restriction</strong>: {application.suspended}
-                        </Alert>
-                    </DialogContent>
-                    <DialogActions sx={{ pt: 0, mr: 2, mb: 1.5 }}>
-                        <Button onClick={handleSuspendClose} variant="text">Close</Button>
-                    </DialogActions>
-                </Dialog> }
-
         </>
     );
 }
