@@ -219,6 +219,14 @@ export const kPermissions = {
         type: 'crud',
     },
 
+    'organisation.avatars': {
+        name: 'Avatar management',
+        description:
+            'This permission controls whether they have the ability to manage avatars of other ' +
+            'accounts, i.e. update new photos or delete existing ones.',
+        type: 'boolean',
+    },
+
     'organisation.displays': {
         name: 'Display management',
         description:
@@ -407,14 +415,6 @@ export const kPermissions = {
     // Volunteer-associated permissions
     // ---------------------------------------------------------------------------------------------
 
-    'volunteer.avatars': {
-        name: 'Avatar management',
-        description:
-            'This permission controls whether they have the ability to manage avatars of other ' +
-            'volunteers, i.e. update new photos or delete existing ones.',
-        type: 'boolean',
-    },
-
     'volunteer.export': {
         name: 'Export volunteering information',
         description:
@@ -513,6 +513,7 @@ export const kPermissionGroups: Record<string, string[]> = {
         // note: organisation.accounts:create omitted
         'organisation.accounts:read',
         'organisation.accounts:update',
+        'organisation.avatars',
         'organisation.displays',
         // note: organisation.environments omitted
         'organisation.feedback',
@@ -534,9 +535,8 @@ export const kPermissionGroups: Record<string, string[]> = {
         'system.logs:read',
         'system.subscriptions',
 
-        'volunteer.avatars',
         'volunteer.export',
-        'volunteer.settings',
+        'volunteer.settings.shifts',
         'volunteer.silent',
     ],
 
@@ -559,6 +559,7 @@ export const kPermissionGroups: Record<string, string[]> = {
         // note: organisation.accounts:create omitted
         'organisation.accounts:read',
         // note: organisation.accounts:update omitted
+        'organisation.avatars',
         // note: organisation.displays omitted
         // note: organisation.environments omitted
         'organisation.feedback',
@@ -573,7 +574,9 @@ export const kPermissionGroups: Record<string, string[]> = {
 
         'system.subscriptions.eligible',
 
-        'volunteer.avatars',
+        // note: volunteer.export omitted
+        // note: volunteer.settings.shifts omitted
+        // note: volunteer.silent omitted
     ],
 
     senior: [
@@ -587,6 +590,7 @@ export const kPermissionGroups: Record<string, string[]> = {
         'event.volunteers.information',
 
         // note: organisation.accounts omitted
+        'organisation.avatars',
         // note: organisation.displays omitted
         // note: organisation.environments omitted
         // note: organisation.feedback omitted
@@ -601,7 +605,9 @@ export const kPermissionGroups: Record<string, string[]> = {
 
         'system.subscriptions.eligible',
 
-        'volunteer.avatars',
+        // note: volunteer.export omitted
+        // note: volunteer.settings.shifts omitted
+        // note: volunteer.silent omitted
     ],
 
     testgroup: [ 'test' ],  // for testing purposes only

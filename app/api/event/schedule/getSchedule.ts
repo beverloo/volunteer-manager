@@ -912,7 +912,7 @@ export async function getSchedule(request: Request, props: ActionProps): Promise
         slug: event.slug,
         config: {
             activityListLimit: settings['schedule-activity-list-limit'] ?? 5,
-            enableAvatarManagement: access.can('volunteer.avatars'),
+            enableAvatarManagement: access.can('organisation.avatars'),
             enableFavourites: settings['schedule-favourite-events'] ?? false,
             enableGeneratedAdvice: settings['schedule-del-a-rie-advies-genai'] ?? false,
             enableHelpRequests: access.can('event.help-requests', { event: event.slug }),
