@@ -133,7 +133,7 @@ export default async function EventVolunteerPage(
     if (!volunteer)
         notFound();
 
-    const contactAccess = access.can('volunteer.pii') || access.can('volunteer.account');
+    const contactAccess = access.can('organisation.accounts', 'read');
     const contactInfo =
         contactAccess ? { username: volunteer.username, phoneNumber: volunteer.phoneNumber }
                       : undefined;

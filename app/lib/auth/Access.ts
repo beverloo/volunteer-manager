@@ -434,16 +434,6 @@ export const kPermissions = {
         warning: true,
     },
 
-    'volunteer.pii': {
-        name: 'Volunteer contact information',
-        description:
-            'This permission determines whether this volunteer is able to access all contact ' +
-            'information without their access being on demand. This is generally inadvisable as ' +
-            'the confirmation is lightweight.',
-        type: 'boolean',
-        warning: true,
-    },
-
     'volunteer.settings.shifts': {
         name: 'Shift category settings',
         description:
@@ -557,7 +547,6 @@ export const kPermissionGroups: Record<string, string[]> = {
         'volunteer.export',
         // note: volunteer.account omitted
         // note: volunteer.account.impersonate omitted
-        'volunteer.pii',
         'volunteer.settings',
         'volunteer.silent',
     ],

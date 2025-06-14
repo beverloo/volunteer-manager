@@ -26,7 +26,7 @@ export function hasAccessToExport(type: ExportType, access: AccessControl): bool
 
         case kExportType.Discord:
         case kExportType.WhatsApp:
-            return access.can('volunteer.pii');
+            return access.can('organisation.accounts', 'read');
     }
 
     throw new Error(`Unrecognised export type: "${type}"`);
