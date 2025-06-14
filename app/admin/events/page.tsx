@@ -35,6 +35,7 @@ export default async function EventsPage() {
     const unfilteredEvents = await dbInstance.selectFrom(tEvents)
         .leftJoin(eventsTeamsJoin)
             .on(eventsTeamsJoin.eventId.equals(tEvents.eventId))
+                .and(eventsTeamsJoin.enableTeam.equals(/* true= */ 1))
         .leftJoin(teamsJoin)
             .on(teamsJoin.teamId.equals(eventsTeamsJoin.teamId))
         .select({
