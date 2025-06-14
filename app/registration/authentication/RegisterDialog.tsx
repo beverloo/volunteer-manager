@@ -7,6 +7,7 @@ import { useState } from 'react';
 import { type FieldValues, CheckboxElement, FormContainer } from '@proxy/react-hook-form-mui';
 
 import { default as MuiLink } from '@mui/material/Link';
+import Alert from '@mui/material/Alert';
 import Button from '@mui/material/Button';
 import Collapse from '@mui/material/Collapse';
 import DialogActions from '@mui/material/DialogActions';
@@ -102,9 +103,9 @@ export function RegisterDialog(props: RegisterDialogProps) {
                     allow you to apply as a volunteer to one of the AnimeCon festivals.
                 </DialogContentText>
                 <Collapse in={!!error}>
-                    <DialogContentText sx={{ paddingTop: 1 }} color="error">
+                    <Alert severity="error" sx={{ my: 1 }}>
                         {error}
-                    </DialogContentText>
+                    </Alert>
                 </Collapse>
                 <Grid container spacing={2} sx={{ pt: 2 }}>
                     <RegisterForm />
@@ -114,7 +115,7 @@ export function RegisterDialog(props: RegisterDialogProps) {
                                        autoComplete="new-password" />
                     </Grid>
                     <Grid size={{ xs: 12 }} sx={{ pt: 0 }}>
-                        <CheckboxElement name="gdpr" size="small" label={gdprLabel} required />
+                        <CheckboxElement name="gdpr" size="small" label={gdprLabel} />
                     </Grid>
                 </Grid>
             </DialogContent>

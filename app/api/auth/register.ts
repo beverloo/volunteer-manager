@@ -59,8 +59,9 @@ export const kRegisterDefinition = z.object({
 
         /**
          * Whether the user has accepted the terms of our privacy policy.
+         * TODO: s/optional// when moving this to a Server Action
          */
-        gdpr: z.boolean(),
+        gdpr: z.boolean().optional(),
 
         /**
          * Optional URL to which the user should be redirected after they confirm their e-mail
