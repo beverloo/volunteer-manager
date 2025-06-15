@@ -1,0 +1,32 @@
+// Copyright 2025 Peter Beverloo & AnimeCon. All rights reserved.
+// Use of this source code is governed by a MIT license that can be found in the LICENSE file.
+
+import type { FinanceProcessor } from '../FinanceProcessor';
+import { KeyMetricCard } from './KeyMetricCard';
+
+/**
+ * Props accepted by the <EventSalesCard> component.
+ */
+interface EventSalesCardProps {
+    /**
+     * The financial processor that contains the relevant ticket sale information.
+     */
+    processor: FinanceProcessor;
+}
+
+/**
+ * The <EventSalesCard> component displays the event ticket sales (volume) KPI card.
+ */
+export function EventSalesCard(props: EventSalesCardProps) {
+    const view = props.processor.eventTicketSalesView;
+
+    const headline = view.shift()!;
+    const historical = view;
+
+    return (
+        <KeyMetricCard title="Event ticket sales" format="quantity" headline={headline}
+                       historical={historical} subject="tickets">
+            Graph
+        </KeyMetricCard>
+    );
+}
