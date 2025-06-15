@@ -61,7 +61,7 @@
     "set.prototype.symmetricdifference": "^1.1.3",
     "swr": "^2.3.3",
     "temporal-polyfill": "^0.3.0",
-    "ts-sql-query": "^1.65.0",
+    "ts-sql-query": "^1.66.0",
     "twilio": "^5.7.1",
     "uuid": "^11.1.0",
     "zod": "^3.25.64"
