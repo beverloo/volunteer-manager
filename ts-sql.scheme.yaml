@@ -1,5 +1,208 @@
 name: anime
 tables:
+- name: users_events
+  type: BASE TABLE
+  columns:
+  - name: user_id
+    type: int(4) unsigned
+    nullable: false
+  - name: event_id
+    type: int(4) unsigned
+    nullable: false
+  - name: team_id
+    type: int(4) unsigned
+    nullable: false
+  - name: role_id
+    type: int(4) unsigned
+    nullable: false
+  - name: registration_date
+    type: datetime
+    nullable: true
+    default: "NULL"
+  - name: registration_status
+    type: enum('Registered','Cancelled','Accepted','Rejected')
+    nullable: false
+    default: "'Registered'"
+  - name: registration_notes
+    type: text
+    nullable: true
+    default: "NULL"
+  - name: shirt_fit
+    type: enum('Regular','Girly')
+    nullable: false
+    default: "'Regular'"
+  - name: shirt_size
+    type: enum('XS','S','M','L','XL','XXL','3XL','4XL')
+    nullable: true
+    default: "NULL"
+  - name: hotel_eligible
+    type: tinyint(1) unsigned
+    nullable: true
+    default: "NULL"
+  - name: training_eligible
+    type: tinyint(1) unsigned
+    nullable: true
+    default: "NULL"
+  - name: availability_build_up
+    type: text
+    nullable: true
+    default: "NULL"
+  - name: availability_tear_down
+    type: text
+    nullable: true
+    default: "NULL"
+  - name: availability_event_limit
+    type: int(8) unsigned
+    nullable: true
+    default: "NULL"
+  - name: availability_exceptions
+    type: text
+    nullable: true
+    default: "NULL"
+  - name: availability_timeslots
+    type: text
+    nullable: true
+    default: "NULL"
+  - name: preference_hours
+    type: int(4) unsigned
+    nullable: true
+    default: "NULL"
+  - name: preference_timing_start
+    type: int(4) unsigned
+    nullable: true
+    default: "NULL"
+  - name: preference_timing_end
+    type: int(4) unsigned
+    nullable: true
+    default: "NULL"
+  - name: preferences
+    type: text
+    nullable: true
+    default: "NULL"
+  - name: preferences_dietary
+    type: text
+    nullable: true
+    default: "NULL"
+  - name: preferences_updated
+    type: datetime
+    nullable: true
+    default: "NULL"
+  - name: fully_available
+    type: tinyint(1)
+    nullable: false
+    default: "1"
+  - name: include_credits
+    type: tinyint(1)
+    nullable: false
+    default: "1"
+  - name: include_socials
+    type: tinyint(1)
+    nullable: false
+    default: "1"
+  indexes:
+  - name: users_events_event_id
+    def: KEY users_events_event_id (event_id) USING BTREE
+    table: users_events
+    columns:
+    - event_id
+  - name: users_events_role_id
+    def: KEY users_events_role_id (role_id) USING BTREE
+    table: users_events
+    columns:
+    - role_id
+  - name: users_events_team_id
+    def: KEY users_events_team_id (team_id) USING BTREE
+    table: users_events
+    columns:
+    - team_id
+  - name: user_id
+    def: UNIQUE KEY user_id (user_id, event_id, team_id) USING BTREE
+    table: users_events
+    columns:
+    - user_id
+    - event_id
+    - team_id
+  constraints:
+  - name: users_events_event_id
+    type: FOREIGN KEY
+    def: FOREIGN KEY (event_id) REFERENCES events (event_id)
+    table: users_events
+    referencedTable: events
+    columns:
+    - event_id
+    referencedColumns:
+    - event_id
+  - name: users_events_role_id
+    type: FOREIGN KEY
+    def: FOREIGN KEY (role_id) REFERENCES roles (role_id)
+    table: users_events
+    referencedTable: roles
+    columns:
+    - role_id
+    referencedColumns:
+    - role_id
+  - name: users_events_team_id
+    type: FOREIGN KEY
+    def: FOREIGN KEY (team_id) REFERENCES teams (team_id)
+    table: users_events
+    referencedTable: teams
+    columns:
+    - team_id
+    referencedColumns:
+    - team_id
+  - name: users_events_user_id
+    type: FOREIGN KEY
+    def: FOREIGN KEY (user_id) REFERENCES users (user_id)
+    table: users_events
+    referencedTable: users
+    columns:
+    - user_id
+    referencedColumns:
+    - user_id
+  - name: user_id
+    type: UNIQUE
+    def: UNIQUE KEY user_id (user_id, event_id, team_id)
+    table: users_events
+    columns:
+    - user_id
+    - event_id
+    - team_id
+  def: |-
+    CREATE TABLE `users_events` (
+      `user_id` int(4) unsigned NOT NULL,
+      `event_id` int(4) unsigned NOT NULL,
+      `team_id` int(4) unsigned NOT NULL,
+      `role_id` int(4) unsigned NOT NULL,
+      `registration_date` datetime DEFAULT NULL,
+      `registration_status` enum('Registered','Cancelled','Accepted','Rejected') NOT NULL DEFAULT 'Registered',
+      `registration_notes` text DEFAULT NULL,
+      `shirt_fit` enum('Regular','Girly') NOT NULL DEFAULT 'Regular',
+      `shirt_size` enum('XS','S','M','L','XL','XXL','3XL','4XL') DEFAULT NULL,
+      `hotel_eligible` tinyint(1) unsigned DEFAULT NULL,
+      `training_eligible` tinyint(1) unsigned DEFAULT NULL,
+      `availability_build_up` text DEFAULT NULL,
+      `availability_tear_down` text DEFAULT NULL,
+      `availability_event_limit` int(8) unsigned DEFAULT NULL,
+      `availability_exceptions` text DEFAULT NULL,
+      `availability_timeslots` text DEFAULT NULL,
+      `preference_hours` int(4) unsigned DEFAULT NULL,
+      `preference_timing_start` int(4) unsigned DEFAULT NULL,
+      `preference_timing_end` int(4) unsigned DEFAULT NULL,
+      `preferences` text DEFAULT NULL,
+      `preferences_dietary` text DEFAULT NULL,
+      `preferences_updated` datetime DEFAULT NULL,
+      `fully_available` tinyint(1) NOT NULL DEFAULT 1,
+      `include_credits` tinyint(1) NOT NULL DEFAULT 1,
+      `include_socials` tinyint(1) NOT NULL DEFAULT 1,
+      UNIQUE KEY `user_id` (`user_id`,`event_id`,`team_id`),
+      KEY `users_events_event_id` (`event_id`),
+      KEY `users_events_team_id` (`team_id`),
+      KEY `users_events_role_id` (`role_id`),
+      CONSTRAINT `users_events_event_id` FOREIGN KEY (`event_id`) REFERENCES `events` (`event_id`),
+      CONSTRAINT `users_events_role_id` FOREIGN KEY (`role_id`) REFERENCES `roles` (`role_id`),
+      CONSTRAINT `users_events_team_id` FOREIGN KEY (`team_id`) REFERENCES `teams` (`team_id`),
+      CONSTRAINT `users_events_user_id` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 - name: environments
   type: BASE TABLE
   columns:
@@ -1143,199 +1346,6 @@ tables:
       `auth_value` text NOT NULL,
       KEY `user_id` (`user_id`),
       CONSTRAINT `users_auth_user_id` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
-- name: users_events
-  type: BASE TABLE
-  columns:
-  - name: user_id
-    type: int(4) unsigned
-    nullable: false
-  - name: event_id
-    type: int(4) unsigned
-    nullable: false
-  - name: team_id
-    type: int(4) unsigned
-    nullable: false
-  - name: role_id
-    type: int(4) unsigned
-    nullable: false
-  - name: registration_date
-    type: datetime
-    nullable: true
-    default: "NULL"
-  - name: registration_status
-    type: enum('Registered','Cancelled','Accepted','Rejected')
-    nullable: false
-    default: "'Registered'"
-  - name: registration_notes
-    type: text
-    nullable: true
-    default: "NULL"
-  - name: shirt_fit
-    type: enum('Regular','Girly')
-    nullable: false
-    default: "'Regular'"
-  - name: shirt_size
-    type: enum('XS','S','M','L','XL','XXL','3XL','4XL')
-    nullable: true
-    default: "NULL"
-  - name: hotel_eligible
-    type: tinyint(1) unsigned
-    nullable: true
-    default: "NULL"
-  - name: training_eligible
-    type: tinyint(1) unsigned
-    nullable: true
-    default: "NULL"
-  - name: availability_event_limit
-    type: int(8) unsigned
-    nullable: true
-    default: "NULL"
-  - name: availability_exceptions
-    type: text
-    nullable: true
-    default: "NULL"
-  - name: availability_timeslots
-    type: text
-    nullable: true
-    default: "NULL"
-  - name: preference_hours
-    type: int(4) unsigned
-    nullable: true
-    default: "NULL"
-  - name: preference_timing_start
-    type: int(4) unsigned
-    nullable: true
-    default: "NULL"
-  - name: preference_timing_end
-    type: int(4) unsigned
-    nullable: true
-    default: "NULL"
-  - name: preferences
-    type: text
-    nullable: true
-    default: "NULL"
-  - name: preferences_dietary
-    type: text
-    nullable: true
-    default: "NULL"
-  - name: preferences_updated
-    type: datetime
-    nullable: true
-    default: "NULL"
-  - name: fully_available
-    type: tinyint(1)
-    nullable: false
-    default: "1"
-  - name: include_credits
-    type: tinyint(1)
-    nullable: false
-    default: "1"
-  - name: include_socials
-    type: tinyint(1)
-    nullable: false
-    default: "1"
-  indexes:
-  - name: users_events_event_id
-    def: KEY users_events_event_id (event_id) USING BTREE
-    table: users_events
-    columns:
-    - event_id
-  - name: users_events_role_id
-    def: KEY users_events_role_id (role_id) USING BTREE
-    table: users_events
-    columns:
-    - role_id
-  - name: users_events_team_id
-    def: KEY users_events_team_id (team_id) USING BTREE
-    table: users_events
-    columns:
-    - team_id
-  - name: user_id
-    def: UNIQUE KEY user_id (user_id, event_id, team_id) USING BTREE
-    table: users_events
-    columns:
-    - user_id
-    - event_id
-    - team_id
-  constraints:
-  - name: users_events_event_id
-    type: FOREIGN KEY
-    def: FOREIGN KEY (event_id) REFERENCES events (event_id)
-    table: users_events
-    referencedTable: events
-    columns:
-    - event_id
-    referencedColumns:
-    - event_id
-  - name: users_events_role_id
-    type: FOREIGN KEY
-    def: FOREIGN KEY (role_id) REFERENCES roles (role_id)
-    table: users_events
-    referencedTable: roles
-    columns:
-    - role_id
-    referencedColumns:
-    - role_id
-  - name: users_events_team_id
-    type: FOREIGN KEY
-    def: FOREIGN KEY (team_id) REFERENCES teams (team_id)
-    table: users_events
-    referencedTable: teams
-    columns:
-    - team_id
-    referencedColumns:
-    - team_id
-  - name: users_events_user_id
-    type: FOREIGN KEY
-    def: FOREIGN KEY (user_id) REFERENCES users (user_id)
-    table: users_events
-    referencedTable: users
-    columns:
-    - user_id
-    referencedColumns:
-    - user_id
-  - name: user_id
-    type: UNIQUE
-    def: UNIQUE KEY user_id (user_id, event_id, team_id)
-    table: users_events
-    columns:
-    - user_id
-    - event_id
-    - team_id
-  def: |-
-    CREATE TABLE `users_events` (
-      `user_id` int(4) unsigned NOT NULL,
-      `event_id` int(4) unsigned NOT NULL,
-      `team_id` int(4) unsigned NOT NULL,
-      `role_id` int(4) unsigned NOT NULL,
-      `registration_date` datetime DEFAULT NULL,
-      `registration_status` enum('Registered','Cancelled','Accepted','Rejected') NOT NULL DEFAULT 'Registered',
-      `registration_notes` text DEFAULT NULL,
-      `shirt_fit` enum('Regular','Girly') NOT NULL DEFAULT 'Regular',
-      `shirt_size` enum('XS','S','M','L','XL','XXL','3XL','4XL') DEFAULT NULL,
-      `hotel_eligible` tinyint(1) unsigned DEFAULT NULL,
-      `training_eligible` tinyint(1) unsigned DEFAULT NULL,
-      `availability_event_limit` int(8) unsigned DEFAULT NULL,
-      `availability_exceptions` text DEFAULT NULL,
-      `availability_timeslots` text DEFAULT NULL,
-      `preference_hours` int(4) unsigned DEFAULT NULL,
-      `preference_timing_start` int(4) unsigned DEFAULT NULL,
-      `preference_timing_end` int(4) unsigned DEFAULT NULL,
-      `preferences` text DEFAULT NULL,
-      `preferences_dietary` text DEFAULT NULL,
-      `preferences_updated` datetime DEFAULT NULL,
-      `fully_available` tinyint(1) NOT NULL DEFAULT 1,
-      `include_credits` tinyint(1) NOT NULL DEFAULT 1,
-      `include_socials` tinyint(1) NOT NULL DEFAULT 1,
-      UNIQUE KEY `user_id` (`user_id`,`event_id`,`team_id`),
-      KEY `users_events_event_id` (`event_id`),
-      KEY `users_events_team_id` (`team_id`),
-      KEY `users_events_role_id` (`role_id`),
-      CONSTRAINT `users_events_event_id` FOREIGN KEY (`event_id`) REFERENCES `events` (`event_id`),
-      CONSTRAINT `users_events_role_id` FOREIGN KEY (`role_id`) REFERENCES `roles` (`role_id`),
-      CONSTRAINT `users_events_team_id` FOREIGN KEY (`team_id`) REFERENCES `teams` (`team_id`),
-      CONSTRAINT `users_events_user_id` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`)
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 - name: users_settings
   type: BASE TABLE
@@ -3166,6 +3176,14 @@ tables:
   - name: event_end_time
     type: datetime
     nullable: false
+  - name: availability_build_up
+    type: tinyint(1) unsigned
+    nullable: false
+    default: "0"
+  - name: availability_tear_down
+    type: tinyint(1) unsigned
+    nullable: false
+    default: "0"
   - name: hotel_enabled
     type: tinyint(1) unsigned
     nullable: false
@@ -3262,6 +3280,8 @@ tables:
       `event_hidden` tinyint(1) NOT NULL DEFAULT 0,
       `event_start_time` datetime NOT NULL,
       `event_end_time` datetime NOT NULL,
+      `availability_build_up` tinyint(1) unsigned NOT NULL DEFAULT 0,
+      `availability_tear_down` tinyint(1) unsigned NOT NULL DEFAULT 0,
       `hotel_enabled` tinyint(1) unsigned NOT NULL DEFAULT 0,
       `hotel_information_published` tinyint(1) unsigned NOT NULL DEFAULT 0,
       `hotel_preferences_start` datetime DEFAULT NULL,
@@ -4406,6 +4426,46 @@ tables:
       PRIMARY KEY (`nardo_personalised_id`)
     ) ENGINE=InnoDB AUTO_INCREMENT=[Redacted by tbls] DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 relations:
+- table: users_events
+  columns:
+  - event_id
+  cardinality: zero_or_more
+  parentTable: events
+  parentColumns:
+  - event_id
+  parentCardinality: exactly_one
+  def: FOREIGN KEY (event_id) REFERENCES events (event_id)
+  virtual: false
+- table: users_events
+  columns:
+  - role_id
+  cardinality: zero_or_more
+  parentTable: roles
+  parentColumns:
+  - role_id
+  parentCardinality: exactly_one
+  def: FOREIGN KEY (role_id) REFERENCES roles (role_id)
+  virtual: false
+- table: users_events
+  columns:
+  - team_id
+  cardinality: zero_or_more
+  parentTable: teams
+  parentColumns:
+  - team_id
+  parentCardinality: exactly_one
+  def: FOREIGN KEY (team_id) REFERENCES teams (team_id)
+  virtual: false
+- table: users_events
+  columns:
+  - user_id
+  cardinality: zero_or_more
+  parentTable: users
+  parentColumns:
+  - user_id
+  parentCardinality: exactly_one
+  def: FOREIGN KEY (user_id) REFERENCES users (user_id)
+  virtual: false
 - table: events_teams
   columns:
   - event_id
@@ -4477,46 +4537,6 @@ relations:
   def: FOREIGN KEY (event_id) REFERENCES events (event_id)
   virtual: false
 - table: users_auth
-  columns:
-  - user_id
-  cardinality: zero_or_more
-  parentTable: users
-  parentColumns:
-  - user_id
-  parentCardinality: exactly_one
-  def: FOREIGN KEY (user_id) REFERENCES users (user_id)
-  virtual: false
-- table: users_events
-  columns:
-  - event_id
-  cardinality: zero_or_more
-  parentTable: events
-  parentColumns:
-  - event_id
-  parentCardinality: exactly_one
-  def: FOREIGN KEY (event_id) REFERENCES events (event_id)
-  virtual: false
-- table: users_events
-  columns:
-  - role_id
-  cardinality: zero_or_more
-  parentTable: roles
-  parentColumns:
-  - role_id
-  parentCardinality: exactly_one
-  def: FOREIGN KEY (role_id) REFERENCES roles (role_id)
-  virtual: false
-- table: users_events
-  columns:
-  - team_id
-  cardinality: zero_or_more
-  parentTable: teams
-  parentColumns:
-  - team_id
-  parentCardinality: exactly_one
-  def: FOREIGN KEY (team_id) REFERENCES teams (team_id)
-  virtual: false
-- table: users_events
   columns:
   - user_id
   cardinality: zero_or_more

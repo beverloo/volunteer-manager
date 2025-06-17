@@ -105,6 +105,8 @@ export default async function EventVolunteerPage(
             registrationDate: dbInstance.dateTimeAsString(tUsersEvents.registrationDate),
             registrationStatus: tUsersEvents.registrationStatus,
             registrationNotes: tUsersEvents.registrationNotes,
+            availabilityBuildUp: tUsersEvents.availabilityBuildUp,
+            availabilityTearDown: tUsersEvents.availabilityTearDown,
             availabilityEventLimit: tUsersEvents.availabilityEventLimit,
             availabilityExceptions: tUsersEvents.availabilityExceptions,
             availabilityTimeslots: tUsersEvents.availabilityTimeslots,
@@ -238,6 +240,8 @@ export default async function EventVolunteerPage(
         preferences: volunteer.preferences,
         preferencesDietary: volunteer.preferencesDietary,
         serviceHours: `${volunteer.serviceHours}`,
+        availabilityBuildUp: volunteer.availabilityBuildUp,
+        availabilityTearDown: volunteer.availabilityTearDown,
     };
 
     if (!!volunteer.serviceTiming) {
@@ -429,6 +433,8 @@ export default async function EventVolunteerPage(
                                          exceptionEventLimit={volunteer.actualAvailableEventLimit}
                                          exceptionEvents={availabilityEvents}
                                          exceptions={volunteer.availabilityExceptions}
+                                         includeBuildUp={event.availabilityBuildUpEnabled}
+                                         includeTearDown={event.availabilityTearDownEnabled}
                                          readOnly={readOnly}
                                          step={availabilityStep} />
             </FormGridSection>

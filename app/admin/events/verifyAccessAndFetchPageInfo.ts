@@ -107,6 +107,16 @@ export interface PageInfo {
         availabilityStatus: EventAvailabilityStatus;
 
         /**
+         * Whether we are soliciting availability for the festival's build-up.
+         */
+        availabilityBuildUpEnabled: boolean;
+
+        /**
+         * Whether we are soliciting availability for the festival's tear-down.
+         */
+        availabilityTearDownEnabled: boolean;
+
+        /**
          * Unique Id of this festival as indicated in AnPlan.
          */
         festivalId?: number;
@@ -274,6 +284,8 @@ export async function verifyAccessAndFetchPageInfo(
             refundRequestsStart: dbInstance.dateTimeAsString(tEvents.refundRequestsStart),
             refundRequestsEnd: dbInstance.dateTimeAsString(tEvents.refundRequestsEnd),
             availabilityStatus: tEvents.eventAvailabilityStatus,
+            availabilityBuildUpEnabled: tEvents.availabilityBuildUp.equals(/* true= */ 1),
+            availabilityTearDownEnabled: tEvents.availabilityTearDown.equals(/* true= */ 1),
             location: tEvents.eventLocation,
             festivalId: tEvents.eventFestivalId,
             hotelRoomForm: tEvents.eventHotelRoomForm,

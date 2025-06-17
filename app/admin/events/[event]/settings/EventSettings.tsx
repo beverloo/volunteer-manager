@@ -116,6 +116,16 @@ const kEventSettingsData = z.object({
      * Whether training management is enabled for this event.
      */
     trainingEnabled: z.number(),
+
+    /**
+     * Whether we solicit availability for build-up before the festival.
+     */
+    availabilityBuildUp: z.number(),
+
+    /**
+     * Whether we solicit availability for tear-down after the festival.
+     */
+    availabilityTearDown: z.number(),
 });
 
 /**
@@ -142,6 +152,8 @@ async function updateEventSettings(eventId: number, formData: unknown) {
                 hotelEnabled: data.hotelEnabled,
                 refundEnabled: data.refundEnabled,
                 trainingEnabled: data.trainingEnabled,
+                availabilityBuildUp: data.availabilityBuildUp,
+                availabilityTearDown: data.availabilityTearDown,
             })
             .where(tEvents.eventId.equals(eventId))
             .executeUpdate();
@@ -203,6 +215,8 @@ export async function EventSettings(props: EventSettingsProps) {
             hotelEnabled: tEvents.hotelEnabled,
             refundEnabled: tEvents.refundEnabled,
             trainingEnabled: tEvents.trainingEnabled,
+            availabilityBuildUp: tEvents.availabilityBuildUp,
+            availabilityTearDown: tEvents.availabilityTearDown,
         })
         .executeSelectNoneOrOne() ?? undefined;
 
@@ -246,6 +260,14 @@ export async function EventSettings(props: EventSettingsProps) {
             </Grid>
             <Grid size={{ xs: 6 }}>
                 <SelectElement name="trainingEnabled" label="Training management"
+                               fullWidth size="small" options={kServiceStatusOptions} />
+            </Grid>
+            <Grid size={{ xs: 6 }}>
+                <SelectElement name="availabilityBuildUp" label="Solicit build-up availability"
+                               fullWidth size="small" options={kServiceStatusOptions} />
+            </Grid>
+            <Grid size={{ xs: 6 }}>
+                <SelectElement name="availabilityTearDown" label="Solicit tear-down availability"
                                fullWidth size="small" options={kServiceStatusOptions} />
             </Grid>
         </FormGridSection>

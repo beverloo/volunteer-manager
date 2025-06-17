@@ -253,6 +253,8 @@ const kUpdateAvailabilityPreferenceData = z.object({
     serviceTiming: kServiceTimingProperty,
     preferences: z.string().optional(),
     preferencesDietary: z.string().optional(),
+    availabilityBuildUp: z.string().optional(),
+    availabilityTearDown: z.string().optional(),
 });
 
 /**
@@ -324,6 +326,8 @@ export async function updateAvailability(
         const dbInstance = db;
         const affectedRows = await dbInstance.update(tUsersEvents)
             .set({
+                availabilityBuildUp: data.availabilityBuildUp,
+                availabilityTearDown: data.availabilityTearDown,
                 availabilityExceptions: exceptions,
                 availabilityTimeslots: exceptionEvents.join(','),
                 preferences: data.preferences,

@@ -68,6 +68,18 @@ interface AvailabilityPreferencesProps {
     exceptions?: string;
 
     /**
+     * Whether the option should be available where a volunteer can indicate that they're helping
+     * out during the festival's build-up.
+     */
+    includeBuildUp?: boolean;
+
+    /**
+     * Whether the option should be available where a volunteer can indicate that they're helping
+     * out during the festival's tear-down.
+     */
+    includeTearDown?: boolean;
+
+    /**
      * Whether the form should be displayed in read-only mode.
      */
     readOnly?: boolean;
@@ -174,7 +186,10 @@ export function AvailabilityPreferences(props: AvailabilityPreferencesProps) {
 
     return (
         <>
-            <ApplicationAvailabilityForm includeDietaryRestrictions readOnly={props.readOnly} />
+            <ApplicationAvailabilityForm includeBuildUp={props.includeBuildUp}
+                                         includeDietaryRestrictions
+                                         includeTearDown={props.includeTearDown}
+                                         readOnly={props.readOnly} />
 
             <Grid size={{ xs: 12 }}>
                 <Accordion disableGutters elevation={0} square>

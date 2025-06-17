@@ -61,10 +61,22 @@ const kTShirtSizeOptions: { id: ShirtSize, label: string }[] = [
  */
 interface ApplicationAvailabilityFormProps {
     /**
+     * Whether the option should be available where a volunteer can indicate that they're helping
+     * out during the festival's build-up.
+     */
+    includeBuildUp?: boolean;
+
+    /**
      * Whether the dietary restrictions field should be included. Omitted from the registration form
      * as we want to minimsie the number of fields there.
      */
     includeDietaryRestrictions?: boolean;
+
+    /**
+     * Whether the option should be available where a volunteer can indicate that they're helping
+     * out during the festival's tear-down.
+     */
+    includeTearDown?: boolean;
 
     /**
      * Whether the form should be locked, i.e. for all fields to be disabled.
@@ -102,6 +114,10 @@ export function ApplicationAvailabilityForm(props: ApplicationAvailabilityFormPr
                                          label="Anything we should know about?"
                                          disabled={readOnly} />
             </Grid>
+
+            { /* TODO: Build-up availability UI */ }
+            { /* TODO: Tear-down availability UI */ }
+
         </>
     );
 }

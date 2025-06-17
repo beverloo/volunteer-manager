@@ -72,10 +72,15 @@ export default async function EventApplicationAvailabilityPage(
                 startTime: tEvents.eventStartTime,
                 endTime: tEvents.eventEndTime,
 
+                availabilityBuildUpEnabled: tEvents.availabilityBuildUp.equals(/* true= */ 1),
+                availabilityTearDownEnabled: tEvents.availabilityTearDown.equals(/* true= */ 1),
+
                 festivalId: tEvents.eventFestivalId,
                 timezone: tEvents.eventTimezone,
             },
             preferences: {
+                availabilityBuildUp: tUsersEvents.availabilityBuildUp,
+                availabilityTearDown: tUsersEvents.availabilityTearDown,
                 exceptions: tUsersEvents.availabilityExceptions,
                 preferences: tUsersEvents.preferences,
                 preferencesDietary: tUsersEvents.preferencesDietary,
@@ -94,6 +99,8 @@ export default async function EventApplicationAvailabilityPage(
         .executeSelectOne();
 
     const defaultValues: Record<string, any> = {
+        availabilityBuildUp: detailedApplicationInfo.preferences?.availabilityBuildUp,
+        availabilityTearDown: detailedApplicationInfo.preferences?.availabilityTearDown,
         preferences: detailedApplicationInfo.preferences?.preferences,
         preferencesDietary: detailedApplicationInfo.preferences?.preferencesDietary,
         serviceHours: `${detailedApplicationInfo.preferences?.serviceHours}`,
@@ -153,6 +160,8 @@ export default async function EventApplicationAvailabilityPage(
                 <AvailabilityPreferencesForm
                     exceptionEventLimit={detailedApplicationInfo.settings.exceptionEventLimit}
                     exceptionEvents={exceptionEvents}
+                    includeBuildUp={detailedApplicationInfo.event.availabilityBuildUpEnabled}
+                    includeTearDown={detailedApplicationInfo.event.availabilityTearDownEnabled}
                     readOnly={locked} />
 
                 <FormSubmitButton callToAction="Save your preferences"

@@ -32,6 +32,18 @@ interface AvailabilityPreferencesFormProps {
     exceptionEvents?: { id: number; label: string }[];
 
     /**
+     * Whether the option should be available where a volunteer can indicate that they're helping
+     * out during the festival's build-up.
+     */
+    includeBuildUp?: boolean;
+
+    /**
+     * Whether the option should be available where a volunteer can indicate that they're helping
+     * out during the festival's tear-down.
+     */
+    includeTearDown?: boolean;
+
+    /**
      * Whether the form should be marked as read-only, useful in case their preferences have been
      * locked in ahead of scheduling.
      */
@@ -61,7 +73,9 @@ export function AvailabilityPreferencesForm(props: AvailabilityPreferencesFormPr
                     </Alert>
                 </Grid> }
 
-            <ApplicationAvailabilityForm includeDietaryRestrictions />
+            <ApplicationAvailabilityForm includeBuildUp={props.includeBuildUp}
+                                         includeDietaryRestrictions
+                                         includeTearDown={props.includeTearDown} />
 
             { (!!props.exceptionEvents && props.exceptionEventLimit > 0) &&
                 <>

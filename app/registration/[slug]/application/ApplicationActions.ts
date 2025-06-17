@@ -329,6 +329,8 @@ const kUpdateAvailabilityData = z.object({
     serviceTiming: kServiceTimingProperty,
     preferences: z.string().optional(),
     preferencesDietary: z.string().optional(),
+    availabilityBuildUp: z.string().optional(),
+    availabilityTearDown: z.string().optional(),
 });
 
 /**
@@ -351,6 +353,8 @@ export async function updateAvailability(eventId: number, teamId: number, formDa
                 .and(tUsersEvents.teamId.equals(teamId))
             .select({
                 event: {
+                    availabilityBuildUpEnabled: tEvents.availabilityBuildUp.equals(/* true= */ 1),
+                    availabilityTearDownEnabled: tEvents.availabilityTearDown.equals(/* true= */ 1),
                     availabilityStatus: tEvents.eventAvailabilityStatus,
                     festivalId: tEvents.eventFestivalId,
                     shortName: tEvents.eventShortName,
@@ -403,8 +407,20 @@ export async function updateAvailability(eventId: number, teamId: number, formDa
 
         // -----------------------------------------------------------------------------------------
 
+        type ConditionalUpdate = {
+            availabilityBuildUp?: string;
+            availabilityTearDown?: string;
+        };
+
+        const conditionalUpdateSet: ConditionalUpdate = { /* none yet */ };
+        if (event.availabilityBuildUpEnabled)
+            conditionalUpdateSet.availabilityBuildUp = data.availabilityBuildUp;
+        if (event.availabilityTearDownEnabled)
+            conditionalUpdateSet.availabilityTearDown = data.availabilityTearDown;
+
         const affectedRows = await dbInstance.update(tUsersEvents)
             .set({
+                ...conditionalUpdateSet,
                 availabilityTimeslots: exceptionEvents.join(','),
                 preferences: data.preferences,
                 preferencesDietary: data.preferencesDietary,

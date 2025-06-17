@@ -26,6 +26,8 @@ export class EventsTable extends Table<DBConnection, 'EventsTable'> {
     eventHidden = this.columnWithDefaultValue('event_hidden', 'int');
     eventStartTime = this.column<ZonedDateTime>('event_start_time', 'customLocalDateTime', 'dateTime', TemporalTypeAdapter);
     eventEndTime = this.column<ZonedDateTime>('event_end_time', 'customLocalDateTime', 'dateTime', TemporalTypeAdapter);
+    availabilityBuildUp = this.columnWithDefaultValue('availability_build_up', 'int');
+    availabilityTearDown = this.columnWithDefaultValue('availability_tear_down', 'int');
     hotelEnabled = this.columnWithDefaultValue('hotel_enabled', 'int');
     hotelInformationPublished = this.columnWithDefaultValue('hotel_information_published', 'int');
     hotelPreferencesStart = this.optionalColumnWithDefaultValue<ZonedDateTime>('hotel_preferences_start', 'customLocalDateTime', 'dateTime', TemporalTypeAdapter);
