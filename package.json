@@ -50,7 +50,7 @@
     "marked": "^15.0.12",
     "mui-color-input": "^7.0.0",
     "mui-markdown": "^2.0.1",
-    "next": "^15.3.3",
+    "next": "^15.3.4",
     "nodemailer": "^7.0.3",
     "nuqs": "^2.4.3",
     "react": "^19.1.0",
@@ -64,7 +64,7 @@
     "ts-sql-query": "^1.66.0",
     "twilio": "^5.7.1",
     "uuid": "^11.1.0",
-    "zod": "^3.25.65"
+    "zod": "^3.25.67"
   },
   "overrides": {
     "nodemailer-mock": {
@@ -75,7 +75,7 @@
     }
   },
   "devDependencies": {
-    "@next/bundle-analyzer": "^15.3.3",
+    "@next/bundle-analyzer": "^15.3.4",
     "@playwright/test": "^1.53.0",
     "@simplewebauthn/typescript-types": "^8.3.4",
     "@types/d3": "^7.4.3",
@@ -90,7 +90,7 @@
     "@types/uuid": "^10.0.0",
     "cross-env": "^7.0.3",
     "eslint": "9.29.0",
-    "eslint-config-next": "^15.3.3",
+    "eslint-config-next": "^15.3.4",
     "eslint-plugin-unused-imports": "^4.1.4",
     "jest": "^30.0.0",
     "jest-environment-jsdom": "^30.0.0",
