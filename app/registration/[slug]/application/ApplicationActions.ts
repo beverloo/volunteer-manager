@@ -324,7 +324,7 @@ export async function requestRefund(eventId: number, formData: unknown) {
  * Zod type that describes the data required when updating availability information.
  */
 const kUpdateAvailabilityData = z.object({
-    exceptionEvents: z.array(z.number().nullish()),
+    exceptionEvents: z.array(z.number().nullish()).optional(),
     serviceHours: kServiceHoursProperty,
     serviceTiming: kServiceTimingProperty,
     preferences: z.string().optional(),
@@ -386,7 +386,7 @@ export async function updateAvailability(eventId: number, teamId: number, formDa
         const [ serviceTimingStart, serviceTimingEnd ] = data.serviceTiming.split('-');
 
         const exceptionEvents: number[] = [ /* no exception events */ ];
-        if (!!event.festivalId && data.exceptionEvents.length > 0) {
+        if (!!event.festivalId && !!data.exceptionEvents?.length) {
             const validEvents =
                 await getPublicEventsForFestival(
                     event.festivalId, event.timezone, /* withTimingInfo= */ false);
@@ -410,6 +410,7 @@ export async function updateAvailability(eventId: number, teamId: number, formDa
         type ConditionalUpdate = {
             availabilityBuildUp?: string;
             availabilityTearDown?: string;
+            availabilityTimeslots?: string,
         };
 
         const conditionalUpdateSet: ConditionalUpdate = { /* none yet */ };
@@ -417,11 +418,12 @@ export async function updateAvailability(eventId: number, teamId: number, formDa
             conditionalUpdateSet.availabilityBuildUp = data.availabilityBuildUp;
         if (event.availabilityTearDownEnabled)
             conditionalUpdateSet.availabilityTearDown = data.availabilityTearDown;
+        if (!!data.exceptionEvents)
+            conditionalUpdateSet.availabilityTimeslots = exceptionEvents.join(',');
 
         const affectedRows = await dbInstance.update(tUsersEvents)
             .set({
                 ...conditionalUpdateSet,
-                availabilityTimeslots: exceptionEvents.join(','),
                 preferences: data.preferences,
                 preferencesDietary: data.preferencesDietary,
                 preferenceHours: parseInt(data.serviceHours, /* radix= */ 10),

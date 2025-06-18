@@ -4,16 +4,46 @@
 'use client';
 
 import type { z } from 'zod/v4';
+import { useCallback, useState } from 'react';
 
-import { SelectElement, TextareaAutosizeElement } from '@proxy/react-hook-form-mui';
+import { SelectElement, TextareaAutosizeElement, useFormContext } from '@proxy/react-hook-form-mui';
 
+import Collapse from '@mui/material/Collapse';
+import DomainAddIcon from '@mui/icons-material/DomainAdd';
+import DomainDisabledIcon from '@mui/icons-material/DomainDisabled';
 import Grid from '@mui/material/Grid';
+import Stack from '@mui/material/Stack';
+import SubdirectoryArrowRightIcon from '@mui/icons-material/SubdirectoryArrowRight';
+import ToggleButton from '@mui/material/ToggleButton';
+import Typography from '@mui/material/Typography';
 
 import { kServiceHoursProperty, kServiceTimingProperty } from './ApplicationActions';
 import { kShirtFit, kShirtSize, type ShirtFit, type ShirtSize } from '@lib/database/Types';
 
 type ServiceHourValues = z.TypeOf<typeof kServiceHoursProperty>;
 type ServiceTimingValues = z.TypeOf<typeof kServiceTimingProperty>;
+
+/**
+ * Valid options for when the volunteer will start helping with the Thursday build-up.
+ */
+const kBuildUpOptions: { id: string, label: string }[] = [
+    { id: '10:00–12:00', label: 'Thursday from at 10:00-12:00' },
+    { id: '12:00–14:00', label: 'Thursday from at 12:00-14:00' },
+    { id: '14:00–16:00', label: 'Thursday from at 14:00-16:00' },
+    { id: '16:00–18:00', label: 'Thursday from at 16:00-18:00' },
+    { id: '18:00–00:00', label: 'Thursday after 18:00' },
+];
+
+/**
+ * Valid options for when the volunteer will start helping with the Friday and Monday tear-down.
+ */
+const kTearDownOptions: { id: string, label: string }[] = [
+    { id: '20:00', label: 'Friday evening until 20:00' },
+    { id: '22:00', label: 'Friday evening until 22:00' },
+    { id: '00:00', label: 'Friday evening until 00:00' },
+    { id: '00:00 and Monday (until noon)', label: 'Friday evening and Monday until 12:00' },
+    { id: '00:00 and Monday', label: 'Friday evening and all day Monday' },
+];
 
 /**
  * Valid options for the number of hours volunteers are willing to work. When updating an ID, make
@@ -114,11 +144,90 @@ export function ApplicationAvailabilityForm(props: ApplicationAvailabilityFormPr
                                          label="Anything we should know about?"
                                          disabled={readOnly} />
             </Grid>
-
-            { /* TODO: Build-up availability UI */ }
-            { /* TODO: Tear-down availability UI */ }
-
+            { !!props.includeBuildUp &&
+                <Grid size={{ xs: 12, md: 6 }}>
+                    <AvailabilityBuildUpTearDownField name="availabilityBuildUp"
+                                                      variant="build-up" />
+                </Grid> }
+            { !!props.includeTearDown &&
+                <Grid size={{ xs: 12, md: 6 }}>
+                    <AvailabilityBuildUpTearDownField name="availabilityTearDown"
+                                                      variant="tear-down" />
+                </Grid> }
         </>
+    );
+}
+
+/**
+ * Props accepted by the <AvailabilityBuildUpTearDownField> component.
+ */
+interface AvailabilityBuildUpTearDownFieldProps {
+    /**
+     * Name of the field that this element wraps.
+     */
+    name: string;
+
+    /**
+     * Variant of the field that should be shown.
+     */
+    variant: 'build-up' | 'tear-down';
+}
+
+/**
+ * The <AvailabilityBuildUpTearDownField> component is the rich build-up or tear-down element using
+ * which volunteers can indicate whether they plan to help out with either.
+ */
+function AvailabilityBuildUpTearDownField(props: AvailabilityBuildUpTearDownFieldProps) {
+    const { setValue, watch } = useFormContext();
+
+    const value = watch(props.name);
+
+    // ---------------------------------------------------------------------------------------------
+
+    const [ timeSelectionOpen, setTimeSelectionOpen ] = useState<boolean>(!!value);
+    const toggleTimeSelection = useCallback(() => {
+        if (!!timeSelectionOpen && !!value)
+            setValue(props.name, /* reset= */ '');
+
+        setTimeSelectionOpen(!timeSelectionOpen);
+
+    }, [ props.name, setValue, timeSelectionOpen, value ]);
+
+    // ---------------------------------------------------------------------------------------------
+
+    const icon = props.variant === 'build-up'
+        ? <DomainAddIcon color={ !!value ? 'success' : undefined } />
+        : <DomainDisabledIcon color={ !!value ? 'success' : undefined } />;
+
+    const label = props.variant === 'build-up' ? 'build up' : 'tear down';
+    const options = props.variant === 'build-up' ? kBuildUpOptions : kTearDownOptions;
+
+    return (
+        <Stack direction="column">
+            <ToggleButton value="check" size="small" fullWidth onClick={toggleTimeSelection}>
+                <Stack direction="row" spacing={2}>
+                    {icon}
+                    <Typography variant="button" color={ !!value ? 'success' : undefined }>
+                        { !!value ? 'Yes, I will' : 'No, I won\'t' } help out with {label}
+                    </Typography>
+                </Stack>
+            </ToggleButton>
+            <Collapse in={timeSelectionOpen}>
+                <Stack direction="row" alignItems="center" sx={{
+                    borderBottomLeftRadius: 4,
+                    borderBottomRightRadius: 4,
+                    backgroundColor: theme =>
+                        theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.045)'
+                                                      : 'rgba(0, 0, 0, 0.035)',
+                    padding: 1,
+                }}>
+                    <SubdirectoryArrowRightIcon sx={{ mr: 1 }} />
+                    <SelectElement name={props.name} fullWidth size="small"
+                                   label="When will you help out?" options={options}
+                                   sx={{ mt: 0.5 }} />
+                </Stack>
+            </Collapse>
+        </Stack>
     );
 }
 
