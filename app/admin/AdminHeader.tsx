@@ -115,7 +115,6 @@ export async function AdminHeader(props: AdminHeaderProps) {
 
     const canAccessOrganisationSection = checkPermission(access, kDashboardPermissions);
     const canAccessVolunteersSection = checkPermission(access, or(
-        'volunteer.export',
         'volunteer.settings.shifts'
     ));
 

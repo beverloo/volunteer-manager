@@ -89,7 +89,7 @@ export default async function EventRefundsPage(props: NextPageParams<'event'>) {
     if (!event.refundEnabled)
         notFound();
 
-    const enableExport = access.can('volunteer.export');
+    const enableExport = access.can('organisation.exports');
 
     // ---------------------------------------------------------------------------------------------
 

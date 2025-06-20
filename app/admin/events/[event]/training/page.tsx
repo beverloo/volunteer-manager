@@ -203,7 +203,7 @@ export default async function EventTrainingPage(props: NextPageParams<'event'>) 
     const trainingOptions = processor.compileTrainingOptions();
     const warnings = processor.compileWarnings();
 
-    const enableExport = access.can('volunteer.export');
+    const enableExport = access.can('organisation.exports');
 
     return (
         <>

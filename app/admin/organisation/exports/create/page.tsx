@@ -1,0 +1,148 @@
+// Copyright 2025 Peter Beverloo & AnimeCon. All rights reserved.
+// Use of this source code is governed by a MIT license that can be found in the LICENSE file.
+
+import { SelectElement, TextFieldElement } from '@components/proxy/react-hook-form-mui';
+
+import EuroIcon from '@mui/icons-material/Euro';
+import Grid from '@mui/material/Grid';
+import GroupsIcon from '@mui/icons-material/Groups';
+import HistoryEduIcon from '@mui/icons-material/HistoryEdu';
+import ReceiptIcon from '@mui/icons-material/Receipt';
+import Stack from '@mui/material/Stack';
+import WhatsAppIcon from '@mui/icons-material/WhatsApp';
+
+import { DiscordIcon } from '../../dashboard/DiscordIcon';
+import { ExportTile } from './ExportTile';
+import { createGenerateMetadataFn } from '@app/admin/lib/generatePageMetadata';
+import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
+import db, { tEvents } from '@lib/database';
+
+import { kExportType } from '@lib/database/Types';
+
+import * as actions from '../ExportsActions';
+
+/**
+ * Options that can be selected for the availability of the export.
+ */
+const kAvailabilityOptions = [
+    { id: 1, label: '1 hour' },
+    { id: 8, label: '8 hours' },
+    { id: 24, label: '1 day' },
+    { id: 24 * 7, label: '1 week' },
+    { id: 24 * 7 * 2, label: '2 weeks' },
+];
+
+/**
+ * Options that can be selected for the maximum number of views of an export.
+ */
+const kViewsOptions = [
+    { id: 1, label: '1 view' },
+    { id: 5, label: '5 views' },
+    { id: 10, label: '10 views' },
+    { id: 25, label: '25 views' },
+];
+
+/**
+ * The <OrganisationExportsCreatePage> component is the first step in the ability to create a new
+ * data export. It provides easy access to a series of targetted export pages.
+ */
+export default async function OrganisationExportsCreatePage() {
+    await requireAuthenticationContext({
+        check: 'admin',
+        permission: 'organisation.exports'
+    });
+
+    const events = await db.selectFrom(tEvents)
+        .where(tEvents.eventHidden.equals(/* false= */ 0))
+        .select({
+            id: tEvents.eventId,
+            label: tEvents.eventShortName,
+        })
+        .executeSelectMany();
+
+    const exportCreditReelConsentFn = actions.createSimpleExport.bind(null, kExportType.Credits);
+    const exportDiscordHandlesFn = actions.createSimpleExport.bind(null, kExportType.Discord);
+    const exportRefundRequestsFn = actions.createSimpleExport.bind(null, kExportType.Refunds);
+    const exportTrainingsFn = actions.createSimpleExport.bind(null, kExportType.Trainings);
+    const exportVolunteersFn = actions.createSimpleExport.bind(null, kExportType.Volunteers);
+    const exportWhatsappFn = actions.createSimpleExport.bind(null, kExportType.WhatsApp);
+
+    return (
+        <Grid container spacing={2}>
+            <Grid size={{ xs: 12 }}>
+                <Stack direction="row" spacing={2} justifyContent="center" flexWrap="wrap"
+                       useFlexGap>
+                    <ExportTile action={exportCreditReelConsentFn}
+                                icon={ <ReceiptIcon color="primary" /> }
+                                label="Credit reel consent">
+                        <CommonExportForm events={events} />
+                    </ExportTile>
+
+                    <ExportTile action={exportDiscordHandlesFn}
+                                icon={ <DiscordIcon color="primary" /> }
+                                label="Discord handles">
+                        <CommonExportForm events={events} />
+                    </ExportTile>
+
+                    <ExportTile action={exportRefundRequestsFn}
+                                icon={ <EuroIcon color="primary" /> }
+                                label="Refund requests">
+                        <CommonExportForm events={events} />
+                    </ExportTile>
+
+                    <ExportTile action={exportTrainingsFn}
+                                icon={ <HistoryEduIcon color="primary" /> }
+                                label="Training participation">
+                        <CommonExportForm events={events} />
+                    </ExportTile>
+
+                    <ExportTile action={exportVolunteersFn}
+                                icon={ <GroupsIcon color="primary" /> }
+                                label="Volunteer lists">
+                        <CommonExportForm events={events} />
+                    </ExportTile>
+
+                    <ExportTile action={exportWhatsappFn}
+                                icon={ <WhatsAppIcon color="primary" /> }
+                                label="WhatsApp numbers">
+                        <CommonExportForm events={events} />
+                    </ExportTile>
+                </Stack>
+            </Grid>
+        </Grid>
+    );
+}
+
+/**
+ * Common form fields that need to be included in the export form. Represented by the
+ * `kCreateSimpleExportData` type in the action definition.
+ */
+function CommonExportForm(props: { events: { id: number; label: string; }[] }) {
+    return (
+        <>
+            <Grid size={{ xs: 12, sm: 6 }}>
+                <SelectElement name="event" label="Event" required fullWidth
+                               size="small" options={props.events} />
+            </Grid>
+            <Grid size={{ xs: 12, sm: 6 }}>
+                <em>TODO: Team</em>
+            </Grid>
+
+            <Grid size={{ xs: 12, sm: 6 }}>
+                <SelectElement name="availability" label="Time limit" required fullWidth
+                               size="small" options={kAvailabilityOptions} />
+            </Grid>
+            <Grid size={{ xs: 12, sm: 6 }}>
+                <SelectElement name="views" label="Access limit" required fullWidth
+                               size="small" options={kViewsOptions} />
+            </Grid>
+
+            <Grid size={{ xs: 12 }}>
+                <TextFieldElement name="justification" label="Justification" required fullWidth
+                                  size="small" />
+            </Grid>
+        </>
+    );
+}
+
+export const generateMetadata = createGenerateMetadataFn('Exports', 'Organisation');

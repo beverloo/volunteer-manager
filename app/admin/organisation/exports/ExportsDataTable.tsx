@@ -1,4 +1,4 @@
-// Copyright 2023 Peter Beverloo & AnimeCon. All rights reserved.
+// Copyright 2025 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
 'use client';
@@ -14,10 +14,10 @@ import { RemoteDataTable, type RemoteDataTableColumn } from '@app/admin/componen
 import { Temporal, formatDate, formatDuration } from '@lib/Temporal';
 
 /**
- * The <ExportTable> component lists all exports, both active and past. Entries may be deleted
+ * The <ExportsDataTable> component lists all exports, both active and past. Entries may be deleted
  * (which will deactivate them), whereas each entry links through to a details page.
  */
-export function ExportTable() {
+export function ExportsDataTable() {
     const now = Temporal.Now.zonedDateTimeISO('UTC');
 
     const columns: RemoteDataTableColumn<ExportsRowModel>[] = [
@@ -54,7 +54,7 @@ export function ExportTable() {
             flex: 1,
 
             renderCell: params =>
-                <MuiLink component={Link} href={`./${params.row.createdByUserId}`}>
+                <MuiLink component={Link} href={`./accounts/${params.row.createdByUserId}`}>
                     {params.value}
                 </MuiLink>
         },

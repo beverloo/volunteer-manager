@@ -277,7 +277,7 @@ export function VolunteerTable(props: VolunteerTableProps) {
 
     const router = useRouter();
     const handleExportButton = useCallback(() => {
-        router.push('/admin/volunteers/exports');
+        router.push('/admin/organisation/exports/create');
     }, [ router ])
 
     return (

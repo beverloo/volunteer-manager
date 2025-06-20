@@ -182,7 +182,7 @@ export default async function VolunteersPage(props: NextPageParams<'event' | 'te
     // Step (5): Actually display the page \o/
     // ---------------------------------------------------------------------------------------------
 
-    const enableExport = access.can('volunteer.export');
+    const enableExport = access.can('organisation.exports');
 
     return (
         <>

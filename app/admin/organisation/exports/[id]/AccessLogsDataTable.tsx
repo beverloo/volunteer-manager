@@ -6,16 +6,15 @@
 import Link from 'next/link';
 
 import { default as MuiLink } from '@mui/material/Link';
-import Paper from '@mui/material/Paper';
 import Typography from '@mui/material/Typography';
 
 import { DataTable, type DataTableColumn } from '@app/admin/components/DataTable';
 import { Temporal, formatDate } from '@lib/Temporal';
 
 /**
- * Props accepted by the <ExportAccess> component.
+ * Props accepted by the <AccessLogsDataTable> component.
  */
-interface ExportAccessProps {
+interface AccessLogsDataTableProps {
     /**
      * Views that were logged for this resource in the database.
      */
@@ -30,13 +29,13 @@ interface ExportAccessProps {
 }
 
 /**
- * The <ExportAccess> component displays a simple data table listing each of the times access was
- * obtained to a particular resource.
+ * The <AccessLogsDataTable> component displays a simple data table listing each of the times access
+ * was obtained to a particular resource.
  */
-export function ExportAccess(props: ExportAccessProps) {
+export function AccessLogsDataTable(props: AccessLogsDataTableProps) {
     const localTz = Temporal.Now.timeZoneId();
 
-    const columns: DataTableColumn<ExportAccessProps['views'][number]>[] = [
+    const columns: DataTableColumn<AccessLogsDataTableProps['views'][number]>[] = [
         {
             field: 'date',
             headerName: 'Date',
@@ -58,6 +57,7 @@ export function ExportAccess(props: ExportAccessProps) {
             flex: 2,
         },
         {
+            display: 'flex',
             field: 'userName',
             headerName: 'Volunteer',
             flex: 1,
@@ -81,9 +81,7 @@ export function ExportAccess(props: ExportAccessProps) {
     ];
 
     return (
-        <Paper sx={{ p: 2 }}>
-            <DataTable columns={columns} rows={props.views} pageSize={100} disableFooter
-                       defaultSort={{ field: 'date', sort: 'desc' }} />
-        </Paper>
+        <DataTable columns={columns} rows={props.views} pageSize={100} disableFooter
+                   defaultSort={{ field: 'date', sort: 'desc' }} />
     );
 }

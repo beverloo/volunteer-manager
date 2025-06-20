@@ -1,19 +1,14 @@
 // Copyright 2023 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
-import { notFound } from 'next/navigation';
 import { z } from 'zod/v4';
 
-import type { Event } from '@lib/Event';
 import { type DataTableEndpoints, createDataTableApi } from '../../../createDataTableApi';
-import { type ExportType, kExportType } from '@lib/database/Types';
 import { RecordLog, kLogSeverity, kLogType } from '@lib/Log';
-import { Temporal } from '@lib/Temporal';
-import { executeAccessCheck, type AuthenticationContext } from '@lib/auth/AuthenticationContext';
-import { getEventBySlug } from '@lib/EventLoader';
-import { hasAccessToExport } from '@app/admin/volunteers/exports/ExportPrivileges';
-import { nanoid } from '@lib/nanoid';
+import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
 import db, { tEvents, tExportsLogs, tExports, tUsers } from '@lib/database';
+
+import { kExportType } from '@lib/database/Types';
 
 /**
  * Row model for a data export.
@@ -96,85 +91,15 @@ export type ExportsEndpoints = DataTableEndpoints<typeof kExportRowModel, typeof
 export type ExportsRowModel = z.infer<typeof kExportRowModel>;
 
 /**
- * Exports an additional access check for the given `event` and `type`.
- */
-function executeActionCheckForEventAndType(
-    authenticationContext: AuthenticationContext, event: Event, type: ExportType): void | never
-{
-    if (!hasAccessToExport(type, authenticationContext.access))
-        notFound();
-
-    executeAccessCheck(authenticationContext, {
-        check: 'admin-event',
-        event: event.slug,
-        permission: 'volunteer.export',
-    });
-}
-
-/**
  * The Export API is implemented as a regular, editable DataTable API. All operations are only
  * available to people with the appropriate volunteering data export permission.
  */
-export const { DELETE, GET, POST } = createDataTableApi(kExportRowModel, kExportContext, {
+export const { DELETE, GET } = createDataTableApi(kExportRowModel, kExportContext, {
     accessCheck(request, action, props) {
         executeAccessCheck(props.authenticationContext, {
             check: 'admin',
-            permission: 'volunteer.export',
+            permission: 'organisation.exports',
         });
-    },
-
-    async create({ row }, props) {
-        if (!row.type || !row.justification || !row.expirationDate || !row.expirationViews)
-            return { success: false, error: 'Not all required fields were provided' };
-
-        const event = await getEventBySlug(row.event!);
-        if (!event)
-            return { success: false, error: 'An invalid event was provided' };
-
-        executeActionCheckForEventAndType(props.authenticationContext, event, row.type);
-
-        const slug = nanoid(/* size= */ 16);
-        if (!slug || slug.length !== 16)
-            return { success: false, error: 'Unable to generate an export slug' };
-
-        const expirationDate = Temporal.Instant.from(row.expirationDate).toZonedDateTimeISO('UTC');
-
-        const dbInstance = db;
-        const insertId = await dbInstance.insertInto(tExports)
-            .set({
-                exportSlug: slug,
-                exportEventId: event.eventId,
-                exportType: row.type,
-                exportJustification: row.justification,
-                exportCreatedDate: dbInstance.currentZonedDateTime(),
-                exportCreatedUserId: props.user!.id,
-                exportExpirationDate: expirationDate,
-                exportExpirationViews: row.expirationViews,
-                exportEnabled: /* true= */ 1,
-            })
-            .returningLastInsertedId()
-            .executeInsert();
-
-        if (!insertId)
-            return { success: false, error: 'xx' };
-
-        return {
-            success: true,
-            row: {
-                id: insertId,
-                slug: slug,
-                event: row.event!,
-                type: row.type,
-                justification: row.justification,
-                createdOn: Temporal.Now.zonedDateTimeISO().toString(),
-                createdBy: `${props.user!.firstName} ${props.user!.lastName}`,
-                createdByUserId: props.user!.id,
-                expirationDate: expirationDate.toString(),
-                expirationViews: row.expirationViews,
-                views: 0,
-                enabled: true,
-            },
-        };
     },
 
     async delete({ id }) {
@@ -225,13 +150,10 @@ export const { DELETE, GET, POST } = createDataTableApi(kExportRowModel, kExport
                 .offsetIfValue(pagination ? pagination.page * pagination.pageSize : null)
             .executeSelectPage();
 
-        // Only make available exports of data types that the volunteer is allowed to access.
-        const exportData = data.filter(row => hasAccessToExport(row.type, props.access))
-
         return {
             success: true,
             rowCount: count,
-            rows: exportData.map(row => ({
+            rows: data.map(row => ({
                 ...row,
                 createdOn: row.createdOn.toString(),
                 expirationDate: row.expirationDate.toString(),

@@ -244,6 +244,16 @@ export const kPermissions = {
         type: 'boolean',
     },
 
+    'organisation.exports': {
+        name: 'Export volunteering data',
+        description:
+            'This description controls whether they have the ability to export portions of ' +
+            'volunteering data for purposes of sharing this with a third party. All our data ' +
+            'export mechanisms are GDPR compatible.',
+        type: 'boolean',
+        warning: true,
+    },
+
     'organisation.feedback': {
         name: 'Feedback access',
         description:
@@ -414,16 +424,6 @@ export const kPermissions = {
     // Volunteer-associated permissions
     // ---------------------------------------------------------------------------------------------
 
-    'volunteer.export': {
-        name: 'Export volunteering information',
-        description:
-            'This description controls whether they have the ability to export portions of ' +
-            'volunteering information for purposes of sharing this with a third party. All our ' +
-            'data export mechanisms are GDPR compatible.',
-        type: 'boolean',
-        warning: true,
-    },
-
     'volunteer.settings.shifts': {
         name: 'Shift category settings',
         description:
@@ -516,6 +516,7 @@ export const kPermissionGroups: Record<string, string[]> = {
         'organisation.avatars',
         'organisation.displays',
         // note: organisation.environments omitted
+        'organisation.exports',
         'organisation.feedback',
         // note: organisation.impersonation omitted
         'organisation.nardo',
@@ -535,7 +536,6 @@ export const kPermissionGroups: Record<string, string[]> = {
         'system.logs:read',
         'system.subscriptions',
 
-        'volunteer.export',
         'volunteer.settings.shifts',
         'volunteer.silent',
     ],
@@ -563,6 +563,7 @@ export const kPermissionGroups: Record<string, string[]> = {
         'organisation.avatars',
         // note: organisation.displays omitted
         // note: organisation.environments omitted
+        'organisation.exports',
         'organisation.feedback',
         // note: organisation.impersonation omitted (restricted)
         'organisation.nardo',
@@ -575,7 +576,6 @@ export const kPermissionGroups: Record<string, string[]> = {
 
         'system.subscriptions.eligible',
 
-        // note: volunteer.export omitted
         // note: volunteer.settings.shifts omitted
         // note: volunteer.silent omitted
     ],
@@ -594,6 +594,7 @@ export const kPermissionGroups: Record<string, string[]> = {
         'organisation.avatars',
         // note: organisation.displays omitted
         // note: organisation.environments omitted
+        // note: organisation.exports omitted
         // note: organisation.feedback omitted
         // note: organisation.impersonation omitted (restricted)
         // note: organisation.nardo omitted
@@ -606,7 +607,6 @@ export const kPermissionGroups: Record<string, string[]> = {
 
         'system.subscriptions.eligible',
 
-        // note: volunteer.export omitted
         // note: volunteer.settings.shifts omitted
         // note: volunteer.silent omitted
     ],

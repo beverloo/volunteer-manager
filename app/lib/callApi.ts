@@ -150,7 +150,6 @@ export type ApiEndpoints = {
         '/api/admin/event/schedule/:event/:team': CreateScheduleEntryDefinition,
         '/api/admin/event/shifts/categories': EventShiftCategoriesEndpoints['create'],
         '/api/admin/event/shifts': EventShiftEndpoints['create'],
-        '/api/admin/exports': ExportsEndpoints['create'],
         '/api/admin/hotels/assignments': HotelsAssignmentsEndpoints['create'],
         '/api/admin/hotels': HotelsEndpoints['create'],
         '/api/admin/organisation/roles': RolesEndpoints['create'],

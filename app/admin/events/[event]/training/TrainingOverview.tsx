@@ -114,7 +114,7 @@ export function TrainingOverview(props: TrainingOverviewProps) {
     const router = useRouter();
     const handleExportButton = useCallback((event: React.MouseEvent) => {
         event.stopPropagation();
-        router.push('/admin/volunteers/exports');
+        router.push('/admin/organisation/exports/create');
     }, [ router ])
 
     return (

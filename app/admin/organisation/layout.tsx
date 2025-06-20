@@ -6,6 +6,7 @@ import CategoryIcon from '@mui/icons-material/Category';
 import FeedbackOutlinedIcon from '@mui/icons-material/FeedbackOutlined';
 import GridViewIcon from '@mui/icons-material/GridView';
 import PersonIcon from '@mui/icons-material/Person';
+import ShareIcon from '@mui/icons-material/Share';
 import TabletIcon from '@mui/icons-material/Tablet';
 import TipsAndUpdatesIcon from '@mui/icons-material/TipsAndUpdates';
 
@@ -45,6 +46,13 @@ export default async function OrganisationLayout(props: React.PropsWithChildren)
                 operation: 'read',
             },
             url: '/admin/organisation/accounts',
+        },
+        {
+            icon: <ShareIcon />,
+            label: 'Data exports',
+            permission: 'organisation.exports',
+            url: '/admin/organisation/exports/create',
+            urlPrefix: '/admin/organisation/exports',
         },
         {
             icon: <TipsAndUpdatesIcon />,
