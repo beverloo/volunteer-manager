@@ -520,6 +520,10 @@ tables:
   - name: export_event_id
     type: int(8) unsigned
     nullable: false
+  - name: export_team_id
+    type: int(4) unsigned
+    nullable: true
+    default: "NULL"
   - name: export_type
     type: enum('Credits','Discord','Refunds','Trainings','Volunteers','WhatsApp')
     nullable: false
@@ -565,6 +569,7 @@ tables:
       `export_id` int(8) unsigned NOT NULL AUTO_INCREMENT,
       `export_slug` varchar(16) NOT NULL,
       `export_event_id` int(8) unsigned NOT NULL,
+      `export_team_id` int(4) unsigned DEFAULT NULL,
       `export_type` enum('Credits','Discord','Refunds','Trainings','Volunteers','WhatsApp') NOT NULL,
       `export_justification` text NOT NULL,
       `export_created_date` datetime NOT NULL,

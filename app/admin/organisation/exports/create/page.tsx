@@ -15,7 +15,7 @@ import { DiscordIcon } from '../../dashboard/DiscordIcon';
 import { ExportTile } from './ExportTile';
 import { createGenerateMetadataFn } from '@app/admin/lib/generatePageMetadata';
 import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
-import db, { tEvents } from '@lib/database';
+import db, { tEvents, tTeams } from '@lib/database';
 
 import { kExportType } from '@lib/database/Types';
 
@@ -58,6 +58,16 @@ export default async function OrganisationExportsCreatePage() {
             id: tEvents.eventId,
             label: tEvents.eventShortName,
         })
+        .orderBy(tEvents.eventStartTime, 'desc')
+        .executeSelectMany();
+
+    const teams = await db.selectFrom(tTeams)
+        .where(tTeams.teamDeleted.isNull())
+        .select({
+            id: tTeams.teamId,
+            label: tTeams.teamName,
+        })
+        .orderBy('label', 'asc')
         .executeSelectMany();
 
     const exportCreditReelConsentFn = actions.createSimpleExport.bind(null, kExportType.Credits);
@@ -75,37 +85,37 @@ export default async function OrganisationExportsCreatePage() {
                     <ExportTile action={exportCreditReelConsentFn}
                                 icon={ <ReceiptIcon color="primary" /> }
                                 label="Credit reel consent">
-                        <CommonExportForm events={events} />
+                        <CommonExportForm events={events} teams={teams} />
                     </ExportTile>
 
                     <ExportTile action={exportDiscordHandlesFn}
                                 icon={ <DiscordIcon color="primary" /> }
                                 label="Discord handles">
-                        <CommonExportForm events={events} />
+                        <CommonExportForm events={events} teams={teams} />
                     </ExportTile>
 
                     <ExportTile action={exportRefundRequestsFn}
                                 icon={ <EuroIcon color="primary" /> }
                                 label="Refund requests">
-                        <CommonExportForm events={events} />
+                        <CommonExportForm events={events} teams={teams} />
                     </ExportTile>
 
                     <ExportTile action={exportTrainingsFn}
                                 icon={ <HistoryEduIcon color="primary" /> }
                                 label="Training participation">
-                        <CommonExportForm events={events} />
+                        <CommonExportForm events={events} teams={teams} />
                     </ExportTile>
 
                     <ExportTile action={exportVolunteersFn}
                                 icon={ <GroupsIcon color="primary" /> }
                                 label="Volunteer lists">
-                        <CommonExportForm events={events} />
+                        <CommonExportForm events={events} teams={teams} />
                     </ExportTile>
 
                     <ExportTile action={exportWhatsappFn}
                                 icon={ <WhatsAppIcon color="primary" /> }
                                 label="WhatsApp numbers">
-                        <CommonExportForm events={events} />
+                        <CommonExportForm events={events} teams={teams} />
                     </ExportTile>
                 </Stack>
             </Grid>
@@ -114,10 +124,25 @@ export default async function OrganisationExportsCreatePage() {
 }
 
 /**
+ * Props accepted by the <CommonExportForm> component.
+ */
+interface CommonExportFormProps {
+    /**
+     * Events that can be selected for a data export.
+     */
+    events: { id: number; label: string; }[];
+
+    /**
+     * Teams that can be selected for a data export. Optional field.
+     */
+    teams: { id: number; label: string; }[];
+}
+
+/**
  * Common form fields that need to be included in the export form. Represented by the
  * `kCreateSimpleExportData` type in the action definition.
  */
-function CommonExportForm(props: { events: { id: number; label: string; }[] }) {
+function CommonExportForm(props: CommonExportFormProps) {
     return (
         <>
             <Grid size={{ xs: 12, sm: 6 }}>
@@ -125,7 +150,8 @@ function CommonExportForm(props: { events: { id: number; label: string; }[] }) {
                                size="small" options={props.events} />
             </Grid>
             <Grid size={{ xs: 12, sm: 6 }}>
-                <em>TODO: Team</em>
+                <SelectElement name="team" label="Team (optional)" fullWidth
+                               size="small" options={props.teams} />
             </Grid>
 
             <Grid size={{ xs: 12, sm: 6 }}>

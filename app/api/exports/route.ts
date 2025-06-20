@@ -12,8 +12,8 @@ import { RecordLog, kLogType } from '@lib/Log';
 import { Temporal, formatDate } from '@lib/Temporal';
 import { readSetting } from '@lib/Settings';
 
-import db, { tEvents, tExports, tExportsLogs, tRefunds, tRoles, tTrainings, tTrainingsAssignments,
-    tTrainingsExtra, tUsers, tUsersEvents, tVendors } from '@lib/database';
+import db, { tEvents, tExports, tExportsLogs, tRefunds, tRoles, tTeams, tTrainings,
+    tTrainingsAssignments, tTrainingsExtra, tUsers, tUsersEvents, tVendors } from '@lib/database';
 
 /**
  * Data export type definition for credit reel consent.
@@ -323,6 +323,7 @@ async function exports(request: Request, props: ActionProps): Promise<Response> 
             eventId: tExports.exportEventId,
             eventName: tEvents.eventShortName,
             eventStartTime: tEvents.eventStartTime,
+            teamId: tExports.exportTeamId,
             type: tExports.exportType,
 
             maximumViews: tExports.exportExpirationViews,
@@ -382,6 +383,7 @@ async function exports(request: Request, props: ActionProps): Promise<Response> 
                 .on(tRoles.roleId.equals(tUsersEvents.roleId))
             .where(tUsersEvents.eventId.equals(metadata.eventId))
                 .and(tUsersEvents.registrationStatus.equals(kRegistrationStatus.Accepted))
+                .and(tUsersEvents.teamId.equalsIfValue(metadata.teamId))
             .select({
                 name: tUsers.name,
                 role: tRoles.roleName,
@@ -435,6 +437,7 @@ async function exports(request: Request, props: ActionProps): Promise<Response> 
                 .on(usersEventsJoin.userId.equals(tUsers.userId))
                     .and(usersEventsJoin.eventId.equals(metadata.eventId))
                     .and(usersEventsJoin.registrationStatus.equals(kRegistrationStatus.Accepted))
+                    .and(usersEventsJoin.teamId.equalsIfValue(metadata.teamId))
             .leftJoin(rolesJoin)
                 .on(rolesJoin.roleId.equals(usersEventsJoin.roleId))
             .where(tUsers.discordHandle.isNotNull())
@@ -467,6 +470,7 @@ async function exports(request: Request, props: ActionProps): Promise<Response> 
             .innerJoin(tUsers)
                 .on(tUsers.userId.equals(tUsersEvents.userId))
             .where(tUsersEvents.eventId.equals(metadata.eventId))
+                .and(tUsersEvents.teamId.equalsIfValue(metadata.teamId))
             .select({
                 date: tRefunds.refundRequested,
                 name: tUsers.name,
@@ -493,6 +497,7 @@ async function exports(request: Request, props: ActionProps): Promise<Response> 
         trainings = { sessions: [] };
 
         const trainingsExtraJoin = tTrainingsExtra.forUseInLeftJoin();
+        const usersEventsJoin = tUsersEvents.forUseInLeftJoin();
         const usersJoin = tUsers.forUseInLeftJoin();
 
         const dbInstance = db;
@@ -504,8 +509,13 @@ async function exports(request: Request, props: ActionProps): Promise<Response> 
                     tTrainingsAssignments.assignmentExtraId))
             .leftJoin(usersJoin)
                 .on(usersJoin.userId.equals(tTrainingsAssignments.assignmentUserId))
+            .leftJoin(usersEventsJoin)
+                .on(usersEventsJoin.userId.equals(tTrainingsAssignments.assignmentUserId))
+                    .and(usersEventsJoin.eventId.equals(metadata.eventId))
+                    .and(usersEventsJoin.teamId.equalsIfValue(metadata.teamId))
             .where(tTrainingsAssignments.eventId.equals(metadata.eventId))
                 .and(tTrainingsAssignments.assignmentConfirmed.equals(/* true= */ 1))
+                .and(usersEventsJoin.teamId.equalsIfValue(metadata.teamId))
             .select({
                 date: tTrainings.trainingStart,
                 name: trainingsExtraJoin.trainingExtraName.valueWhenNull(usersJoin.name),
@@ -564,6 +574,23 @@ async function exports(request: Request, props: ActionProps): Promise<Response> 
         // Full names of volunteers who have already been seen in the list.
         const seenVolunteers = new Set<string>;
 
+        // Whether the selected team (if relevant) manages any vendor teams.
+        let managesFirstAid: boolean = true;
+        let managesSecurity: boolean = true;
+
+        if (!!metadata.teamId) {
+            const settings = await db.selectFrom(tTeams)
+                .where(tTeams.teamId.equals(metadata.teamId))
+                .select({
+                    managesFirstAid: tTeams.teamFlagManagesFirstAid,
+                    managesSecurity: tTeams.teamFlagManagesSecurity,
+                })
+                .executeSelectNoneOrOne();
+
+            managesFirstAid = !!settings?.managesFirstAid;
+            managesSecurity = !!settings?.managesSecurity;
+        }
+
         const volunteerList = await db.selectFrom(tUsersEvents)
             .innerJoin(tUsers)
                 .on(tUsers.userId.equals(tUsersEvents.userId))
@@ -571,6 +598,7 @@ async function exports(request: Request, props: ActionProps): Promise<Response> 
                 .on(tRoles.roleId.equals(tUsersEvents.roleId))
             .where(tUsersEvents.eventId.equals(metadata.eventId))
                 .and(tUsersEvents.registrationStatus.equals(kRegistrationStatus.Accepted))
+                .and(tUsersEvents.teamId.equalsIfValue(metadata.teamId))
             .select({
                 role: tRoles.roleName,
                 username: tUsers.username,
@@ -639,6 +667,11 @@ async function exports(request: Request, props: ActionProps): Promise<Response> 
             if (seenVolunteers.has(`${vendor.firstName} ${vendor.lastName}`))
                 continue;  // they will already be receiving another ticket
 
+            if (vendor.team === kVendorTeam.FirstAid && !managesFirstAid)
+                continue;
+            if (vendor.team === kVendorTeam.Security && !managesSecurity)
+                continue;
+
             volunteers.push({
                 department: kDepartment,
                 role: kVendorTeamToRoleMapping[vendor.team],
@@ -662,6 +695,7 @@ async function exports(request: Request, props: ActionProps): Promise<Response> 
                 .on(tRoles.roleId.equals(tUsersEvents.roleId))
             .where(tUsersEvents.eventId.equals(metadata.eventId))
                 .and(tUsersEvents.registrationStatus.equals(kRegistrationStatus.Accepted))
+                .and(tUsersEvents.teamId.equalsIfValue(metadata.teamId))
                 .and(tUsersEvents.includeSocials.equals(/* true= */ 1))
             .select({
                 role: tRoles.roleName,

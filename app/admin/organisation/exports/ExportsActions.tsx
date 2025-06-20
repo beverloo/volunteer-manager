@@ -19,7 +19,7 @@ const kCreateSimpleExportData = z.object({
     availability: z.number().min(1).max(24 * 7 * 2),
     event: z.number(),
     justification: z.string().nonempty(),
-    // TODO: team
+    team: z.number().optional(),
     views: z.number().min(1).max(25),
 });
 
@@ -54,6 +54,7 @@ export async function createSimpleExport(type: ExportType, formData: unknown) {
             .set({
                 exportSlug: slug,
                 exportEventId: data.event,
+                exportTeamId: data.team,
                 exportType: type,
                 exportJustification: data.justification,
                 exportCreatedDate: dbInstance.currentZonedDateTime(),
@@ -82,6 +83,7 @@ export async function createSimpleExport(type: ExportType, formData: unknown) {
 
         return {
             success: true,
+            message: 'You are being redirected…',
             redirect: `/admin/organisation/exports/${insertId}`,
         };
     });
