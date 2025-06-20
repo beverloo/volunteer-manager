@@ -407,23 +407,18 @@ export async function updateAvailability(eventId: number, teamId: number, formDa
 
         // -----------------------------------------------------------------------------------------
 
-        type ConditionalUpdate = {
-            availabilityBuildUp?: string;
-            availabilityTearDown?: string;
-            availabilityTimeslots?: string,
-        };
-
-        const conditionalUpdateSet: ConditionalUpdate = { /* none yet */ };
-        if (event.availabilityBuildUpEnabled)
-            conditionalUpdateSet.availabilityBuildUp = data.availabilityBuildUp;
-        if (event.availabilityTearDownEnabled)
-            conditionalUpdateSet.availabilityTearDown = data.availabilityTearDown;
-        if (!!data.exceptionEvents)
-            conditionalUpdateSet.availabilityTimeslots = exceptionEvents.join(',');
-
         const affectedRows = await dbInstance.update(tUsersEvents)
+            .dynamicSet()
+            .setWhen(event.availabilityBuildUpEnabled, {
+                availabilityBuildUp: data.availabilityBuildUp,
+            })
+            .setWhen(event.availabilityTearDownEnabled, {
+                availabilityTearDown: data.availabilityTearDown,
+            })
+            .setWhen(!!data.exceptionEvents, {
+                availabilityTimeslots: exceptionEvents.join(','),
+            })
             .set({
-                ...conditionalUpdateSet,
                 preferences: data.preferences,
                 preferencesDietary: data.preferencesDietary,
                 preferenceHours: parseInt(data.serviceHours, /* radix= */ 10),
