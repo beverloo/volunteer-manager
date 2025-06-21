@@ -13,7 +13,7 @@ export async function getShiftMetadata(festivalId?: number) {
             id: tActivities.activityId,
             label: tActivities.activityTitle,
         })
-        .where(tActivities.activityFestivalId.equalsIfValue(festivalId))
+        .where(tActivities.activityFestivalId.equals(festivalId ?? -1))
             .and(tActivities.activityDeleted.isNull())
         .orderBy('label', 'asc')
         .executeSelectMany();
@@ -33,7 +33,7 @@ export async function getShiftMetadata(festivalId?: number) {
             label: tActivitiesLocations.locationDisplayName.valueWhenNull(
                 tActivitiesLocations.locationName),
         })
-        .where(tActivitiesLocations.locationFestivalId.equalsIfValue(festivalId))
+        .where(tActivitiesLocations.locationFestivalId.equals(festivalId ?? -1))
             .and(tActivitiesLocations.locationDeleted.isNull())
         .orderBy('label', 'asc')
         .executeSelectMany();

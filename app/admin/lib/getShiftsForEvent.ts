@@ -138,7 +138,7 @@ function determineShiftWarning(shift: DemandShift, demand: number, scheduled: nu
  * Reads the shifts for the given `eventId` from the database, and returns them as an array. Both
  * the shifts' order and colours will be resolved automatically.
  */
-export async function getShiftsForEvent(eventId: number, festivalId: number): Promise<Shift[]> {
+export async function getShiftsForEvent(eventId: number, festivalId?: number): Promise<Shift[]> {
     const activitiesJoin = tActivities.forUseInLeftJoin();
     const scheduleJoin = tSchedule.forUseInLeftJoin();
     const usersEventsJoin = tUsersEvents.forUseInLeftJoin();
@@ -154,7 +154,7 @@ export async function getShiftsForEvent(eventId: number, festivalId: number): Pr
             .on(tTeams.teamId.equals(tShifts.teamId))
         .leftJoin(activitiesJoin)
                 .on(activitiesJoin.activityId.equals(tShifts.shiftActivityId))
-                    .and(activitiesJoin.activityFestivalId.equalsIfValue(festivalId))
+                    .and(activitiesJoin.activityFestivalId.equals(festivalId ?? -1))
                     .and(activitiesJoin.activityDeleted.isNull())
         .leftJoin(scheduleJoin)
             .on(scheduleJoin.shiftId.equals(tShifts.shiftId))
