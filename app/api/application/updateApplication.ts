@@ -147,7 +147,7 @@ export async function updateApplication(request: Request, props: ActionProps): P
         if (request.status.registrationStatus !== kRegistrationStatus.Registered) {
             const { subject, message } = request.status;
             if (!subject || !message) {
-                if (!props.access.can('volunteer.silent'))
+                if (!props.access.can('organisation.silent'))
                     forbidden();
 
             } else {

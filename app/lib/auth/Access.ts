@@ -301,6 +301,15 @@ export const kPermissions = {
         type: 'boolean',
     },
 
+    'organisation.silent': {
+        name: 'Silent mutations',
+        description:
+            'This permission controls whether they have the ability to make significant changes ' +
+            'to someone\'s participation in an event without having to send them a message.',
+        type: 'boolean',
+        warning: true,
+    },
+
     'organisation.teams': {
         name: 'Team management',
         description:
@@ -433,15 +442,6 @@ export const kPermissions = {
         type: 'boolean',
     },
 
-    'volunteer.silent': {
-        name: 'Silent mutations',
-        description:
-            'This permission controls whether they have the ability to make significant changes ' +
-            'to someone\'s participation in an event without having to send them a message.',
-        type: 'boolean',
-        warning: true,
-    },
-
     // ---------------------------------------------------------------------------------------------
     // Permissions that exist for testing purposes
     // ---------------------------------------------------------------------------------------------
@@ -522,6 +522,7 @@ export const kPermissionGroups: Record<string, string[]> = {
         'organisation.nardo',
         'organisation.permissions',
         'organisation.roles',
+        'organisation.silent',
         'organisation.teams',
 
         'statistics.basic',
@@ -537,7 +538,6 @@ export const kPermissionGroups: Record<string, string[]> = {
         'system.subscriptions',
 
         'volunteer.settings.shifts',
-        'volunteer.silent',
     ],
 
     staff: [
@@ -569,6 +569,7 @@ export const kPermissionGroups: Record<string, string[]> = {
         'organisation.nardo',
         // note: organisation.permissions omitted
         // note: organisation.roles omitted
+        // note: organisation.silent omitted
         // note: organisation.teams omitted
 
         'statistics.basic',
@@ -577,7 +578,6 @@ export const kPermissionGroups: Record<string, string[]> = {
         'system.subscriptions.eligible',
 
         // note: volunteer.settings.shifts omitted
-        // note: volunteer.silent omitted
     ],
 
     senior: [
@@ -600,6 +600,7 @@ export const kPermissionGroups: Record<string, string[]> = {
         // note: organisation.nardo omitted
         // note: organisation.permissions omitted
         // note: organisation.roles omitted
+        // note: organisation.silent omitted
         // note: organisation.teams omitted
 
         'statistics.basic',
@@ -608,7 +609,6 @@ export const kPermissionGroups: Record<string, string[]> = {
         'system.subscriptions.eligible',
 
         // note: volunteer.settings.shifts omitted
-        // note: volunteer.silent omitted
     ],
 
     testgroup: [ 'test' ],  // for testing purposes only

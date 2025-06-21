@@ -73,7 +73,7 @@ export async function decideApplication(
             notFound();
 
         if (!data.subject || !data.message) {
-            if (!access.can('volunteer.silent'))
+            if (!access.can('organisation.silent'))
                 forbidden();
         } else {
             const username = await db.selectFrom(tUsers)

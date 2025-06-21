@@ -197,7 +197,7 @@ export default async function ApplicationsPage(props: NextPageParams<'event' | '
     const canAccessAccounts = access.can('organisation.accounts', 'read');
 
     // Whether the signed in user has the ability to commit actions without communication.
-    const canRespondSilently = access.can('volunteer.silent');
+    const canRespondSilently = access.can('organisation.silent');
 
     return (
         <>
