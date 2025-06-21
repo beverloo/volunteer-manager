@@ -106,7 +106,8 @@ export async function AdminHeader(props: AdminHeaderProps) {
 
     const showPromo: boolean =
         (currentTimeEpochMs - previousPromotionEpochMs) > kPromoReminderIntervalMs &&
-        !accountSettings.exampleMessages.length;
+        !accountSettings.exampleMessages.length &&
+        /* hard disabled= */ false;
 
     if (showPromo)
         await writeUserSetting(user.id, 'user-ai-example-messages-promo-time', currentTimeEpochMs);
