@@ -4,7 +4,7 @@
 import { z } from 'zod/v4';
 
 import { type DataTableEndpoints, createDataTableApi } from '../../../createDataTableApi';
-import { RecordLog, kLogSeverity, kLogType } from '@lib/Log';
+import { Temporal, isBefore } from '@lib/Temporal';
 import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
 import db, { tEvents, tExportsLogs, tExports, tUsers } from '@lib/database';
 
@@ -94,7 +94,7 @@ export type ExportsRowModel = z.infer<typeof kExportRowModel>;
  * The Export API is implemented as a regular, editable DataTable API. All operations are only
  * available to people with the appropriate volunteering data export permission.
  */
-export const { DELETE, GET } = createDataTableApi(kExportRowModel, kExportContext, {
+export const { GET } = createDataTableApi(kExportRowModel, kExportContext, {
     accessCheck(request, action, props) {
         executeAccessCheck(props.authenticationContext, {
             check: 'admin',
@@ -102,25 +102,10 @@ export const { DELETE, GET } = createDataTableApi(kExportRowModel, kExportContex
         });
     },
 
-    async delete({ id }) {
-        const affectedRows = await db.update(tExports)
-            .set({
-                exportEnabled: /* false= */ 0
-            })
-            .where(tExports.exportId.equals(id))
-                .and(tExports.exportEnabled.equals(/* true= */ 1))
-            .executeUpdate();
-
-        return {
-            success: !!affectedRows,
-            replacementRow: {
-                enabled: false,
-            },
-        };
-    },
-
     async list({ pagination, sort }, props) {
         const dbInstance = db;
+
+        const currentDate = Temporal.Now.zonedDateTimeISO();
 
         const exportsLogsJoin = tExportsLogs.forUseInLeftJoin();
         const { count, data } = await dbInstance.selectFrom(tExports)
@@ -157,26 +142,11 @@ export const { DELETE, GET } = createDataTableApi(kExportRowModel, kExportContex
                 ...row,
                 createdOn: row.createdOn.toString(),
                 expirationDate: row.expirationDate.toString(),
+                enabled:
+                    row.enabled &&
+                    row.expirationViews > row.views &&
+                    isBefore(currentDate, row.expirationDate),
             })),
         }
-    },
-
-    async writeLog({ id }, mutation, props) {
-        const { eventName, type } = await db.selectFrom(tExports)
-            .innerJoin(tEvents)
-                .on(tEvents.eventId.equals(tExports.exportEventId))
-            .where(tExports.exportId.equals(id))
-            .select({
-                eventName: tEvents.eventShortName,
-                type: tExports.exportType,
-            })
-            .executeSelectOne();
-
-        RecordLog({
-            type: kLogType.AdminExportMutation,
-            severity: kLogSeverity.Warning,
-            sourceUser: props.user,
-            data: { eventName, type, mutation },
-        });
     },
 });

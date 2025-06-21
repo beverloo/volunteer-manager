@@ -6,6 +6,7 @@
 import Link from 'next/link';
 
 import { default as MuiLink } from '@mui/material/Link';
+import ShareIcon from '@mui/icons-material/Share';
 import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
 
@@ -22,18 +23,24 @@ export function ExportsDataTable() {
 
     const columns: RemoteDataTableColumn<ExportsRowModel>[] = [
         {
+            display: 'flex',
             field: 'id',
             headerName: /* empty= */ '',
+            align: 'center',
             sortable: false,
             width: 50,
 
-            // Rows can only be "deleted" when the export is still accessible. This is determined by
-            // three individual fields, each of which can lock availability.
-            isProtected: params =>
-                !params.row.enabled ||
-                params.row.views >= params.row.expirationViews ||
-                Temporal.ZonedDateTime.compare(
-                    now, Temporal.ZonedDateTime.from(params.row.expirationDate)) >= 0
+            renderCell: params =>
+                <>
+                    { !!params.row.enabled &&
+                        <Tooltip title="The exported data is available">
+                            <ShareIcon color="warning" fontSize="small" />
+                        </Tooltip> }
+                    { !params.row.enabled &&
+                        <Tooltip title="The exported data no longer is available">
+                            <ShareIcon color="disabled" fontSize="small" />
+                        </Tooltip> }
+                </>,
         },
         {
             field: 'event',
@@ -75,7 +82,7 @@ export function ExportsDataTable() {
                     );
                 } else {
                     return (
-                        <Tooltip title={formatDate(value, 'YYYY-MM-DD [at] HH:mm:ss')}>
+                        <Tooltip title={formatDate(value, 'dddd, MMMM Do [at] HH:mm:ss')}>
                             <Typography component="span" variant="body2">
                                 { formatDuration(now.until(value)) }
                             </Typography>
@@ -101,7 +108,7 @@ export function ExportsDataTable() {
     ];
 
     return (
-        <RemoteDataTable columns={columns} endpoint="/api/admin/exports" enableDelete
+        <RemoteDataTable columns={columns} endpoint="/api/admin/exports"
                          enableQueryParams defaultSort={{ field: 'createdOn', sort: 'desc' }}
                          pageSize={25} />
     );

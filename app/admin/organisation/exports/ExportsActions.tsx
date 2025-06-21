@@ -88,3 +88,62 @@ export async function createSimpleExport(type: ExportType, formData: unknown) {
         };
     });
 }
+
+/**
+ * Zod type that describes that no information is required.
+ */
+const kNoDataRequired = z.object({ /* no parameters */ });
+
+/**
+ * Server action that can be used to expire a data export, rendering it inaccessible.
+ */
+export async function expireExport(exportId: number, formData: unknown) {
+    'use server';
+    return executeServerAction(formData, kNoDataRequired, async (data, props) => {
+        await requireAuthenticationContext({
+            check: 'admin',
+            permission: 'organisation.exports',
+        });
+
+        const info = await db.selectFrom(tExports)
+            .innerJoin(tEvents)
+                .on(tEvents.eventId.equals(tExports.exportEventId))
+            .where(tExports.exportId.equals(exportId))
+            .select({
+                shortName: tEvents.eventShortName,
+                type: tExports.exportType,
+            })
+            .executeSelectNoneOrOne();
+
+        if (!info)
+            notFound();
+
+        const affectedRows = await db.update(tExports)
+            .set({
+                exportEnabled: /* false= */ 0
+            })
+            .where(tExports.exportId.equals(exportId))
+                .and(tExports.exportEnabled.equals(/* true= */ 1))
+            .executeUpdate();
+
+        if (!affectedRows)
+            return { success: false, error: 'Unable to expire the export in the database…' };
+
+        RecordLog({
+            type: kLogType.AdminExportMutation,
+            severity: kLogSeverity.Warning,
+            sourceUser: props.user,
+            data: {
+                eventName: info.shortName,
+                mutation: 'Expired',
+                type: info.type,
+            },
+        });
+
+        return {
+            success: true,
+            refresh: true,
+            message: 'Access to the data has been revoked.',
+        };
+    });
+}

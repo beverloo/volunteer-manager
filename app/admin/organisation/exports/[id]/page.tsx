@@ -11,16 +11,21 @@ import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
 import TableRow from '@mui/material/TableRow';
 import Typography from '@mui/material/Typography';
+import UpdateDisabledIcon from '@mui/icons-material/UpdateDisabled';
 
 import type { NextPageParams } from '@lib/NextRouterParams';
+import { AccessLogsDataTable } from './AccessLogsDataTable';
 import { BackButtonGrid } from '@app/admin/components/BackButtonGrid';
+import { ConfirmationButton } from '@app/admin/components/ConfirmationButton';
 import { LocalDateTime } from '@app/admin/components/LocalDateTime';
 import { ShareableLink } from './ShareableLink';
+import { Temporal, isBefore } from '@lib/Temporal';
 import { createGenerateMetadataFn } from '@app/admin/lib/generatePageMetadata';
 import { determineEnvironment } from '@lib/Environment';
 import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
 import db, { tEvents, tExportsLogs, tExports, tUsers } from '@lib/database';
-import { AccessLogsDataTable } from './AccessLogsDataTable';
+
+import * as actions from '../ExportsActions';
 
 /**
  * The <OrganisationExportsLogPage> component displays the information associated with a singular
@@ -54,7 +59,8 @@ export default async function OrganisationExportsLogPage(props: NextPageParams<'
             slug: tExports.exportSlug,
             type: tExports.exportType,
             eventName: tEvents.eventShortName,
-            expirationDate: dbInstance.dateTimeAsString(tExports.exportExpirationDate),
+            enabled: tExports.exportEnabled,
+            expirationDate: tExports.exportExpirationDate,
             expirationViews: tExports.exportExpirationViews,
             justification: tExports.exportJustification,
             userId: tExports.exportCreatedUserId,
@@ -66,6 +72,11 @@ export default async function OrganisationExportsLogPage(props: NextPageParams<'
 
     if (!data)
         notFound();
+
+    const active =
+        data.enabled &&
+        data.expirationViews > data.views &&
+        isBefore(Temporal.Now.zonedDateTimeISO(), data.expirationDate);
 
     const usersJoin = tUsers.forUseInLeftJoin();
 
@@ -84,13 +95,25 @@ export default async function OrganisationExportsLogPage(props: NextPageParams<'
         })
         .executeSelectMany();
 
+    const expireExportFn = actions.expireExport.bind(null, parseInt(id, 10));
     const shareableLink = `https://${environment.domain}/exports/${data.slug}`;
 
     return (
         <Grid container spacing={2}>
-            <BackButtonGrid href="/admin/organisation/exports">
+            <BackButtonGrid href="/admin/organisation/exports"
+                            size={ active ? 6 : 12 }>
                 Back to export logs
             </BackButtonGrid>
+            { !!active &&
+                    <Grid size={{ xs: 6 }}>
+                        <ConfirmationButton action={expireExportFn} callToAction="Expire"
+                                            icon={ <UpdateDisabledIcon /> }
+                                            label="Expire this export…"
+                                            sx={{ float: 'right' }}>
+                            Are you sure you want to revoke access to this export? Once you do,
+                            anyone with the link will no longer be able to view the exported data.
+                        </ConfirmationButton>
+                    </Grid> }
 
             <Grid size={{ xs: 12 }}>
                 <Table size="small" sx={{ mt: -1 }}>
@@ -108,7 +131,7 @@ export default async function OrganisationExportsLogPage(props: NextPageParams<'
                                 Expiration date
                             </TableCell>
                             <TableCell>
-                                <LocalDateTime dateTime={data.expirationDate}
+                                <LocalDateTime dateTime={data.expirationDate.toString()}
                                                format="MMMM D, YYYY [at] HH:mm:ss" />
                             </TableCell>
                         </TableRow>

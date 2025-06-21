@@ -201,7 +201,6 @@ export type ApiEndpoints = {
         '/api/admin/event/schedule/:event/:team/:id': DeleteScheduleEntryDefinition,
         '/api/admin/event/shifts/categories/:id': EventShiftCategoriesEndpoints['delete'],
         '/api/admin/event/shifts/:id': EventShiftEndpoints['delete'],
-        '/api/admin/exports/:id': ExportsEndpoints['delete'],
         '/api/admin/hotels/assignments/:id': HotelsAssignmentsEndpoints['delete'],
         '/api/admin/hotels/:id': HotelsEndpoints['delete'],
         '/api/admin/logs/:id': LogsEndpoints['delete'],
