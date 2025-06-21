@@ -83,7 +83,7 @@ export async function createSimpleExport(type: ExportType, formData: unknown) {
 
         return {
             success: true,
-            message: 'You are being redirected…',
+            message: 'The data has been exported—you are being redirected…',
             redirect: `/admin/organisation/exports/${insertId}`,
         };
     });

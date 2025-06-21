@@ -97,13 +97,13 @@ export default async function OrganisationExportsCreatePage() {
                     <ExportTile action={exportRefundRequestsFn}
                                 icon={ <EuroIcon color="primary" /> }
                                 label="Refund requests">
-                        <CommonExportForm events={events} teams={teams} />
+                        <CommonExportForm events={events} />
                     </ExportTile>
 
                     <ExportTile action={exportTrainingsFn}
                                 icon={ <HistoryEduIcon color="primary" /> }
                                 label="Training participation">
-                        <CommonExportForm events={events} teams={teams} />
+                        <CommonExportForm events={events} />
                     </ExportTile>
 
                     <ExportTile action={exportVolunteersFn}
@@ -135,7 +135,7 @@ interface CommonExportFormProps {
     /**
      * Teams that can be selected for a data export. Optional field.
      */
-    teams: { id: number; label: string; }[];
+    teams?: { id: number; label: string; }[];
 }
 
 /**
@@ -145,14 +145,15 @@ interface CommonExportFormProps {
 function CommonExportForm(props: CommonExportFormProps) {
     return (
         <>
-            <Grid size={{ xs: 12, sm: 6 }}>
+            <Grid size={{ xs: 12, sm: !!props.teams ? 6 : 12 }}>
                 <SelectElement name="event" label="Event" required fullWidth
                                size="small" options={props.events} />
             </Grid>
-            <Grid size={{ xs: 12, sm: 6 }}>
-                <SelectElement name="team" label="Team (optional)" fullWidth
-                               size="small" options={props.teams} />
-            </Grid>
+            { !!props.teams &&
+                <Grid size={{ xs: 12, sm: 6 }}>
+                    <SelectElement name="team" label="Team (optional)" fullWidth
+                                   size="small" options={props.teams} />
+                </Grid> }
 
             <Grid size={{ xs: 12, sm: 6 }}>
                 <SelectElement name="availability" label="Time limit" required fullWidth
