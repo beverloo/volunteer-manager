@@ -37,10 +37,10 @@ export default async function OrganisationPage() {
                 </Grid> }
             { (canAccessAccounts && (canAccessDisplays || canAccessFeedback)) &&
                 <>
-                    <Grid size={{ xs: 6 }}>
+                    <Grid size={{ xs: 12, md: 6 }}>
                         <AccountWarningCard />
                     </Grid>
-                    <Grid size={{ xs: 6 }}>
+                    <Grid size={{ xs: 12, md: 6 }}>
                         <Stack direction="column" spacing={2}>
                             { canAccessFeedback && <FeedbackCard /> }
                             { canAccessDisplays && <DisplaysCard /> }
