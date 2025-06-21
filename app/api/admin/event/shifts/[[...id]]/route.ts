@@ -274,7 +274,7 @@ createDataTableApi(kEventShiftRowModel, kEventShiftContext, {
 
     async list({ context, sort }) {
         const { event, team } = await validateContext(context);
-        if (!event || !team || !event.festivalId)
+        if (!event || !team)
             notFound();
 
         const shifts = await getShiftsForEvent(event.id, event.festivalId);

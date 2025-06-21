@@ -108,6 +108,16 @@ export const kPermissions = {
         type: 'boolean',
     },
 
+    'event.shift-categories': {
+        name: 'Shift category settings',
+        description:
+            'This permission decides whether they have access to the shift category settings, ' +
+            'which are shared across events. Messing up these settings could potentially affect ' +
+            'mutability of past events in the scheduling app.',
+        type: 'boolean',
+        warning: true,
+    },
+
     'event.shifts': {
         name: 'Event shift planning',
         description:
@@ -430,19 +440,6 @@ export const kPermissions = {
     },
 
     // ---------------------------------------------------------------------------------------------
-    // Volunteer-associated permissions
-    // ---------------------------------------------------------------------------------------------
-
-    'volunteer.settings.shifts': {
-        name: 'Shift category settings',
-        description:
-            'This permission decides whether they have access to the shift category settings, ' +
-            'which are shared across events. Messing up these settings could potentially affect ' +
-            'mutability of past events in the scheduling app.',
-        type: 'boolean',
-    },
-
-    // ---------------------------------------------------------------------------------------------
     // Permissions that exist for testing purposes
     // ---------------------------------------------------------------------------------------------
 
@@ -536,8 +533,6 @@ export const kPermissionGroups: Record<string, string[]> = {
         // note: system.logs:delete omitted (restricted)
         'system.logs:read',
         'system.subscriptions',
-
-        'volunteer.settings.shifts',
     ],
 
     staff: [
@@ -548,6 +543,7 @@ export const kPermissionGroups: Record<string, string[]> = {
         'event.retention',
         'event.schedule',
         'event.settings',
+        // note: event.shift-categories omitted
         'event.shifts',
         'event.trainings',
         'event.vendors',
@@ -576,8 +572,6 @@ export const kPermissionGroups: Record<string, string[]> = {
         // note: statistics.finances omitted
 
         'system.subscriptions.eligible',
-
-        // note: volunteer.settings.shifts omitted
     ],
 
     senior: [
@@ -585,6 +579,7 @@ export const kPermissionGroups: Record<string, string[]> = {
         'event.retention',
         'event.schedule.access',
         'event.schedule.planning:read',
+        // note: event.shift-categories omitted
         'event.shifts:read',
         'event.vendors:read',
         'event.visible',
@@ -607,8 +602,6 @@ export const kPermissionGroups: Record<string, string[]> = {
         // note: statistics.finances omitted
 
         'system.subscriptions.eligible',
-
-        // note: volunteer.settings.shifts omitted
     ],
 
     testgroup: [ 'test' ],  // for testing purposes only

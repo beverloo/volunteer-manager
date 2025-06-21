@@ -1,10 +1,14 @@
 // Copyright 2024 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
+import Link from 'next/link';
 import { forbidden, notFound } from 'next/navigation';
 
 import Alert from '@mui/material/Alert';
+import CategoryIcon from '@mui/icons-material/Category';
+import IconButton from '@mui/material/IconButton';
 import Paper from '@mui/material/Paper';
+import Tooltip from '@mui/material/Tooltip';
 
 import type { NextPageParams } from '@lib/NextRouterParams';
 import { CollapsableSection } from '@app/admin/components/CollapsableSection';
@@ -39,6 +43,17 @@ export default async function EventTeamShiftsPage(props: NextPageParams<'event' 
 
     const { activities, categories, locations } = await getShiftMetadata(event.festivalId);
 
+    let headerAction: React.ReactNode;
+    if (access.can('event.shift-categories')) {
+        headerAction = (
+            <Tooltip title="Shift categories">
+                <IconButton LinkComponent={Link} href="./shifts/categories" size="small">
+                    <CategoryIcon color="primary" fontSize="small" />
+                </IconButton>
+            </Tooltip>
+        );
+    }
+
     // TODO: Box with warnings regarding the shifts (e.g. out-of-sync entries).
     const warnings: any[] = [ ];
 
@@ -49,7 +64,7 @@ export default async function EventTeamShiftsPage(props: NextPageParams<'event' 
                     Please ask your Staff member to add you to the scheduling team if you would like
                     to be able to make any changes.
                 </Paper> }
-            <Section title="Shifts" subtitle={team.name}>
+            <Section title="Shifts" headerAction={headerAction} subtitle={team.name}>
                 <ShiftTable event={event.slug} team={team.slug} canDeleteShifts={canDeleteShifts} />
             </Section>
             <CollapsableSection in={!!warnings.length} title="Shift warnings">

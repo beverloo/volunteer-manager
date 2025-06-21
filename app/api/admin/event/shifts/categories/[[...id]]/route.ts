@@ -73,7 +73,7 @@ createDataTableApi(kEventShiftCategoryRowModel, kEventShiftCategoryContext, {
     async accessCheck(request, action, props) {
         executeAccessCheck(props.authenticationContext, {
             check: 'admin',
-            permission: 'volunteer.settings.shifts',
+            permission: 'event.shift-categories',
         });
     },
 

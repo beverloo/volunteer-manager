@@ -13,15 +13,15 @@ import type { AccountSettings } from './organisation/accounts/[id]/settings/Acco
 import type { User } from '@lib/auth/User';
 import { AdminHeaderEventsMenu } from './AdminHeaderEventsMenu';
 import { AdminHeaderSettingsButton } from './AdminHeaderSettingsButton';
+import { AdminHeaderPromoDialog } from './AdminHeaderPromoDialog';
 import { Temporal } from '@lib/Temporal';
-import { checkPermission, or } from '@lib/auth/AuthenticationContext';
+import { checkPermission } from '@lib/auth/AuthenticationContext';
 import { getExampleMessagesForUser } from './lib/getExampleMessagesForUser';
 import { updateAccountSettings } from './organisation/accounts/[id]/AccountActions';
 import db, { tEvents } from '@lib/database';
 
 import { kAnyTeam, type AccessControl } from '@lib/auth/AccessControl';
 import { kDashboardPermissions } from './organisation/dashboard/DashboardPermissions';
-import { AdminHeaderPromoDialog } from './AdminHeaderPromoDialog';
 import { writeUserSetting } from '@lib/UserSettings';
 
 /**
@@ -114,9 +114,6 @@ export async function AdminHeader(props: AdminHeaderProps) {
     // ---------------------------------------------------------------------------------------------
 
     const canAccessOrganisationSection = checkPermission(access, kDashboardPermissions);
-    const canAccessVolunteersSection = checkPermission(access, or(
-        'volunteer.settings.shifts'
-    ));
 
     return (
         <Paper>
@@ -162,12 +159,6 @@ export async function AdminHeader(props: AdminHeaderProps) {
                             color="inherit">
                         Organisation
                     </Button>}
-
-                { canAccessVolunteersSection &&
-                    <Button component={Link} href="/admin/volunteers" variant="text"
-                            color="inherit">
-                        Stuff that needs to move
-                    </Button> }
 
             </Stack>
 

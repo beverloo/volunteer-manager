@@ -1,11 +1,10 @@
-// Copyright 2024 Peter Beverloo & AnimeCon. All rights reserved.
+// Copyright 2025 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
-
-import type { Metadata } from 'next';
 
 import { Section } from '@app/admin/components/Section';
 import { SectionIntroduction } from '@app/admin/components/SectionIntroduction';
 import { ShiftCategoriesTable } from './ShiftCategoriesTable';
+import { generateEventMetadataFn } from '../../../generateEventMetadataFn';
 import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
 
 /**
@@ -15,20 +14,18 @@ import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
 export default async function ShiftCategoriesPage() {
     await requireAuthenticationContext({
         check: 'admin',
-        permission: 'volunteer.settings.shifts',
+        permission: 'event.shift-categories',
     });
 
     return (
         <Section title="Shift categories">
             <SectionIntroduction important>
-                Shift categories are shared across all events and teams, and define the visual
-                identity of each shift in scheduling.
+                Shift categories are <strong>shared across all events and teams</strong>, and
+                define the visual identity of each shift in scheduling.
             </SectionIntroduction>
             <ShiftCategoriesTable />
         </Section>
     );
 }
 
-export const metadata: Metadata = {
-    title: 'Shift categories | AnimeCon Volunteer Manager',
-};
+export const generateMetadata = generateEventMetadataFn('Shift categories');
