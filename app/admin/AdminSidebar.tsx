@@ -1,32 +1,15 @@
 // Copyright 2024 Peter Beverloo & AnimeCon. All rights reserved.
 // Use of this source code is governed by a MIT license that can be found in the LICENSE file.
 
-import type { SxProps } from '@mui/system';
-import type { Theme } from '@mui/material/styles';
-import Paper from '@mui/material/Paper';
-import Typography from '@mui/material/Typography';
-
 import type { AdminSidebarMenuEntry, RenderSidebarMenuProps } from './AdminSidebarClient';
 import type { AccessControl } from '@lib/auth/AccessControl';
-import { RenderSidebarClient } from './AdminSidebarClient';
+import { AdminSidebarClient } from './AdminSidebarClient';
 import { checkPermission, or } from '@lib/auth/AuthenticationContext';
 
 /**
  * Re-export the types from the client file.
  */
 export type { AdminSidebarMenuEntry, AdminSidebarMenuSubMenuItem } from './AdminSidebarClient';
-
-/**
- * Custom styles applied to the <AdminSidebar> & related components.
- */
-const kStyles: { [key: string]: SxProps<Theme> } = {
-    header: {
-        backgroundColor: 'animecon.adminHeaderBackground',
-        color: 'primary.contrastText',
-        paddingX: 2,
-        paddingY: 1,
-    },
-};
 
 /**
  * Filters the `menu` options based on permissions defined within the structure. When a permission
@@ -65,6 +48,12 @@ interface AdminSidebarProps extends RenderSidebarMenuProps {
     access: AccessControl;
 
     /**
+     * Whether the sidebar should be rendered in responsive mode, which will optimise for mobile
+     * devices when there is a need for this.
+     */
+    responsive?: boolean;
+
+    /**
      * Title to display at the top of the sidebar.
      */
     title: string;
@@ -77,11 +66,6 @@ interface AdminSidebarProps extends RenderSidebarMenuProps {
 export function AdminSidebar(props: AdminSidebarProps) {
     const menu = filterMenuOptions(props.menu, props.access);
     return (
-        <Paper sx={{ alignSelf: 'flex-start', flexShrink: 0, width: '280px', overflow: 'hidden' }}>
-            <Typography variant="h6" sx={kStyles.header}>
-                {props.title}
-            </Typography>
-            <RenderSidebarClient menu={menu} />
-        </Paper>
+        <AdminSidebarClient menu={menu} responsive={props.responsive} title={props.title} />
     );
 }

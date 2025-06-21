@@ -18,9 +18,13 @@ import List from '@mui/material/List';
 import ListItemButton from '@mui/material/ListItemButton';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
+import Paper from '@mui/material/Paper';
+import Typography from '@mui/material/Typography';
 import { deepmerge } from '@mui/utils';
+import useMediaQuery from '@mui/material/useMediaQuery';
 
 import type { PermissionAccessCheck } from '@lib/auth/AuthenticationContext';
+import { AdminSidebarMobileClient } from './AdminSidebarMobileClient';
 
 /**
  * Custom styles applied to the <AdminSidebar> & related components.
@@ -33,6 +37,13 @@ const kStyles: { [key: string]: SxProps<Theme> } = {
         '&.Mui-selected .MuiSvgIcon-root': {
             color: 'secondary.dark',
         },
+    },
+
+    header: {
+        backgroundColor: 'animecon.adminHeaderBackground',
+        color: 'primary.contrastText',
+        paddingX: 2,
+        paddingY: 1,
     },
 };
 
@@ -230,7 +241,7 @@ export function RenderSidebarClient(props: RenderSidebarMenuProps) {
                             </ListItemIcon> }
 
                         <ListItemText primaryTypographyProps={{ noWrap: true }}
-                                        primary={entry.label} />
+                                      primary={entry.label} />
 
                         { (typeof entry.badge === 'number' && entry.badge > 0) &&
                             <Badge badgeContent={entry.badge} sx={{ mx: 2 }}
@@ -240,5 +251,55 @@ export function RenderSidebarClient(props: RenderSidebarMenuProps) {
                 );
             }) }
         </List>
+    );
+}
+
+/**
+ * Props accepted by the <AdminSidebarClient> component.
+ */
+interface AdminSidebarClientProps extends RenderSidebarMenuProps {
+    /**
+     * Whether the sidebar should be rendered in responsive mode, which will optimise for mobile
+     * devices when there is a need for this.
+     */
+    responsive?: boolean;
+
+    /**
+     * Title to display at the top of the sidebar.
+     */
+    title: string;
+}
+
+/**
+ * Proxy component that renders the sidebar in either desktop mode, or a mobile mode optimised for
+ * small screen devices.
+ */
+export function AdminSidebarClient(props: AdminSidebarClientProps) {
+    const isSmallScreenDevice =
+        !!props.responsive &&
+        // Intentional rule violation because this is a static, transitionary feature:
+        // eslint-disable-next-line react-hooks/rules-of-hooks
+        useMediaQuery(theme => theme.breakpoints.down('md'));
+
+    if (isSmallScreenDevice) {
+        return (
+            <Paper sx={{
+                backgroundColor: 'animecon.adminHeaderBackground',
+                color: 'primary.contrastText',
+            }}>
+                <AdminSidebarMobileClient menu={props.menu} title={props.title}>
+                    <RenderSidebarClient menu={props.menu} />
+                </AdminSidebarMobileClient>
+            </Paper>
+        );
+    }
+
+    return (
+        <Paper sx={{ alignSelf: 'flex-start', flexShrink: 0, width: '280px', overflow: 'hidden' }}>
+            <Typography variant="h6" sx={kStyles.header}>
+                {props.title}
+            </Typography>
+            <RenderSidebarClient menu={props.menu} />
+        </Paper>
     );
 }

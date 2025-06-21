@@ -16,6 +16,7 @@ import { AdminPageContainer } from '../AdminPageContainer';
 import { requireAuthenticationContext } from '@lib/auth/AuthenticationContext';
 
 import { kDashboardPermissions } from './dashboard/DashboardPermissions';
+import { readUserSetting } from '@lib/UserSettings';
 
 /**
  * Layout of organisation management within the AnimeCon Volunteer Manager. Our organisation exists
@@ -23,10 +24,12 @@ import { kDashboardPermissions } from './dashboard/DashboardPermissions';
  * with them. This area follows our canonical structure of a sidebar with page content.
  */
 export default async function OrganisationLayout(props: React.PropsWithChildren) {
-    const { access } = await requireAuthenticationContext({
+    const { access, user } = await requireAuthenticationContext({
         check: 'admin',
         permission: kDashboardPermissions,
     });
+
+    const responsive = await readUserSetting(user.id, 'user-admin-experimental-responsive');
 
     const organisationMenu: AdminSidebarMenuEntry[] = [
         {
@@ -94,8 +97,9 @@ export default async function OrganisationLayout(props: React.PropsWithChildren)
     ];
 
     return (
-        <AdminContent>
-            <AdminSidebar access={access} menu={organisationMenu} title="Organisation" />
+        <AdminContent responsive={responsive}>
+            <AdminSidebar access={access} menu={organisationMenu} responsive={responsive}
+                          title="Organisation" />
             <AdminPageContainer>
                 {props.children}
             </AdminPageContainer>
