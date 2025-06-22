@@ -73,7 +73,7 @@ export function ExportsDataTable() {
 
             renderCell: params => {
                 const value = Temporal.ZonedDateTime.from(params.value);
-                if (Temporal.ZonedDateTime.compare(now, value) >= 0) {
+                if (Temporal.ZonedDateTime.compare(now, value) >= 0 || !params.row.enabled) {
                     return (
                         <Typography component="span" variant="body2"
                                     sx={{ color: 'text.disabled' }}>
