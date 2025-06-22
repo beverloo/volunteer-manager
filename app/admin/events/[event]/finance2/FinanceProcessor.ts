@@ -26,12 +26,14 @@ export class FinanceProcessor {
     // ---------------------------------------------------------------------------------------------
 
     // KPI overview:
+    #eventSalesTableView: ReturnType<typeof views.generateEventSalesTableView>;
     #eventTicketRevenueView: ReturnType<typeof views.generateEventTicketRevenueView>;
     #eventTicketSalesView: ReturnType<typeof views.generateEventTicketSalesView>;
     #ticketRevenueView: ReturnType<typeof views.generateTicketRevenueView>;
     #ticketSalesView: ReturnType<typeof views.generateTicketSalesView>;
 
     private constructor(financialData: FinancialData) {
+        this.#eventSalesTableView = views.generateEventSalesTableView(financialData);
         this.#eventTicketRevenueView = views.generateEventTicketRevenueView(financialData);
         this.#eventTicketSalesView = views.generateEventTicketSalesView(financialData);
         this.#ticketRevenueView = views.generateTicketRevenueView(financialData);
@@ -40,6 +42,7 @@ export class FinanceProcessor {
 
     // ---------------------------------------------------------------------------------------------
 
+    get eventSalesTableView() { return this.#eventSalesTableView; }
     get eventTicketRevenueView() { return this.#eventTicketRevenueView; }
     get eventTicketSalesView() { return this.#eventTicketSalesView; }
     get ticketRevenueView() { return this.#ticketRevenueView; }

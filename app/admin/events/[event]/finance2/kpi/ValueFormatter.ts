@@ -7,7 +7,7 @@
 const kRevenueFormat = new Intl.NumberFormat('en-GB', {
     style: 'currency',
     currency: 'EUR',
-    minimumFractionDigits: 0,
+    minimumFractionDigits: 2,
     maximumFractionDigits: 2,
 });
 

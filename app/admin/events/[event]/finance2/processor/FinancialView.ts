@@ -41,6 +41,36 @@ const kSalesCategoryLabels: { [key in EventSalesCategory]?: string } = {
 };
 
 /**
+ * Generates the view necessary to populate the `<EventSalesTable>` component.
+ */
+export function generateEventSalesTableView(financialData: FinancialData) {
+    if (!financialData.data.length)
+        return [ /* no event, no products */ ];
+
+    function IsEvent(product: { category: EventSalesCategory }): boolean {
+        return product.category === kEventSalesCategory.Event;
+    }
+
+    return [ ...financialData.data[0].products.values() ].filter(IsEvent).map(product => {
+        let totalRevenue: number = 0;
+        let totalSales: number = 0;
+
+        for (const sales of product.sales.values()) {
+            totalRevenue += sales * (product.price ?? 0);
+            totalSales += sales;
+        }
+
+        return {
+            id: product.id,
+            product: product.product,
+            salesLimit: product.limit,
+            totalRevenue,
+            totalSales,
+        };
+    });
+}
+
+/**
  * Generates the view necessary to populate the `<EventRevenueCard>` component.
  */
 export function generateEventTicketRevenueView(financialData: FinancialData) {

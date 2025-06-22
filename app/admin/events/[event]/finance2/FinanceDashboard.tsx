@@ -7,6 +7,7 @@ import Paper from '@mui/material/Paper';
 
 import { EventRevenueCard } from './kpi/EventRevenueCard';
 import { EventSalesCard } from './kpi/EventSalesCard';
+import { EventSalesTable } from './tables/EventSalesTable';
 import { FinanceProcessor } from './FinanceProcessor';
 import { TicketRevenueCard } from './kpi/TicketRevenueCard';
 import { TicketSalesCard } from './kpi/TicketSalesCard';
@@ -55,11 +56,15 @@ export async function FinanceDashboard(props: FinanceDashboardProps) {
 
             { /** Section: Ticket sales ------------------------------------------------------- */ }
 
-            { /** TODO */ }
+            <Grid size={{ xs: 12, md: 6 }}>
+                { /* TODO */ }
+            </Grid>
 
             { /** Section: Event sales -------------------------------------------------------- */ }
 
-            { /** TODO */}
+            <Grid size={{ xs: 12, md: 6 }}>
+                <EventSalesTable processor={processor} />
+            </Grid>
 
         </Grid>
     );

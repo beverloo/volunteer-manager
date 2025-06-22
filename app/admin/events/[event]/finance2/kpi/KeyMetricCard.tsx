@@ -132,6 +132,8 @@ export function KeyMetricCard(props: React.PropsWithChildren<KeyMetricCardProps>
                             </Tooltip>
                         </ListItem> )}
                 </List>
+                { /* TODO: Provide access to a multi-year comparison */ }
+                { /* TODO: Provide access to AI-driven insights */ }
             </CardContent>
         </Card>
     );
