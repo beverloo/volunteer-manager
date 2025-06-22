@@ -100,8 +100,6 @@ const kHistoricEventCount = 3;
 export async function fetchFinancialData(eventSlug: string): Promise<FinancialData | undefined> {
     const dbInstance = db;
 
-    console.log(eventSlug);
-
     const eventValidation = await dbInstance.selectFrom(tEvents)
         .innerJoin(tEventsSales)
             .on(tEventsSales.eventId.equals(tEvents.eventId))

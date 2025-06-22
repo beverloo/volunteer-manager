@@ -689,8 +689,6 @@ export async function updateTrainingPreferences(
         if (data.training >= 1)
             preferenceTrainingId = data.training;
 
-        console.log(preferenceTrainingId);
-
         const dbInstance = db;
         const affectedRows = await dbInstance.insertInto(tTrainingsAssignments)
             .set({

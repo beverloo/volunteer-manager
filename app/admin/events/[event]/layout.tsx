@@ -240,7 +240,7 @@ export default async function EventLayout(props: React.PropsWithChildren<NextLay
         },
         {
             icon: <EuroIcon />,
-            label: 'Finance',
+            label: 'Finances',
             condition: !!info.event.financialProductCount,
             permission: {
                 permission: 'statistics.finances',
