@@ -11,6 +11,11 @@ import { EventSalesDataGrid } from './EventSalesDataGrid';
  */
 interface EventSalesTableProps {
     /**
+     * Whether program-associated entries should link through to their respective pages.
+     */
+    enableProgramLinks?: boolean;
+
+    /**
      * The financial processor that contains the relevant ticket sale information.
      */
     processor: FinanceProcessor;
@@ -23,7 +28,8 @@ interface EventSalesTableProps {
 export function EventSalesTable(props: EventSalesTableProps) {
     return (
         <Card elevation={1}>
-            <EventSalesDataGrid rows={props.processor.eventSalesTableView} />
+            <EventSalesDataGrid enableProgramLinks={props.enableProgramLinks}
+                                rows={props.processor.eventSalesTableView} />
         </Card>
     );
 }

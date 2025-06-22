@@ -17,6 +17,11 @@ import { TicketSalesCard } from './kpi/TicketSalesCard';
  */
 interface FinanceDashboardProps {
     /**
+     * Whether program-associated entries should link through to their respective pages.
+     */
+    enableProgramLinks?: boolean;
+
+    /**
      * URL-safe slug of the event for which financial information should be shown.
      */
     event: string;
@@ -63,7 +68,8 @@ export async function FinanceDashboard(props: FinanceDashboardProps) {
             { /** Section: Event sales -------------------------------------------------------- */ }
 
             <Grid size={{ xs: 12, md: 6 }}>
-                <EventSalesTable processor={processor} />
+                <EventSalesTable enableProgramLinks={props.enableProgramLinks}
+                                 processor={processor} />
             </Grid>
 
         </Grid>

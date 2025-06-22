@@ -3,8 +3,11 @@
 
 'use client';
 
+import Link from 'next/link';
+
 import { DataGridPro, type DataGridProProps } from '@mui/x-data-grid-pro';
 
+import { default as MuiLink } from '@mui/material/Link';
 import CheckIcon from '@mui/icons-material/Check';
 import LocalActivityIcon from '@mui/icons-material/LocalActivity';
 import IconButton from '@mui/material/IconButton';
@@ -23,6 +26,11 @@ export interface EventSalesDataGridRow {
      * Unique ID assigned to the product. Required by MUI.
      */
     id: number;
+
+    /**
+     * Unique ID of the AnPlan program entry that this product has been associated with.
+     */
+    programId?: number;
 
     /**
      * Human-readable name of the product. Should be the primary sorting key.
@@ -50,6 +58,11 @@ export interface EventSalesDataGridRow {
  */
 interface EventSalesDataGridProps {
     /**
+     * Whether program-associated entries should link through to their respective pages.
+     */
+    enableProgramLinks?: boolean;
+
+    /**
      * Rows that should be shown in the DataGrid component.
      */
     rows: EventSalesDataGridRow[];
@@ -66,6 +79,17 @@ export function EventSalesDataGrid(props: EventSalesDataGridProps) {
             field: 'product',
             headerName: 'Product',
             flex: 2.5,
+
+            renderCell: params => {
+                if (!props.enableProgramLinks || !params.row.programId)
+                    return params.value;
+
+                return (
+                    <MuiLink component={Link} href={`./program/activities/${params.row.programId}`}>
+                        {params.value}
+                    </MuiLink>
+                );
+            },
         },
         {
             field: 'totalSales',

@@ -62,12 +62,14 @@ export function generateEventSalesTableView(financialData: FinancialData) {
 
         return {
             id: product.id,
+            programId: product.programId,
             product: product.product,
             salesLimit: product.limit,
             totalRevenue,
             totalSales,
         };
-    });
+
+    }).sort((lhs, rhs) => lhs.product.localeCompare(rhs.product));
 }
 
 /**

@@ -64,6 +64,11 @@ interface FinancialEventData {
         product: string;
 
         /**
+         * Unique ID of the AnPlan program entry that this product has been associated with.
+         */
+        programId?: number;
+
+        /**
          * Keyed by number of days until the event (365, 0], and valued with the number of products
          * that were sold on that very day.
          */
@@ -160,6 +165,7 @@ export async function fetchFinancialData(eventSlug: string): Promise<FinancialDa
             limit: tEventsSalesConfiguration.saleCategoryLimit,
             price: tEventsSalesConfiguration.salePrice,
             product: tEventsSalesConfiguration.saleProduct,
+            programId: tEventsSalesConfiguration.saleEventId,
 
             sales: dbInstance.aggregateAsArray({
                 days: daysFromEvent,
