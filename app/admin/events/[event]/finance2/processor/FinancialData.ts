@@ -76,6 +76,11 @@ interface FinancialEventData {
  */
 export interface FinancialData {
     /**
+     * Reference date that indicates the end of the financial coverage of this event.
+     */
+    referenceDate: Temporal.ZonedDateTime;
+
+    /**
      * Number of days remaining for the financial coverage of this event.
      */
     remaining: number;
@@ -208,6 +213,7 @@ export async function fetchFinancialData(eventSlug: string): Promise<FinancialDa
     });
 
     return {
+        referenceDate: financialEventData[0].endTime,
         remaining: Math.max(0, Math.min(remaining.days, 365)),
         data: financialEventData,
     };

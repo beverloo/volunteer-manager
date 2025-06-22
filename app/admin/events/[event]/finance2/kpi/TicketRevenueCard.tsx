@@ -3,6 +3,7 @@
 
 import type { FinanceProcessor } from '../FinanceProcessor';
 import { KeyMetricCard } from './KeyMetricCard';
+import { KeyMetricGraph } from './KeyMetricGraph';
 
 /**
  * Props accepted by the <TicketRevenueCard> component.
@@ -26,7 +27,7 @@ export function TicketRevenueCard(props: TicketRevenueCardProps) {
     return (
         <KeyMetricCard title="Ticket revenue" format="revenue" headline={headline}
                        historical={historical}>
-            Graph
+            <KeyMetricGraph labels={headline.history.labels} series={headline.history.data} />
         </KeyMetricCard>
     );
 }
