@@ -6,7 +6,8 @@
 import { useMemo } from 'react';
 
 import { BarPlot, ChartContainerPro, ChartsAxisHighlight, ChartsAxisTooltipContent,
-    ChartsTooltipContainer, useAxesTooltip, type BarSeriesType } from '@components/proxy/mui-x-charts-pro';
+    ChartsTooltipContainer, useAxesTooltip, type BarSeriesType }
+    from '@components/proxy/mui-x-charts-pro';
 
 import Paper from '@mui/material/Paper';
 import Stack from '@mui/material/Stack';
@@ -63,7 +64,8 @@ export function KeyMetricGraph(props: KeyMetricGraphProps) {
     }, [ props.series, props.type ]);
 
     return (
-        <ChartContainerPro height={100} series={series} margin={{
+        <ChartContainerPro height={100} series={series}
+                           margin={{
                                top: 8,
                                right: 0,
                                bottom: 0,

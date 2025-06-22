@@ -207,7 +207,7 @@ function computeKeyMetricsData(financialData: FinancialData, selection: KeyMetri
 type TotalSalesInput = { data: number[] };
 
 /**
- * Computes the total figure across all series for the given `input`, between days `start` and `end`.
+ * Computes the total figure across all series for the given `input` between days `start` and `end`.
  */
 function computeTotalFigure(input: TotalSalesInput[], start: number, end: number): number {
     let totalFigure = 0;
