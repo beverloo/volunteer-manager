@@ -12,34 +12,7 @@ import Stack from '@mui/material/Stack';
 import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
 
-/**
- * Formatting rules to apply when formatting a quantity figure.
- */
-const kQuantityFormat = new Intl.NumberFormat('en-GB');
-
-/**
- * Formatting rules to apply when formatting a revenue figure.
- */
-const kRevenueFormat = new Intl.NumberFormat('en-GB', {
-    style: 'currency',
-    currency: 'EUR',
-});
-
-/**
- * Formats the given `figure` according to the preferred `format`.
- */
-function formatMetric(figure: number, format: 'quantity' | 'revenue', subject?: string) {
-    const suffix = !!subject? ` ${subject}` : '';
-    switch (format) {
-        case 'quantity':
-            return kQuantityFormat.format(figure) + suffix;
-
-        case 'revenue':
-            return kRevenueFormat.format(figure) + suffix;
-    }
-
-    throw new Error(`Invalid format rule requested: "${format}"`);
-}
+import { formatMetric } from './ValueFormatter';
 
 /**
  * Formats the difference between the `figure` and the `reference` as a percentage.
@@ -66,7 +39,7 @@ interface KeyMetricCardProps {
     /**
      * Formatting rules that should be applied to the figures.
      */
-    format: 'quantity' | 'revenue';
+    format: 'revenue' | 'sales';
 
     /**
      * Headline metric that's most relevant for this metric.
@@ -128,7 +101,7 @@ export function KeyMetricCard(props: React.PropsWithChildren<KeyMetricCardProps>
                         { formatMetric(headline.figure, format) }
                     </Typography>
                     { headline.changePercentage &&
-                        <Tooltip title="Change since the previous 7-day period">
+                        <Tooltip title="Compared to the previous 7-day period">
                             <Chip size="small"
                                   color={ headline.changePercentage >= 0 ? 'success' : 'error' }
                                   label={

@@ -25,7 +25,7 @@ export function TicketSalesCard(props: TicketSalesCardProps) {
     const historical = view;
 
     return (
-        <KeyMetricCard title="Ticket sales" format="quantity" headline={headline}
+        <KeyMetricCard title="Ticket sales" format="sales" headline={headline}
                        historical={historical} subject="tickets">
             <KeyMetricGraph labels={headline.history.labels} series={headline.history.data}
                             type="sales" />

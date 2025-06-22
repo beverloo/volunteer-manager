@@ -13,21 +13,7 @@ import Paper from '@mui/material/Paper';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 
-/**
- * Formatting rules to apply when formatting a revenue figure.
- */
-const kRevenueFormat = new Intl.NumberFormat('en-GB', {
-    style: 'currency',
-    currency: 'EUR',
-    maximumFractionDigits: 0,
-});
-
-/**
- * Helper function that formats the given `value` as it if were a revenue number.
- */
-function revenueFormatter(value: number | null): string {
-    return kRevenueFormat.format(value ?? 0);
-}
+import { formatMetric } from './ValueFormatter';
 
 /**
  * Props accepted by the <KeyMetricGraph> component.
@@ -57,7 +43,7 @@ interface KeyMetricGraphProps {
 export function KeyMetricGraph(props: KeyMetricGraphProps) {
     const series = useMemo(() => {
         return props.series.map(series => ({
-            valueFormatter: props.type === 'revenue' ? revenueFormatter : undefined,
+            valueFormatter: (value: number | null) => formatMetric(value ?? 0, props.type),
             ...series,
         }));
 
@@ -126,7 +112,7 @@ function ChartsAxisTooltipTotals(props: { type: KeyMetricGraphProps['type'] }) {
                     Total
                 </Typography>
                 <Typography sx={{ fontWeight: '500' }}>
-                    { props.type === 'revenue' && revenueFormatter(totalValue) }
+                    { formatMetric(totalValue, props.type) }
                 </Typography>
             </Stack>
         </Paper>
