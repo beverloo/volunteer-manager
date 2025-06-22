@@ -15,13 +15,23 @@ const kChangePercentageWindow = 7;
 /**
  * Maximum number of history bars to display in a key metric graph.
  */
-const kKeyMetricHistoryBars = 21;
+const kKeyMetricHistoryBars = 31;
+
+/**
+ * Colours to use on the sales graphs.
+ */
+const kSalesBarColors = [
+    '#0079bc',
+    '#009eea',
+    '#5fbe87',
+    '#c1e13e',
+];
 
 /**
  * Labels to apply to each of the sales categories.
  */
 const kSalesCategoryLabels: { [key in EventSalesCategory]?: string } = {
-    Event: 'Event ticket',
+    Event: 'Event tickets',
     Hidden: 'N/A',
     Locker: 'Lockers',
     TicketFriday: 'Friday',
@@ -111,6 +121,8 @@ function computeKeyMetricsData(financialData: FinancialData, selection: KeyMetri
         const historyWindowEnd = financialData.remaining;
         const history = new Map<EventSalesCategory, number[]>;
 
+        // -----------------------------------------------------------------------------------------
+
         for (const product of event.products.values()) {
             if (selection.eventTicketSales && product.category !== kEventSalesCategory.Event)
                 continue;  // filter out non-event ticket sales
@@ -139,26 +151,47 @@ function computeKeyMetricsData(financialData: FinancialData, selection: KeyMetri
             }
         }
 
+        // -----------------------------------------------------------------------------------------
+
         const sortedHistory =
             [ ...history.entries() ].sort((lhs, rhs) => lhs[0].localeCompare(rhs[0]));
 
-        const normalisedHistory = sortedHistory.map(entry => ({
+        const normalisedHistory = sortedHistory.map((entry, index) => ({
             type: 'bar' as const,  // <KeyMetricGraph> requirement
             stack: 'total',  // <KeyMetricGraph> requirement
             data: entry[1].reverse(),
             label: kSalesCategoryLabels[entry[0]],
+            color: kSalesBarColors[index],
         }));
 
         const historyLabels: string[] = [ /* none yet */ ];
-        for (let days = historyWindowStart; days > historyWindowEnd; --days) {
+        for (let days = historyWindowStart - 1; days >= historyWindowEnd; --days) {
             historyLabels.push(
-                formatDate(financialData.referenceDate.subtract({ days }), 'YYYY-MM-DD'));
+                formatDate(financialData.referenceDate.subtract({ days }), 'dddd, MMMM D'));
         }
 
-        // TODO: Calculate the changePercentage
+        // -----------------------------------------------------------------------------------------
+
+        let changePercentage: number | undefined;
+        if (normalisedHistory[0]?.data.length >= 2 * kChangePercentageWindow) {
+            const window = kChangePercentageWindow;
+
+            const currentPeriodFigure = computeTotalFigure(normalisedHistory, 0, window);
+            const previousPeriodFigure = computeTotalFigure(normalisedHistory, window, 2 * window);
+
+            if (!!previousPeriodFigure) {
+                const preciseChangePercentage =
+                    ((currentPeriodFigure - previousPeriodFigure) / previousPeriodFigure) * 100;
+
+                changePercentage = Math.round(preciseChangePercentage * 10) / 10;
+            }
+        }
+
+        // -----------------------------------------------------------------------------------------
 
         return {
             label: event.shortName,
+            changePercentage,
             figure: computedFigure,
             history: {
                 data: normalisedHistory,
@@ -166,4 +199,26 @@ function computeKeyMetricsData(financialData: FinancialData, selection: KeyMetri
             },
         };
     });
+}
+
+/**
+ * Input necessary to compute total sales in a particular period of time.
+ */
+type TotalSalesInput = { data: number[] };
+
+/**
+ * Computes the total figure across all series for the given `input`, between days `start` and `end`.
+ */
+function computeTotalFigure(input: TotalSalesInput[], start: number, end: number): number {
+    let totalFigure = 0;
+
+    for (const { data } of input) {
+        const startIndex = data.length - start - 1;
+        const endIndex = data.length - end - 1;
+
+        for (let index = startIndex; index > endIndex; --index)
+            totalFigure += data[index];
+    }
+
+    return totalFigure;
 }

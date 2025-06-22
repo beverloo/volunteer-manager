@@ -144,7 +144,7 @@ export async function fetchFinancialData(eventSlug: string): Promise<FinancialDa
     // ---------------------------------------------------------------------------------------------
 
     const daysFromEvent = dbInstance.fragmentWithType('int', 'required')
-        .sql`DATEDIFF(${tEvents.eventStartTime}, ${tEventsSales.eventSaleDate})`;
+        .sql`DATEDIFF(${tEvents.eventEndTime}, ${tEventsSales.eventSaleDate})`;
 
     const products = await dbInstance.selectFrom(tEventsSalesConfiguration)
         .innerJoin(tEvents)

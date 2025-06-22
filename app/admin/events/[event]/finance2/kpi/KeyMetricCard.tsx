@@ -49,7 +49,7 @@ function formatDifference(figure: number, reference: number) {
         if (!figure)
             return /* no data: */ '=';
 
-        return /* no comparable results: */ '+∞%';
+        return /* no comparable results: */ '+100%';
     }
 
     const difference = (figure - reference) / reference;

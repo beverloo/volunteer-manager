@@ -27,7 +27,8 @@ export function EventRevenueCard(props: EventRevenueCardProps) {
     return (
         <KeyMetricCard title="Event ticket revenue" format="revenue" headline={headline}
                        historical={historical}>
-            <KeyMetricGraph labels={headline.history.labels} series={headline.history.data} />
+            <KeyMetricGraph labels={headline.history.labels} series={headline.history.data}
+                            type="revenue" />
         </KeyMetricCard>
     );
 }

@@ -3,22 +3,49 @@
 
 'use client';
 
-import { BarPlot, ChartContainerPro, ChartsTooltip, type BarSeriesType }
-    from '@components/proxy/mui-x-charts-pro';
+import { useMemo } from 'react';
+
+import { BarPlot, ChartContainerPro, ChartsAxisHighlight, ChartsAxisTooltipContent,
+    ChartsTooltipContainer, useAxesTooltip, type BarSeriesType } from '@components/proxy/mui-x-charts-pro';
+
+import Paper from '@mui/material/Paper';
+import Stack from '@mui/material/Stack';
+import Typography from '@mui/material/Typography';
+
+/**
+ * Formatting rules to apply when formatting a revenue figure.
+ */
+const kRevenueFormat = new Intl.NumberFormat('en-GB', {
+    style: 'currency',
+    currency: 'EUR',
+    maximumFractionDigits: 0,
+});
+
+/**
+ * Helper function that formats the given `value` as it if were a revenue number.
+ */
+function revenueFormatter(value: number | null): string {
+    return kRevenueFormat.format(value ?? 0);
+}
 
 /**
  * Props accepted by the <KeyMetricGraph> component.
  */
 interface KeyMetricGraphProps {
     /**
+     * Labels that indicate the values represented on each slice of the bar graph.
+     */
+    labels: string[];
+
+    /**
      * Series that should be displayed on the graph.
      */
     series: BarSeriesType[];
 
     /**
-     * Labels that indicate the values represented on each slice of the bar graph.
+     * Type of data that is being presented by this graph.
      */
-    labels: string[];
+    type: 'revenue' | 'sales';
 }
 
 /**
@@ -27,18 +54,79 @@ interface KeyMetricGraphProps {
  * of sales, optionally grouped by sale category.
  */
 export function KeyMetricGraph(props: KeyMetricGraphProps) {
+    const series = useMemo(() => {
+        return props.series.map(series => ({
+            valueFormatter: props.type === 'revenue' ? revenueFormatter : undefined,
+            ...series,
+        }));
+
+    }, [ props.series, props.type ]);
+
     return (
-        <ChartContainerPro height={100} series={props.series} margin={0}
-                           yAxis={[ { position: 'none' } ]}
+        <ChartContainerPro height={100} series={series} margin={{
+                               top: 8,
+                               right: 0,
+                               bottom: 0,
+                               left: 0,
+                           }}
+                           yAxis={[ { domainLimit: 'strict', position: 'none' } ]}
                            xAxis={[
                                {
-                                   scaleType: 'band',
                                    data: props.labels,
                                    position: 'none',
+                                   scaleType: 'band',
                                }
                            ]}>
             <BarPlot />
-            <ChartsTooltip />
+            <ChartsAxisHighlight x="band" />
+            <ChartsTooltipContainer>
+                <ChartsAxisTooltipContent sx={{
+                    borderBottomLeftRadius: 0,
+                    borderBottomRightRadius: 0,
+                }} />
+                <ChartsAxisTooltipTotals type={props.type} />
+            </ChartsTooltipContainer>
         </ChartContainerPro>
+    );
+}
+
+/**
+ * The <ChartAxisTooltipTotals> component computes the total across all series in case there are
+ * multiple, to conveniently visualise combined revenue or sales information.
+ */
+function ChartsAxisTooltipTotals(props: { type: KeyMetricGraphProps['type'] }) {
+    const tooltipData = useAxesTooltip();
+    if (!tooltipData)
+        return null;  // no tooltip is being rendered
+
+    let totalValue = 0;
+    let totalSeries = 0;
+
+    for (const { seriesItems } of tooltipData) {
+        totalSeries += seriesItems.length;
+        for (const { value } of seriesItems) {
+            if (typeof value === 'number')
+                totalValue += value;
+        }
+    }
+
+    if (totalSeries < 2)
+        return null;  // there is nothing to add up
+
+    return (
+        <Paper variant="outlined" sx={{
+            borderTopLeftRadius: 0,
+            borderTopRightRadius: 0,
+            marginTop: '-1px',
+        }}>
+            <Stack direction="row" justifyContent="space-between" sx={{ px: 1.5, py: 0.75 }}>
+                <Typography>
+                    Total
+                </Typography>
+                <Typography sx={{ fontWeight: '500' }}>
+                    { props.type === 'revenue' && revenueFormatter(totalValue) }
+                </Typography>
+            </Stack>
+        </Paper>
     );
 }

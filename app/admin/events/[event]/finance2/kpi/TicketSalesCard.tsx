@@ -27,7 +27,8 @@ export function TicketSalesCard(props: TicketSalesCardProps) {
     return (
         <KeyMetricCard title="Ticket sales" format="quantity" headline={headline}
                        historical={historical} subject="tickets">
-            <KeyMetricGraph labels={headline.history.labels} series={headline.history.data} />
+            <KeyMetricGraph labels={headline.history.labels} series={headline.history.data}
+                            type="sales" />
         </KeyMetricCard>
     );
 }
