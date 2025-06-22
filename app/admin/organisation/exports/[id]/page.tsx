@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 
 import { default as MuiLink } from '@mui/material/Link';
+import Button from '@mui/material/Button';
 import Grid from '@mui/material/Grid';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
@@ -100,20 +101,24 @@ export default async function OrganisationExportsLogPage(props: NextPageParams<'
 
     return (
         <Grid container spacing={2}>
-            <BackButtonGrid href="/admin/organisation/exports"
-                            size={ active ? 6 : 12 }>
+            <BackButtonGrid href="/admin/organisation/exports" size={6}>
                 Back to export logs
             </BackButtonGrid>
-            { !!active &&
-                    <Grid size={{ xs: 6 }}>
-                        <ConfirmationButton action={expireExportFn} callToAction="Expire"
-                                            icon={ <UpdateDisabledIcon /> }
-                                            label="Expire this export…"
-                                            sx={{ float: 'right' }}>
-                            Are you sure you want to revoke access to this export? Once you do,
-                            anyone with the link will no longer be able to view the exported data.
-                        </ConfirmationButton>
-                    </Grid> }
+            <Grid size={{ xs: 6 }}>
+                { !!active &&
+                    <ConfirmationButton action={expireExportFn} callToAction="Expire"
+                                        icon={ <UpdateDisabledIcon /> }
+                                        label="Expire this export…"
+                                        sx={{ float: 'right' }}>
+                        Are you sure you want to revoke access to this export? Once you do,
+                        anyone with the link will no longer be able to view the exported data.
+                    </ConfirmationButton> }
+                { !active &&
+                    <Button size="small" variant="outlined" disabled sx={{ float: 'right' }}
+                            endIcon={ <UpdateDisabledIcon /> }>
+                        This export has expired
+                    </Button> }
+            </Grid>
 
             <Grid size={{ xs: 12 }}>
                 <Table size="small" sx={{ mt: -1 }}>
