@@ -182,6 +182,10 @@ const kLogMessageFormatter: {
         return `${mutation} a ${type.replace(/s$/, '').toLowerCase()} data export for ${eventName}`;
     },
 
+    [kLogType.AdminFeedbackResponse]: (source, target) => {
+        return `Responded to feedback received from ${target?.name}`;
+    },
+
     [kLogType.AdminHotelAssignVolunteer]: (source, target, { event }) => {
         return `Assigned ${target?.name} to a hotel room for ${event}`;
     },

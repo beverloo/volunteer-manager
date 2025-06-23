@@ -231,6 +231,7 @@ do {
                     type: 'EventSalesCategory',
                 },
                 { field: [ 'exports', 'export_type' ], type: 'ExportType' },
+                { field: [ 'feedback', 'feedback_response' ], type: 'FeedbackResponse' },
                 { field: [ 'logs', 'log_severity' ], type: 'LogSeverity' },
                 { field: [ 'outbox_twilio', 'outbox_type' ], type: 'TwilioOutboxType' },
                 { field: [ 'retention', 'retention_status' ], type: 'RetentionStatus' },

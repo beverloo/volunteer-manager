@@ -6,10 +6,16 @@
 import Link from 'next/link';
 
 import { default as MuiLink } from '@mui/material/Link';
+import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
+import ThumbDownOffAltIcon from '@mui/icons-material/ThumbDownOffAlt';
+import ThumbUpOffAltIcon from '@mui/icons-material/ThumbUpOffAlt';
+import Tooltip from '@mui/material/Tooltip';
 
 import type { FeedbackRowModel } from '@app/api/admin/organisation/feedback/route';
 import { RemoteDataTable, type RemoteDataTableColumn } from '@app/admin/components/RemoteDataTable';
 import { Temporal, formatDate } from '@lib/Temporal';
+
+import { kFeedbackResponse } from '@lib/database/Types';
 
 /**
  * The <FeedbackDataTable> component displays the feedback that has been received through the
@@ -57,6 +63,52 @@ export function FeedbackDataTable() {
             field: 'feedback',
             headerName: 'Feedback',
             flex: 4,
+        },
+        {
+            display: 'flex',
+            field: 'response',
+            headerName: /* empty= */ '',
+            sortable: false,
+            align: 'center',
+            width: 50,
+
+            renderCell: params => {
+                switch (params.value) {
+                    case kFeedbackResponse.Acknowledged:
+                        return (
+                            <Tooltip title="The feedback has been acknowledged">
+                                <MoreHorizIcon color="success" fontSize="small" />
+                            </Tooltip>
+                        );
+
+                    case kFeedbackResponse.Archived:
+                        return (
+                            <Tooltip title="The feedback is archived">
+                                <MoreHorizIcon color="disabled" fontSize="small" />
+                            </Tooltip>
+                        );
+
+                    case kFeedbackResponse.Declined:
+                        return (
+                            <Tooltip title="Feedback has been declined">
+                                <ThumbDownOffAltIcon color="error" fontSize="small" />
+                            </Tooltip>
+                        );
+
+                    case kFeedbackResponse.Resolved:
+                        return (
+                            <Tooltip title="Feedback has been resolved">
+                                <ThumbUpOffAltIcon color="success" fontSize="small" />
+                            </Tooltip>
+                        );
+                }
+
+                return (
+                    <Tooltip title="The feedback is pending">
+                        <MoreHorizIcon color="warning" fontSize="small" />
+                    </Tooltip>
+                );
+            },
         }
     ];
 

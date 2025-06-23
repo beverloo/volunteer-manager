@@ -117,6 +117,18 @@ export const kExportType = {
 } as const;
 
 /**
+ * Type of response that can be given to received feedback.
+ * @see Table `feedback`
+ */
+export type FeedbackResponse = Values<typeof kFeedbackResponse>;
+export const kFeedbackResponse = {
+    Acknowledged: 'Acknowledged',
+    Archived: 'Archived',
+    Declined: 'Declined',
+    Resolved: 'Resolved',
+};
+
+/**
  * Type of content that's stored within the storage buffer.
  * @see Table `storage`
  */

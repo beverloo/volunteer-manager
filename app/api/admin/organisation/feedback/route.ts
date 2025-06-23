@@ -7,6 +7,8 @@ import { type DataTableEndpoints, createDataTableApi } from '../../../createData
 import { executeAccessCheck } from '@lib/auth/AuthenticationContext';
 import db, { tFeedback, tUsers } from '@lib/database';
 
+import { kFeedbackResponse } from '@lib/database/Types';
+
 /**
  * Row model for an item of feedback that we've received from a volunteer.
  */
@@ -35,6 +37,11 @@ const kFeedbackRowModel = z.object({
      * The piece of feedback that has been received.
      */
     feedback: z.string(),
+
+    /**
+     * Our response to the feedback, when given.
+     */
+    response: z.enum(kFeedbackResponse).optional(),
 });
 
 /**
@@ -81,6 +88,7 @@ export const { GET } = createDataTableApi(kFeedbackRowModel, kFeedbackContext, {
                 userName:
                     usersJoin.name.valueWhenNull(tFeedback.feedbackName).valueWhenNull('Unknown'),
                 feedback: tFeedback.feedbackText,
+                response: tFeedback.feedbackResponse,
             })
             .orderBy(sort?.field ?? 'date', sort?.sort ?? 'desc')
             .limitIfValue(pagination ? pagination.pageSize : null)
