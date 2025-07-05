@@ -7,9 +7,13 @@ const createJestConfig = nextJest({
 });
 
 /**
- * Jest configuration applying to the Volunteer Manager.
+ * Jest configuration applying to the Volunteer Manager. This builds on the Next.js-provided Jest
+ * configuration, together with our own settings, but without `transformIgnorePatterns` as Next.js
+ * doesn't allow us to set that for some reason.
+ *
+ * @type {import('@jest/types').Config.InitialOptions}
  */
-module.exports = createJestConfig({
+const partialJestConfig = {
     moduleNameMapper: {
         '^d3-(.*)$': '<rootDir>/node_modules/d3-$1/dist/d3-$1.min.js',
     },
@@ -17,6 +21,16 @@ module.exports = createJestConfig({
     testPathIgnorePatterns: [ 'e2e' ],
     setupFiles: [ 'whatwg-fetch', './jest.setup.js' ],
     setupFilesAfterEnv: [ 'jest-extended/all' ],
+};
+
+/**
+ * Export the Jest configuration and append the `transformIgnorePatterns` required by `marked`.
+ */
+module.exports = async () => ({
+    ...(await createJestConfig(partialJestConfig)()),
+    transformIgnorePatterns: [
+        '<rootDir>/node_modules/(?!(marked)/)'
+    ],
 });
 
 /**
